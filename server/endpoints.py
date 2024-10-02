@@ -30,7 +30,6 @@ REPO_NAME_RESP = 'Repository Name'
 REPO_NAME = "mmankwgzrz"
 
 
-
 @api.route(HELLO_EP)
 class HelloWorld(Resource):
     """
@@ -74,15 +73,17 @@ class JournalTitle(Resource):
             DATE_RESP: DATE,
         }
 
+
 @api.route(REPO_NAME_EP)
 class printRepoName(Resource):
     """
-        This class is focused around printing the name of the repository for the assignment
+        This class is focused around printing the name of the repository
+        for the assignment
     """
     def get(self):
         """
         Print the name of the repository
         """
         return {
-            REPO_NAME_RESP: REPO_NAME 
-            }
+            REPO_NAME_RESP: REPO_NAME
+        }
