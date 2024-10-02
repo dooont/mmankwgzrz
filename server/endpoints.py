@@ -19,12 +19,16 @@ ENDPOINT_RESP = 'Available endpoints'
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
 TITLE_EP = '/title'
+REPO_NAME_EP = '/authors'
 TITLE_RESP = 'Title'
 TITLE = 'The Journal of API Technology'
 EDITOR_RESP = 'Editor'
 EDITOR = 'ejc369@nyu.edu'
 DATE_RESP = 'Date'
 DATE = '2024-09-24'
+REPO_NAME_RESP = 'Repository Name'
+REPO_NAME = "mmankwgzrz"
+
 
 
 @api.route(HELLO_EP)
@@ -69,3 +73,16 @@ class JournalTitle(Resource):
             EDITOR_RESP: EDITOR,
             DATE_RESP: DATE,
         }
+
+@api.route(REPO_NAME_EP)
+class printRepoName(Resource):
+    """
+        This class is focused around printing the name of the repository for the assignment
+    """
+    def get(self):
+        """
+        Print the name of the repository
+        """
+        return {
+            REPO_NAME_RESP: REPO_NAME 
+            }
