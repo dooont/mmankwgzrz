@@ -6,6 +6,7 @@ def test_get_people():
     assert isinstance(people, dict)
     assert len(people) > 0
     # Check for string IDs:
-    for _id in people:
+    for _id, person in people.items():
         assert isinstance(_id, str)
+        assert ppl.NAME in person
     

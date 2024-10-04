@@ -10,6 +10,8 @@ from flask_cors import CORS
 
 # import werkzeug.exceptions as wz
 
+import data.people as ppl
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
@@ -27,7 +29,10 @@ DATE_RESP = 'Date'
 DATE = '2024-09-24'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
-REPO_NAME = "mmankwgzrz"
+REPO_NAME = 'mmankwgzrz'
+PUBLISHER_RESP = 'Publisher'
+PUBLISHER = 'Palgave'
+PEOPLE_EP = '/people'
 
 
 @api.route(HELLO_EP)
@@ -71,14 +76,15 @@ class JournalTitle(Resource):
             TITLE_RESP: TITLE,
             EDITOR_RESP: EDITOR,
             DATE_RESP: DATE,
+            PUBLISHER_RESP: PUBLISHER
         }
 
 
 @api.route(REPO_NAME_EP)
 class printRepoName(Resource):
     """
-        This class is focused around printing the name of the repository
-        for the assignment
+    This class is focused around printing the name of the repository
+    for the assignment
     """
     def get(self):
         """
@@ -87,3 +93,16 @@ class printRepoName(Resource):
         return {
             REPO_NAME_RESP: REPO_NAME
         }
+
+
+@api.route(PEOPLE_EP)
+class People(Resource):
+    """
+    This class handles creating, reading, updating
+    and deleting the journal people.
+    """
+    def get(self):
+        """
+        Retrieve the journal people.
+        """
+        return ppl.get_people()

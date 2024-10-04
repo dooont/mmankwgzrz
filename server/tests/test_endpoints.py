@@ -11,6 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
+from data.people import NAME
+
 import server.endpoints as ep
 
 TEST_CLIENT = ep.app.test_client()
@@ -39,3 +41,13 @@ def test_repo_name():
     assert ep.REPO_NAME_RESP in resp_json
     assert isinstance(resp_json[ep.REPO_NAME_RESP], str)
     assert len(resp_json[ep.REPO_NAME_RESP]) > 0
+
+def test_get_people():
+    resp = TEST_CLIENT.get(ep.PEOPLE_EP)
+    print(f'{ep.PEOPLE_EP=}')
+    resp_json = resp.get_json()
+    print(f'{resp_json=}')
+    for _id, person in resp_json.items():
+        assert isinstance(_id, str)
+        assert len(_id) > 0
+        assert NAME in person
