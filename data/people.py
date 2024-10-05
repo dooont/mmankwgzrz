@@ -10,6 +10,7 @@ AFFILIATION = 'affiliation'
 EMAIL = 'email'
 
 TEST_EMAIL = 'ejc369@nyu.edu'
+DEL_EMAIL = 'delete@nyu.edu'
 
 TEST_PERSON_DICT = {
     TEST_EMAIL: {
@@ -17,6 +18,12 @@ TEST_PERSON_DICT = {
         ROLES: [],
         AFFILIATION: 'NYU',
         EMAIL: TEST_EMAIL
+    },
+    DEL_EMAIL: {
+        NAME: 'Delete',
+        ROLES: [],
+        AFFILIATION: 'NYU',
+        EMAIL: DEL_EMAIL
     }
 }
 
