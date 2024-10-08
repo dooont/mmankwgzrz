@@ -13,3 +13,15 @@ def test_get_people():
         # checks if NAME is a key in the person (value)
         assert ppl.NAME in person
     
+    
+def test_delete_people():
+    people = ppl.get_people()
+    assert isinstance(people, dict)
+    old_len = len(people)
+    ppl.delete_person(ppl.DEL_EMAIL)
+    people = ppl.get_people()
+    # checks if new people dict has length smaller than old
+    assert len(people) < old_len 
+    # make sure the email deleted is still not in people dict
+    assert ppl.DEL_EMAIL not in people
+    

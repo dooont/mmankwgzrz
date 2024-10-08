@@ -10,6 +10,7 @@ AFFILIATION = 'affiliation'
 EMAIL = 'email'
 
 TEST_EMAIL = 'ejc369@nyu.edu'
+DEL_EMAIL = 'ejc369@nyu.edu'
 
 TEST_PERSON_DICT = {
     TEST_EMAIL: {
@@ -17,7 +18,13 @@ TEST_PERSON_DICT = {
         ROLES: [],
         AFFILIATION: 'NYU',
         EMAIL: TEST_EMAIL
-    }
+    },
+    DEL_EMAIL:{
+    NAME: 'Another Person',
+    ROLES: [], 
+    AFFILIATION: 'NYU',
+    EMAIL: DEL_EMAIL,
+    },
 }
 
 
@@ -32,6 +39,7 @@ def get_people():
     people = TEST_PERSON_DICT
     return people
 
+
 def delete_person(_id):
     people = get_people()
     if _id in people:
@@ -41,3 +49,4 @@ def delete_person(_id):
         return None
     
 # def create_person(name: str, )
+
