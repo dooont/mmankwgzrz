@@ -34,7 +34,7 @@ PUBLISHER_RESP = 'Publisher'
 PUBLISHER = 'Palgave'
 PEOPLE_EP = '/people'
 
-
+# This is the endpoint for the hello world
 @api.route(HELLO_EP)
 class HelloWorld(Resource):
     """
@@ -47,7 +47,7 @@ class HelloWorld(Resource):
         """
         return {HELLO_RESP: 'world'}
 
-
+# This is the endpoint for the available endpoints
 @api.route(ENDPOINT_EP)
 class Endpoints(Resource):
     """
@@ -61,7 +61,7 @@ class Endpoints(Resource):
         endpoints = sorted(rule.rule for rule in api.app.url_map.iter_rules())
         return {"Available endpoints": endpoints}
 
-
+# This is the endpoint for the journal title
 @api.route(TITLE_EP)
 class JournalTitle(Resource):
     """
@@ -79,7 +79,7 @@ class JournalTitle(Resource):
             PUBLISHER_RESP: PUBLISHER
         }
 
-
+# This is the endpoint for the repository name
 @api.route(REPO_NAME_EP)
 class printRepoName(Resource):
     """
@@ -94,7 +94,7 @@ class printRepoName(Resource):
             REPO_NAME_RESP: REPO_NAME
         }
 
-
+# This is the endpoint for the people
 @api.route(PEOPLE_EP)
 class People(Resource):
     """
