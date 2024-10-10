@@ -19,7 +19,7 @@ TEST_PERSON_DICT = {
         AFFILIATION: 'NYU',
         EMAIL: TEST_EMAIL
     },
-    DEL_EMAIL:{
+    DEL_EMAIL: {
     NAME: 'Another Person',
     ROLES: [], 
     AFFILIATION: 'NYU',
@@ -48,5 +48,8 @@ def delete_person(_id):
     else:
         return None
     
-# def create_person(name: str, )
-
+    
+# def create_person(name: str, affiliation: str, email: str):
+#     if email in TEST_PERSON_DICT:
+#         raise ValueError('Email: {email=} already exists')
+#     TEST_PERSON_DICT[email] = {NAME: name, AFFILIATION: affiliation, EMAIL: email}

@@ -1,3 +1,5 @@
+import pytest
+
 import data.people as ppl
 
 
@@ -24,4 +26,17 @@ def test_delete_people():
     assert len(people) < old_len 
     # make sure the email deleted is still not in people dict
     assert ppl.DEL_EMAIL not in people
-    
+
+
+# ADD_EMAIL = 'test@nyu.edu'
+
+# #testing the create endpoint
+# def test_create_person():
+#     ppl.create_person('Test Person', 'NYU', ADD_EMAIL)
+#     people = ppl.get_people()
+#     assert ADD_EMAIL in people
+
+# #testing the delete people endpoint
+# def test_create_duplicate():
+#     with pytest.raises(ValueError):
+#         ppl.create_person('Name Does Not matter', 'Neither Does School', ppl.TEST_EMAIL)
