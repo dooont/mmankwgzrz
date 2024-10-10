@@ -12,6 +12,7 @@ EMAIL = 'email'
 TEST_EMAIL = 'ejc369@nyu.edu'
 DEL_EMAIL = 'delete@nyu.edu'
 
+
 TEST_PERSON_DICT = {
     TEST_EMAIL: {
         NAME: 'Eugene Callahan',
@@ -48,9 +49,9 @@ def delete_person(_id):
         return None
 
 
-# def create_person(name: str, affiliation: str, email: str):
-#     if email in TEST_PERSON_DICT:
-#         raise ValueError('Email: {email=} already exists')
-#     TEST_PERSON_DICT[email] = {
-    #   NAME: name, AFFILIATION: affiliation, EMAIL: email
-    # }
+def create_person(name: str, affiliation: str, email: str):
+    if email in TEST_PERSON_DICT:
+        raise ValueError('Email: {email=} already exists')
+    TEST_PERSON_DICT[email] = {
+      NAME: name, AFFILIATION: affiliation, EMAIL: email
+    }
