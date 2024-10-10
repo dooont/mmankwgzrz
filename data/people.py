@@ -46,6 +46,8 @@ def delete_person(_id):
         return _id
     else:
         return None
+
+
 # def create_person(name: str, affiliation: str, email: str):
 #     if email in TEST_PERSON_DICT:
 #         raise ValueError('Email: {email=} already exists')

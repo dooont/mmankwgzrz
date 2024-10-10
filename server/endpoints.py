@@ -4,8 +4,8 @@ The endpoint called `endpoints` will return all available endpoints.
 """
 # from http import HTTPStatus
 
-from flask import Flask  # , request
-from flask_restx import Resource, Api  # Namespace, fields
+from flask import Flask
+from flask_restx import Resource, Api, fields  # Namespace, fields
 from flask_cors import CORS
 
 # import werkzeug.exceptions as wz
@@ -33,6 +33,11 @@ REPO_NAME = 'mmankwgzrz'
 PUBLISHER_RESP = 'Publisher'
 PUBLISHER = 'Palgave'
 PEOPLE_EP = '/people'
+PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
+    ppl.NAME: fields.String,
+    ppl.EMAIL: fields.String,
+    ppl.AFFILIATION: fields.String,
+})
 
 
 # This is the endpoint for the hello world
