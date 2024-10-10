@@ -20,13 +20,12 @@ TEST_PERSON_DICT = {
         EMAIL: TEST_EMAIL
     },
     DEL_EMAIL: {
-    NAME: 'Another Person',
-    ROLES: [], 
-    AFFILIATION: 'NYU',
-    EMAIL: DEL_EMAIL,
+        NAME: 'Another Person',
+        ROLES: [],
+        AFFILIATION: 'NYU',
+        EMAIL: DEL_EMAIL,
     },
 }
-
 
 
 def get_people():
@@ -47,9 +46,9 @@ def delete_person(_id):
         return _id
     else:
         return None
-    
-    
 # def create_person(name: str, affiliation: str, email: str):
 #     if email in TEST_PERSON_DICT:
 #         raise ValueError('Email: {email=} already exists')
-#     TEST_PERSON_DICT[email] = {NAME: name, AFFILIATION: affiliation, EMAIL: email}
+#     TEST_PERSON_DICT[email] = {
+    #   NAME: name, AFFILIATION: affiliation, EMAIL: email
+    # }
