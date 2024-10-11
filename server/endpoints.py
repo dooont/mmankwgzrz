@@ -129,3 +129,13 @@ class PeopleDelete(Resource):
             return {'Deleted': ret}
         else:
             raise wz.NotFound(f'No such person: {_id}')
+
+
+PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
+    pflds.NAME: fields.String,
+    pflds.EMAIL: fields.String,
+    pflds.AFFILIATION: fields.String,
+    EDITOR: fields.String,
+})
+
+PEOPLE_CREATE_FORM = 'People Add Form'
