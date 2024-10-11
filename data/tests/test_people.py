@@ -27,15 +27,20 @@ def test_delete_people():
     assert ppl.DEL_EMAIL not in people
 
 
+#email is made constant here to make it easier to change later on
 ADD_EMAIL = 'joe@nyu.edu'
 
 #testing the create endpoint
 def test_create_person():
+    #creates the person
     ppl.create_person('Joe Smith', 'NYU', ADD_EMAIL)
     people = ppl.get_people()
+    #checks if ADD_EMAIL is in people already
     assert ADD_EMAIL in people
 
 #testing the delete people endpoint
 def test_create_duplicate():
+    #checks if the email already exists after creating the person
+    #if so, it will raise an error
     with pytest.raises(ValueError):
         ppl.create_person('Name Does Not matter', 'Neither Does School', ppl.TEST_EMAIL)
