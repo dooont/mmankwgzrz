@@ -8,7 +8,8 @@ from flask import Flask
 from flask_restx import Resource, Api, fields  # Namespace, fields
 from flask_cors import CORS
 
-# import werkzeug.exceptions as wz
+import werkzeug.exceptions as wz
+from http import HTTPStatus
 
 import data.people as ppl
 
@@ -116,3 +117,15 @@ class People(Resource):
         Retrieve the journal people.
         """
         return ppl.get_people()
+
+
+@api.route(f'{PEOPLE_EP}/<_id>')
+class PeopleDelete(Resource):
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
+    def delete(self, _id):
+        ret = ppl.delete_person(_id)
+        if ret is not None:
+            return {'Deleted': ret}
+        else:
+            raise wz.NotFound(f'No such person: {_id}')
