@@ -138,4 +138,4 @@ class PeopleDelete(Resource):
 #     EDITOR: fields.String,
 # })
 
-PEOPLE_CREATE_FORM = 'People Add Form']
+PEOPLE_CREATE_FORM = 'People Add Form'
