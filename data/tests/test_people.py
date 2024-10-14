@@ -43,4 +43,4 @@ def test_create_duplicate():
     #checks if the email already exists after creating the person
     #if so, it will raise an error
     with pytest.raises(ValueError):
-        ppl.create_person('Name Does Not matter', 'Neither Does School', ppl.TEST_EMAIL)
+        ppl.create('Name Does Not matter', 'Neither Does School', ppl.TEST_EMAIL)
