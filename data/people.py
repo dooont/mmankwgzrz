@@ -29,7 +29,7 @@ TEST_PERSON_DICT = {
 }
 
 
-def get_people():
+def read():
     """
     Our contract:
         - No arguments.
@@ -40,8 +40,8 @@ def get_people():
     return people
 
 
-def delete_person(_id):
-    people = get_people()
+def delete(_id):
+    people = read()
     if _id in people:
         del people[_id]
         return _id
@@ -49,7 +49,7 @@ def delete_person(_id):
         return None
 
 
-def create_person(name: str, affiliation: str, email: str):
+def create(name: str, affiliation: str, email: str):
     if email in TEST_PERSON_DICT:
         raise ValueError('Email: {email=} already exists')
     TEST_PERSON_DICT[email] = {

@@ -2,8 +2,8 @@ import pytest
 import data.people as ppl
 
 
-def test_get_people():
-    people = ppl.get_people()
+def test_read():
+    people = ppl.read()
     assert isinstance(people, dict)
     assert len(people) > 0
     # Check for string IDs:
@@ -15,12 +15,12 @@ def test_get_people():
         assert ppl.NAME in person
     
     
-def test_delete_people():
-    people = ppl.get_people()
+def test_delete():
+    people = ppl.read()
     assert isinstance(people, dict)
     old_len = len(people)
-    ppl.delete_person(ppl.DEL_EMAIL)
-    people = ppl.get_people()
+    ppl.delete(ppl.DEL_EMAIL)
+    people = ppl.read()
     # checks if new people dict has length smaller than old
     assert len(people) < old_len 
     # make sure the email deleted is still not in people dict
@@ -31,10 +31,10 @@ def test_delete_people():
 ADD_EMAIL = 'joe@nyu.edu'
 
 #testing the create endpoint
-def test_create_person():
+def test_create():
     #creates the person
-    ppl.create_person('Joe Smith', 'NYU', ADD_EMAIL)
-    people = ppl.get_people()
+    ppl.create('Joe Smith', 'NYU', ADD_EMAIL)
+    people = ppl.read()
     #checks if ADD_EMAIL is in people already
     assert ADD_EMAIL in people
 
