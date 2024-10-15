@@ -39,6 +39,7 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
 })
+PEOPLE_CREATE_FORM = 'People Add Form'
 
 
 # This is the endpoint for the hello world
@@ -131,11 +132,18 @@ class PeopleDelete(Resource):
             raise wz.NotFound(f'No such person: {_id}')
 
 
-# PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
-#     pflds.NAME: fields.String,
-#     pflds.EMAIL: fields.String,
-#     pflds.AFFILIATION: fields.String,
-#     EDITOR: fields.String,
-# })
-
-PEOPLE_CREATE_FORM = 'People Add Form'
+@api.route(f'/{PEOPLE_EP}/create/form')
+class PeopleAddForm(Resource):
+    """
+    Form to add a new person to the journal database.
+    """
+    def get(self):
+        # return {PEOPLE_CREATE_FORM: pfrm.get_add_form()}
+        return {
+            PEOPLE_CREATE_FORM: {
+                ppl.NAME: "string",
+                ppl.EMAIL: "string",
+                ppl.AFFILIATION: "string",
+                ppl.ROLES: "list of strings"
+            }
+        }
