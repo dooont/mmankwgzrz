@@ -53,3 +53,19 @@ def test_get_people():
         assert isinstance(_id, str)
         assert len(_id) > 0
         assert NAME in person
+
+def test_people_create_form():
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/create/form')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert ep.PEOPLE_CREATE_FORM in resp_json
+    form_data = resp_json[ep.PEOPLE_CREATE_FORM]
+    assert isinstance(form_data, dict)
+    assert ep.ppl.NAME in form_data
+    assert ep.ppl.EMAIL in form_data
+    assert ep.ppl.AFFILIATION in form_data
+    # assert ep.ppl.ROLES in form_data
+    assert form_data[ep.ppl.NAME] == "string"
+    assert form_data[ep.ppl.EMAIL] == "string"
+    assert form_data[ep.ppl.AFFILIATION] == "string"
+    # assert form_data[ep.ppl.ROLES] == "list of strings"

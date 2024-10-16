@@ -132,7 +132,7 @@ class PeopleDelete(Resource):
             raise wz.NotFound(f'No such person: {_id}')
 
 
-@api.route(f'/{PEOPLE_EP}/create/form')
+@api.route(f'{PEOPLE_EP}/create/form')
 class PeopleAddForm(Resource):
     """
     Form to add a new person to the journal database.
@@ -144,6 +144,6 @@ class PeopleAddForm(Resource):
                 ppl.NAME: "string",
                 ppl.EMAIL: "string",
                 ppl.AFFILIATION: "string",
-                ppl.ROLES: "list of strings"
+                # ppl.ROLES: "list of strings"
             }
         }
