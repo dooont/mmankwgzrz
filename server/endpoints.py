@@ -35,21 +35,12 @@ RETURN = 'return'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
 TITLE_RESP = 'Title'
-
-
-
-
-
-
-
-
 PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
-
 
 
 # This is the endpoint for the hello world
@@ -159,7 +150,7 @@ class CreatePeopleForm(Resource):
         }
 
 
-@api.route(f'/{PEOPLE_EP}/create')
+@api.route(f'{PEOPLE_EP}/create')
 class CreatePeople(Resource):
     """
     Add a person to the journal db.
@@ -167,12 +158,21 @@ class CreatePeople(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
     @api.expect(PEOPLE_CREATE_FLDS)
+    # api.expects indicates that you should expect
+    # the PEOPLE_CREATE_FLDS in your payload in swagger
     def put(self):
         """
         Add a person.
         """
         try:
-            ret = ppl.create(request.json)
+            # name = request.json[ppl.NAME]
+            name = request.json.get(ppl.NAME)
+            # both above will return the value associated with name
+            # but get with parenthesis is safer and takes more time
+            affiliation = request.json.get(ppl.AFFILIATION)
+            email = request.json.get(ppl.EMAIL)
+
+            ret = ppl.create(name, affiliation, email)
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add person: '
                                    f'{err=}')
