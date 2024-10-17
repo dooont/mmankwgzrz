@@ -2,9 +2,8 @@
 This is the file containing all of the endpoints for our flask app.
 The endpoint called `endpoints` will return all available endpoints.
 """
-# from http import HTTPStatus
 
-from flask import Flask
+from flask import Flask, request
 from flask_restx import Resource, Api, fields  # Namespace, fields
 from flask_cors import CORS
 
@@ -40,6 +39,7 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.AFFILIATION: fields.String,
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
+MESSAGE = 'Message'
 
 
 # This is the endpoint for the hello world
@@ -157,7 +157,16 @@ class CreatePeople(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
     @api.expect(PEOPLE_CREATE_FLDS)
-
     def put(self):
-        pass
-    
+        """
+        Add a person.
+        """
+        try:
+            ret = ppl.create(request.json)
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not add person: '
+                                   f'{err=}')
+        return {
+            MESSAGE: 'Person added!',
+            'ret': ret,
+        }
