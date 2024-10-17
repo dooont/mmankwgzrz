@@ -15,7 +15,6 @@ text_dict = {
         TITLE: 'Home Page',
         TEXT: 'This is a journal about building API servers.',
     },
-
     SUBM_KEY: {
         TITLE: 'Submissions Page',
         TEXT: 'All submissions must be original work in Word format.',
@@ -36,6 +35,16 @@ def read():
     """
     text = text_dict
     return text
+
+
+def read_one(page_key: str):
+    """
+    Our contract:
+        - Pass in a page key as argument.
+        - Returns a dictionary for the page keyed on the page key.
+    """
+    result = text_dict.get(page_key, {})
+    return result
 
 
 def main():
