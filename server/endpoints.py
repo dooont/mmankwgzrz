@@ -16,30 +16,40 @@ app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
+DATE = '2024-09-24'
+DATE_RESP = 'Date'
+EDITOR = 'ejc369@nyu.edu'
+EDITOR_RESP = 'Editor'
 ENDPOINT_EP = '/endpoints'
 ENDPOINT_RESP = 'Available endpoints'
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
-TITLE_EP = '/title'
-TITLE_RESP = 'Title'
-TITLE = 'The Journal of API Technology'
-EDITOR_RESP = 'Editor'
-EDITOR = 'ejc369@nyu.edu'
-DATE_RESP = 'Date'
-DATE = '2024-09-24'
+MESSAGE = 'Message'
+PEOPLE_EP = '/people'
+PUBLISHER = 'Palgave'
+PUBLISHER_RESP = 'Publisher'
+REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
-REPO_NAME = 'mmankwgzrz'
-PUBLISHER_RESP = 'Publisher'
-PUBLISHER = 'Palgave'
-PEOPLE_EP = '/people'
+RETURN = 'return'
+TITLE = 'The Journal of API Technology'
+TITLE_EP = '/title'
+TITLE_RESP = 'Title'
+
+
+
+
+
+
+
+
 PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
-MESSAGE = 'Message'
+
 
 
 # This is the endpoint for the hello world
@@ -168,5 +178,5 @@ class CreatePeople(Resource):
                                    f'{err=}')
         return {
             MESSAGE: 'Person added!',
-            'ret': ret,
+            RETURN: ret,
         }
