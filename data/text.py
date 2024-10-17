@@ -26,6 +26,7 @@ text_dict = {
     },
 }
 
+
 def read():
     """
     Our contract:
@@ -39,6 +40,7 @@ def read():
 
 def main():
     print(read())
+
 
 if __name__ == '__main__':
     main()
