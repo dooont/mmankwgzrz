@@ -147,3 +147,17 @@ class CreatePeopleForm(Resource):
                 # ppl.ROLES: "list of strings"
             }
         }
+
+
+@api.route(f'/{PEOPLE_EP}/create')
+class CreatePeople(Resource):
+    """
+    Add a person to the journal db.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
+    @api.expect(PEOPLE_CREATE_FLDS)
+
+    def put(self):
+        pass
+    
