@@ -73,7 +73,7 @@ class Endpoints(Resource):
 
 # This is the endpoint for the journal title
 @api.route(TITLE_EP)
-class JournalTitle(Resource):
+class GetJournalTitle(Resource):
     """
     This class handles creating, reading, updating
     and deleting the journal title.
@@ -92,7 +92,7 @@ class JournalTitle(Resource):
 
 # This is the endpoint for the repository name
 @api.route(REPO_NAME_EP)
-class printRepoName(Resource):
+class GetRepoName(Resource):
     """
     This class is focused around printing the name of the repository
     for the assignment
@@ -108,7 +108,7 @@ class printRepoName(Resource):
 
 # This is the endpoint for the people
 @api.route(PEOPLE_EP)
-class People(Resource):
+class UpdatePeople(Resource):
     """
     This class handles creating, reading, updating
     and deleting the journal people.
@@ -121,7 +121,7 @@ class People(Resource):
 
 
 @api.route(f'{PEOPLE_EP}/<_id>')
-class PeopleDelete(Resource):
+class DeletePeople(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
     def delete(self, _id):
@@ -133,7 +133,7 @@ class PeopleDelete(Resource):
 
 
 @api.route(f'{PEOPLE_EP}/create/form')
-class PeopleAddForm(Resource):
+class CreatePeopleForm(Resource):
     """
     Form to add a new person to the journal database.
     """

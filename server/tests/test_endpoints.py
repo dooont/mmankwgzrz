@@ -18,13 +18,13 @@ import server.endpoints as ep
 TEST_CLIENT = ep.app.test_client()
 
 #testing the hello endpoint
-def test_hello():
+def test_get_hello():
     resp = TEST_CLIENT.get(ep.HELLO_EP)
     resp_json = resp.get_json()
     assert ep.HELLO_RESP in resp_json
 
 #testing the title endpoint
-def test_title():
+def test_get_title():
     resp = TEST_CLIENT.get(ep.TITLE_EP)
     print(f'{ep.TITLE_EP=}')
     resp_json = resp.get_json()
@@ -34,7 +34,7 @@ def test_title():
     assert len(resp_json[ep.TITLE_RESP]) > 0
 
 #testing the repository name endpoint
-def test_repo_name():
+def test_get_repo_name():
     resp = TEST_CLIENT.get(ep.REPO_NAME_EP)
     print(f'{ep.REPO_NAME_EP=}')
     resp_json = resp.get_json()
