@@ -52,7 +52,7 @@ def delete(_id):
 def create(name: str, affiliation: str, email: str):
     if email in TEST_PERSON_DICT:
         raise ValueError('Email: {email=} already exists')
-    TEST_PERSON_DICT[email] = {NAME: name, AFFILIATION: affiliation, 
+    TEST_PERSON_DICT[email] = {NAME: name, AFFILIATION: affiliation,
                                EMAIL: email}
     return email
 
@@ -60,5 +60,6 @@ def create(name: str, affiliation: str, email: str):
 def main():
     print(read())
 
-if __name__  == '__main__':
+
+if __name__ == '__main__':
     main()
