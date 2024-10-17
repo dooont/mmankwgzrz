@@ -17,13 +17,13 @@ import server.endpoints as ep
 
 TEST_CLIENT = ep.app.test_client()
 
-#testing the hello endpoint
+# testing the hello endpoint
 def test_get_hello():
     resp = TEST_CLIENT.get(ep.HELLO_EP)
     resp_json = resp.get_json()
     assert ep.HELLO_RESP in resp_json
 
-#testing the title endpoint
+# testing the title endpoint
 def test_get_title():
     resp = TEST_CLIENT.get(ep.TITLE_EP)
     print(f'{ep.TITLE_EP=}')
@@ -33,7 +33,7 @@ def test_get_title():
     assert isinstance(resp_json[ep.TITLE_RESP], str)
     assert len(resp_json[ep.TITLE_RESP]) > 0
 
-#testing the repository name endpoint
+# testing the repository name endpoint
 def test_get_repo_name():
     resp = TEST_CLIENT.get(ep.REPO_NAME_EP)
     print(f'{ep.REPO_NAME_EP=}')
@@ -43,7 +43,7 @@ def test_get_repo_name():
     assert isinstance(resp_json[ep.REPO_NAME_RESP], str)
     assert len(resp_json[ep.REPO_NAME_RESP]) > 0
 
-#testing the people endpoint
+# testing the people endpoint
 def test_get_people():
     resp = TEST_CLIENT.get(ep.PEOPLE_EP)
     print(f'{ep.PEOPLE_EP=}')
