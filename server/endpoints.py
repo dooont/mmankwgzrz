@@ -39,6 +39,7 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
+    # ppl.rls.ROLES : fields.String,
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
 
