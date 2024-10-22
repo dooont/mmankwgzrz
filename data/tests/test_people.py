@@ -1,6 +1,7 @@
 import pytest
 import data.people as ppl
 
+from data.roles import TEST_CODE
 
 def test_read():
     people = ppl.read()
@@ -35,7 +36,7 @@ ADD_EMAIL = 'joe@nyu.edu'
 # testing the create endpoint
 def test_create():
     # creates the person
-    ppl.create('Joe Smith', 'NYU', ADD_EMAIL)
+    ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_CODE)
     people = ppl.read()
     # checks if ADD_EMAIL is in people already
     assert ADD_EMAIL in people
@@ -47,4 +48,4 @@ def test_create_duplicate():
     # if so, it will raise an error
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', ppl.TEST_EMAIL)
+                   'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)

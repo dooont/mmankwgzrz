@@ -39,7 +39,7 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
-    # ppl.rls.ROLES : fields.String,
+    ppl.ROLES: fields.String,
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
 
@@ -172,6 +172,7 @@ class CreatePeople(Resource):
             # but get with parenthesis is safer and takes more time
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
+            # role = request.json.get(ppl.ROLES)
 
             ret = ppl.create(name, affiliation, email)
         except Exception as err:

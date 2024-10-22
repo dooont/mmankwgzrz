@@ -3,7 +3,7 @@ This module interfaces to our user data.
 """
 # importing python re module to match email strings based on patterns
 import re
-import roles as rls
+import data.roles as rls
 
 MIN_USER_NAME_LEN = 2
 # Fields
@@ -51,6 +51,7 @@ def delete(_id):
     else:
         return None
 
+
 def is_valid_email(email):
     if isinstance(email, str):
         email_format = r"^[\w\.-]+@[\w\.-]+\.\w+$"
@@ -60,23 +61,26 @@ def is_valid_email(email):
             raise ValueError('Email does not follow correct format')
     else:
         raise ValueError('Email is not a string')
-    
-def is_valid_person(name: str, affiliation: str, email:str,
-                    role:str) -> bool:
+
+
+def is_valid_person(name: str, affiliation: str, email: str,
+                    role: str) -> bool:
     if email in TEST_PERSON_DICT:
-        raise ValueError('Email: {email=} already exists. Adding duplicate email')
+        raise ValueError('Email: {email=} already exists. Adding duplicate\
+                          email')
     if not is_valid_email(email):
         raise ValueError('Invalid Email: {email}')
     if not rls.is_valid(role):
         raise ValueError('Invalid Role: {role}')
     return True
-          
+
+
 def create(name: str, affiliation: str, email: str, role: str):
-   if is_valid_person(name, affiliation, email, role):
-        TEST_PERSON_DICT[email] = {NAME: name, ROLES: role, AFFILIATION: affiliation,
-                               EMAIL: email}
+    if is_valid_person(name, affiliation, email, role):
+        TEST_PERSON_DICT[email] = {NAME: name, ROLES: role,
+                                   AFFILIATION: affiliation, EMAIL: email}
         return email
-   
+
 
 def main():
     print(read())
