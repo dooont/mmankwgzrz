@@ -1,6 +1,5 @@
 import pytest
 import data.people as ppl
-
 from data.roles import TEST_CODE
 
 def test_read():
