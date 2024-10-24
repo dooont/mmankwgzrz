@@ -1,7 +1,7 @@
 import pytest
 import data.people as ppl
-
 from data.roles import TEST_CODE
+
 
 def test_read():
     people = ppl.read()
@@ -49,3 +49,36 @@ def test_create_duplicate():
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
                    'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
+
+
+# Some constants to test email verifications
+NO_AT = 'example'
+NO_NAME = '@gmail.com'
+NO_DOMAIN = 'example@'
+NO_TLD = 'example@gmail'
+
+
+def test_is_valid_email_no_at():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_AT)
+
+
+def test_is_valid_no_name():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_NAME)
+
+
+def test_is_valid_no_domain():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_DOMAIN)
+
+
+def test_is_valid_no_tld():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_TLD)
+
+
+def test_create_bad_email():
+    with pytest.raises(ValueError):
+        ppl.create('Do not care about name',
+                   'Or affiliation', 'bademail', TEST_CODE)
