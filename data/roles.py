@@ -25,7 +25,7 @@ def get_roles() -> dict:
     return deepcopy(ROLES)
 
 
-#this function gets the role codes
+# This function gets the role codes
 def get_role_codes() -> list:
     return list(ROLES.keys())
 
@@ -46,7 +46,7 @@ def is_valid(code: str) -> bool:
     return code in ROLES
 
 
-#general main function for running the code
+# General main function for running the code
 def main():
     print(get_roles())
 
