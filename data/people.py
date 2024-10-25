@@ -54,7 +54,9 @@ def delete(_id):
 
 def is_valid_email(email):
     if isinstance(email, str):
-        email_format = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        # email_format = r"^[\w\.-]+@[\w\.-]+\.\w+$"
+        email_format = '^[a-zA-Z0-9]+([_.-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-] \
+        [a-zA-Z0-9]+)*\\.[a-zA-Z]{2,}$'
         if re.match(email_format, email):
             return True
         else:
