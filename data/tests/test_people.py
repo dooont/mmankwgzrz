@@ -3,6 +3,7 @@ import data.people as ppl
 from data.roles import TEST_CODE
 
 
+#testing the read endpoint
 def test_read():
     people = ppl.read()
     assert isinstance(people, dict)
@@ -17,6 +18,7 @@ def test_read():
         assert ppl.NAME in person
 
 
+# testing the delete endpoint
 def test_delete():
     people = ppl.read()
     assert isinstance(people, dict)
@@ -42,6 +44,7 @@ def test_create():
     assert ADD_EMAIL in people
 
 
+# testing the update endpoint
 def test_update():
     test_email = "test@nyu.edu"
     ppl.create('name', 'NYU', test_email, TEST_CODE)
@@ -75,32 +78,32 @@ NO_DOMAIN = 'example@'
 NO_TLD = 'example@gmail'
 
 
-#tests for the email verification 
-#and makes sure that the email is valid
+# Tests for the email verification 
+# and makes sure that the email is valid
 def test_is_valid_email_no_at():
     with pytest.raises(ValueError):
         ppl.is_valid_email(NO_AT)
 
 
-#tests that there exists a name
+# Tests that there exists a name
 def test_is_valid_no_name():
     with pytest.raises(ValueError):
         ppl.is_valid_email(NO_NAME)
 
 
-#test that there exists a domain
+# Test that there exists a domain
 def test_is_valid_no_domain():
     with pytest.raises(ValueError):
         ppl.is_valid_email(NO_DOMAIN)
 
 
-#tests that there exists a top level domain
+# Tests that there exists a top level domain
 def test_is_valid_no_tld():
     with pytest.raises(ValueError):
         ppl.is_valid_email(NO_TLD)
 
 
-#test that checks how bad emails are handled
+# Test that checks how bad emails are handled
 def test_create_bad_email():
     with pytest.raises(ValueError):
         ppl.create('Do not care about name',

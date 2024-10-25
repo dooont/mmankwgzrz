@@ -122,7 +122,7 @@ class UpdatePeople(Resource):
         return ppl.read()
 
 
-#this is the endpoint for deleting people
+# This is the endpoint for deleting people
 @api.route(f'{PEOPLE_EP}/<_id>')
 class DeletePeople(Resource):
     @api.response(HTTPStatus.OK, 'Success')

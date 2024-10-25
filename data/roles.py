@@ -20,7 +20,7 @@ ROLES = {
 MH_ROLES = [CE_CODE, ED_CODE, ME_CODE]
 
 
-#this function gets the roles
+# This function gets the roles
 def get_roles() -> dict:
     return deepcopy(ROLES)
 
@@ -41,7 +41,7 @@ def get_role_codes() -> list:
 #     return mh_roles
 
 
-#this function checks if the code is valid
+# This function checks if the code is valid
 def is_valid(code: str) -> bool:
     return code in ROLES
 
