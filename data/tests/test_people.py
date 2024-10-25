@@ -71,15 +71,19 @@ def test_create_duplicate():
                    'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
 
 
-# Some constants to test email verifications
+# Some constants to test email validation
+VALID_EMAIL = 'example@gmail.com'
 NO_AT = 'example'
 NO_NAME = '@gmail.com'
 NO_DOMAIN = 'example@'
 NO_TLD = 'example@gmail'
 
 
-# Tests for the email verification 
-# and makes sure that the email is valid
+# Tests for the email validation
+def test_is_valid_email():
+    assert ppl.is_valid_email(VALID_EMAIL)
+
+
 def test_is_valid_email_no_at():
     with pytest.raises(ValueError):
         ppl.is_valid_email(NO_AT)

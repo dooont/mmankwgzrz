@@ -54,15 +54,19 @@ def delete(_id):
 
 def is_valid_email(email):
     if isinstance(email, str):
-        # email_format = r"^[\w\.-]+@[\w\.-]+\.\w+$"
-        email_format = '^[a-zA-Z0-9]+([_.-][a-zA-Z0-9]+)*@[a-zA-Z0-9]+([.-] \
-        [a-zA-Z0-9]+)*\\.[a-zA-Z]{2,}$'
+        email_format = (
+            r'^[a-zA-Z0-9]+'            # Start with alnum characters
+            r'([_.+-][a-zA-Z0-9]+)*'    # Allow ., +, - followed by alnum char
+            r'@[a-zA-Z0-9]+'            # "@" symbol followed by domain name
+            r'([.-][a-zA-Z0-9]+)*'      # Allow for subdomains
+            r'\.[a-zA-Z]{2,}$'          # End with TLD (min length of 2)
+        )
         if re.match(email_format, email):
             return True
         else:
-            raise ValueError('Email does not follow correct format')
+            raise ValueError(f'Email does not follow correct format: {email}')
     else:
-        raise ValueError('Email is not a string')
+        raise ValueError(f'Email is not a string: {email}')
 
 
 def is_valid_person(name: str, affiliation: str, email: str,
