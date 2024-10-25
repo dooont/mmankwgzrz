@@ -42,6 +42,23 @@ def test_create():
     assert ADD_EMAIL in people
 
 
+def test_update():
+    test_email = "test@nyu.edu"
+    ppl.create('name', 'NYU', test_email, TEST_CODE)
+
+    new_name = "updated name"
+    result = ppl.update(test_email, name=new_name)
+
+    assert result == test_email
+    people = ppl.read()
+    assert people[test_email][ppl.NAME] == new_name
+
+    assert ppl.update("nonexistent@nyu.edu", name="Test") is None
+
+    with pytest.raises(ValueError):
+        ppl.update(test_email, role="invalid_role")
+
+
 # testing the delete people endpoint
 def test_create_duplicate():
     # checks if the email already exists after creating the person

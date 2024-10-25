@@ -152,7 +152,7 @@ class CreatePeopleForm(Resource):
 
 
 @api.route(f'{PEOPLE_EP}/create')
-class CreatePeople(Resource):
+class People(Resource):
     """
     Add a person to the journal db.
     """
