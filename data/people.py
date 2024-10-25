@@ -99,6 +99,18 @@ def update(email: str, name: str = None, affiliation: str = None,
 
     return email
 
+# def get_masthead() -> dict:
+#     masthead = {}
+#     mh_roles = rls.get_masthead_roles()
+#     for mh_role, text in mh_roles.items():
+#         people_w_role = {}
+#         for person in people:
+#             pass
+#             #if has_role(person):
+#             #   put their record in people_w_role
+#         masthead[text] = people_w_role
+#     return masthead
+
 
 def main():
     print(read())
