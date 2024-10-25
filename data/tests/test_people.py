@@ -2,6 +2,7 @@ import pytest
 import data.people as ppl
 from data.roles import TEST_CODE
 
+
 def test_read():
     people = ppl.read()
     assert isinstance(people, dict)
@@ -41,6 +42,23 @@ def test_create():
     assert ADD_EMAIL in people
 
 
+def test_update():
+    test_email = "test@nyu.edu"
+    ppl.create('name', 'NYU', test_email, TEST_CODE)
+
+    new_name = "updated name"
+    result = ppl.update(test_email, name=new_name)
+
+    assert result == test_email
+    people = ppl.read()
+    assert people[test_email][ppl.NAME] == new_name
+
+    assert ppl.update("nonexistent@nyu.edu", name="Test") is None
+
+    with pytest.raises(ValueError):
+        ppl.update(test_email, role="invalid_role")
+
+
 # testing the delete people endpoint
 def test_create_duplicate():
     # checks if the email already exists after creating the person
@@ -48,3 +66,36 @@ def test_create_duplicate():
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
                    'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
+
+
+# Some constants to test email verifications
+NO_AT = 'example'
+NO_NAME = '@gmail.com'
+NO_DOMAIN = 'example@'
+NO_TLD = 'example@gmail'
+
+
+def test_is_valid_email_no_at():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_AT)
+
+
+def test_is_valid_no_name():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_NAME)
+
+
+def test_is_valid_no_domain():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_DOMAIN)
+
+
+def test_is_valid_no_tld():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_TLD)
+
+
+def test_create_bad_email():
+    with pytest.raises(ValueError):
+        ppl.create('Do not care about name',
+                   'Or affiliation', 'bademail', TEST_CODE)

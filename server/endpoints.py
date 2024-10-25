@@ -146,13 +146,13 @@ class CreatePeopleForm(Resource):
                 ppl.NAME: "string",
                 ppl.EMAIL: "string",
                 ppl.AFFILIATION: "string",
-                # ppl.ROLES: "list of strings"
+                ppl.ROLES: "list of strings"
             }
         }
 
 
 @api.route(f'{PEOPLE_EP}/create')
-class CreatePeople(Resource):
+class People(Resource):
     """
     Add a person to the journal db.
     """
@@ -172,9 +172,8 @@ class CreatePeople(Resource):
             # but get with parenthesis is safer and takes more time
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
-            # role = request.json.get(ppl.ROLES)
-
-            ret = ppl.create(name, affiliation, email)
+            role = request.json.get(ppl.ROLES)
+            ret = ppl.create(name, affiliation, email, role)
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add person: '
                                    f'{err=}')
