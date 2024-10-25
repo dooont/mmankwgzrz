@@ -29,6 +29,7 @@ def get_roles() -> dict:
 def get_role_codes() -> list:
     return list(ROLES.keys())
 
+
 # deletion of roles only happens in this module, this function
 def get_masthead_roles() -> dict:
     mh_roles = get_roles()
