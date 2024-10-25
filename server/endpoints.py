@@ -108,7 +108,7 @@ class GetRepoName(Resource):
         }
 
 
-# This is the endpoint for the people
+# This is the endpoint for updating the people
 @api.route(PEOPLE_EP)
 class UpdatePeople(Resource):
     """
@@ -122,6 +122,7 @@ class UpdatePeople(Resource):
         return ppl.read()
 
 
+#this is the endpoint for deleting people
 @api.route(f'{PEOPLE_EP}/<_id>')
 class DeletePeople(Resource):
     @api.response(HTTPStatus.OK, 'Success')
@@ -134,6 +135,7 @@ class DeletePeople(Resource):
             raise wz.NotFound(f'No such person: {_id}')
 
 
+# This is the endpoint for creating the people
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
     """
@@ -151,6 +153,7 @@ class CreatePeopleForm(Resource):
         }
 
 
+# This is the endpoint for the people
 @api.route(f'{PEOPLE_EP}/create')
 class People(Resource):
     """
