@@ -70,7 +70,7 @@ def is_valid_email(email):
 
 
 def is_valid_person(name: str, affiliation: str, email: str,
-                    role: str) -> bool:
+                    role: str = None, roles: list = None) -> bool:
     if email in TEST_PERSON_DICT:
         raise ValueError('Email: {email=} already exists. Adding duplicate\
                           email')
@@ -78,12 +78,21 @@ def is_valid_person(name: str, affiliation: str, email: str,
         raise ValueError('Invalid Email: {email}')
     if not rls.is_valid(role):
         raise ValueError('Invalid Role: {role}')
+    elif roles:
+        for role in roles:
+            if not rls.is_valid(role):
+                raise ValueError('Invalid Role: {role}')
     return True
 
 
 def create(name: str, affiliation: str, email: str, role: str):
+    if email in TEST_PERSON_DICT:
+        raise ValueError(f'Adding duplicate {email=}')
     if is_valid_person(name, affiliation, email, role):
-        TEST_PERSON_DICT[email] = {NAME: name, ROLES: role,
+        roles = []
+        if role:
+            roles.append(role)
+        TEST_PERSON_DICT[email] = {NAME: name, ROLES: roles,
                                    AFFILIATION: affiliation, EMAIL: email}
         return email
 
