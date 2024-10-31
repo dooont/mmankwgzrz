@@ -1,21 +1,59 @@
 import pytest
 import data.people as ppl
-from data.roles import TEST_CODE
+from data.roles import TEST_CODE as TEST_ROLE_CODE
 
-NO_AT = 'jkajsd'
-NO_NAME = '@kalsj'
-NO_DOMAIN = 'kajshd@'
-NO_SUB_DOMAIN = 'kajshd@com'
-DOMAIN_TOO_SHORT = 'kajshd@nyu.e'
-DOMAIN_TOO_LONG = 'kajshd@nyu.eedduu'
+NO_AT = 'example'
+NO_NAME = '@nyu'
+NO_DOMAIN = 'example@'
+NO_SUB_DOMAIN = 'example@com'
+DOMAIN_TOO_SHORT = 'example@nyu.e'
+
+
+def test_is_valid_email():
+    assert ppl.is_valid_email('example@nyu.edu')
+
+
+def test_is_valid_email_no_at():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_AT)
+
+
+def test_is_valid_no_name():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_NAME)
+
+
+def test_is_valid_no_domain():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_DOMAIN)
+
+
+def test_is_valid_no_sub_domain():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(NO_SUB_DOMAIN)
+
+
+def test_is_valid_email_domain_too_short():
+    with pytest.raises(ValueError):
+        ppl.is_valid_email(DOMAIN_TOO_SHORT)
+
+
+# Test that checks how bad emails are handled
+def test_create_bad_email():
+    with pytest.raises(ValueError):
+        ppl.create('Do not care about name',
+                   'Or affiliation', 'bademail', TEST_ROLE_CODE)
+
 
 TEMP_EMAIL = 'temp_person@temp.org'
 
+
 @pytest.fixture(scope='function')
 def temp_person():
-    ret = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, TEST_CODE)
-    yield ret
-    ppl.delete(ret)
+    _id = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, TEST_ROLE_CODE)
+    yield _id
+    ppl.delete(_id)
+
 
 #testing the read endpoint
 def test_read():
@@ -39,6 +77,7 @@ def test_read_one(temp_person):
 def test_read_one_not_there():
     assert ppl.read_one('Not an existing email!') is None
 
+
 # testing the delete endpoint
 def test_delete():
     people = ppl.read()
@@ -59,7 +98,7 @@ ADD_EMAIL = 'joe@nyu.edu'
 # testing the create endpoint
 def test_create():
     # creates the person
-    ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_CODE)
+    ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
     people = ppl.read()
     # checks if ADD_EMAIL is in people already
     assert ADD_EMAIL in people
@@ -71,25 +110,7 @@ def test_create_duplicate():
     # if so, it will raise an error
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
-
-
-# testing the update endpoint
-# def test_update():
-#     test_email = "test@nyu.edu"
-#     ppl.create('name', 'NYU', test_email, TEST_CODE)
-
-#     new_name = "updated name"
-#     result = ppl.update(test_email, name=new_name)
-
-#     assert result == test_email
-#     people = ppl.read()
-#     assert people[test_email][ppl.NAME] == new_name
-
-#     assert ppl.update("nonexistent@nyu.edu", name="Test") is None
-
-#     with pytest.raises(ValueError):
-#         ppl.update(test_email, role="invalid_role")
+                   'Neither Does School', ppl.TEST_EMAIL, TEST_ROLE_CODE)
 
 
 VALID_ROLES = ['ED', 'AU']
@@ -98,51 +119,18 @@ VALID_ROLES = ['ED', 'AU']
 @pytest.mark.skip('Skipping cause not done.')
 def test_update(temp_person):
     ppl.update('Buffalo Bill', 'UBuffalo', temp_person, VALID_ROLES)
-
-
-# Some constants to test email validation
-VALID_EMAIL = 'example@gmail.com'
-NO_AT = 'example'
-NO_NAME = '@gmail.com'
-NO_DOMAIN = 'example@'
-NO_TLD = 'example@gmail'
-
-
-# Tests for the email validation
-def test_is_valid_email():
-    assert ppl.is_valid_email(VALID_EMAIL)
-
-
-def test_is_valid_email_no_at():
-    with pytest.raises(ValueError):
-        ppl.is_valid_email(NO_AT)
-
-
-# Tests that there exists a name
-def test_is_valid_no_name():
-    with pytest.raises(ValueError):
-        ppl.is_valid_email(NO_NAME)
-
-
-# Test that there exists a domain
-def test_is_valid_no_domain():
-    with pytest.raises(ValueError):
-        ppl.is_valid_email(NO_DOMAIN)
-
-
-# Tests that there exists a top level domain
-def test_is_valid_no_tld():
-    with pytest.raises(ValueError):
-        ppl.is_valid_email(NO_TLD)
-
-
-# Test that checks how bad emails are handled
-def test_create_bad_email():
-    with pytest.raises(ValueError):
-        ppl.create('Do not care about name',
-                   'Or affiliation', 'bademail', TEST_CODE)
         
 
 def test_get_masthead():
     mh = ppl.get_masthead()
     assert isinstance(mh, dict)
+
+
+def test_has_role(temp_person):
+    person_rec = ppl.read_one(temp_person)
+    assert ppl.has_role(person_rec, TEST_ROLE_CODE)
+
+
+def test_doesnt_have_role(temp_person):
+    person_rec = ppl.read_one(temp_person)
+    assert not ppl.has_role(person_rec, 'Not a good role!')

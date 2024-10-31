@@ -32,34 +32,6 @@ people_dict = {
 }
 
 
-def read() -> dict:
-    """
-    Our contract:
-        - No arguments.
-        - Returns a dictionary of users keyed on user email.
-        - Each email must be the key for another dictionary.
-    """
-    people = people_dict
-    return people
-
-
-def read_one(email: str) -> dict:
-    """
-    Return a person record if email present in DB,
-    else None.
-    """
-    return people_dict.get(email)
-
-
-def delete(_id):
-    people = read()
-    if _id in people:
-        del people[_id]
-        return _id
-    else:
-        return None
-
-
 def is_valid_email(email):
     if isinstance(email, str):
         email_format = (
@@ -91,9 +63,37 @@ def is_valid_person(name: str, affiliation: str, email: str,
     return True
 
 
+def read() -> dict:
+    """
+    Our contract:
+        - No arguments.
+        - Returns a dictionary of users keyed on user email.
+        - Each email must be the key for another dictionary.
+    """
+    people = people_dict
+    return people
+
+
+def read_one(email: str) -> dict:
+    """
+    Return a person record if email present in DB,
+    else None.
+    """
+    return people_dict.get(email)
+
+
+def delete(_id):
+    people = read()
+    if _id in people:
+        del people[_id]
+        return _id
+    else:
+        return None
+
+
 def create(name: str, affiliation: str, email: str, role: str):
     if email in people_dict:
-        raise ValueError(f'Adding duplicate {email=}')
+        raise ValueError(f'Adding duplicate email: {email=}')
     if is_valid_person(name, affiliation, email, role):
         roles = []
         if role:
@@ -110,6 +110,12 @@ def update(name: str, affiliation: str, email: str, roles: list):
         people_dict[email] = {NAME: name, AFFILIATION: affiliation,
                               EMAIL: email, ROLES: roles}
         return email
+
+
+def has_role(person: dict, role: str) -> bool:
+    if role in person.get(ROLES):
+        return True
+    return False
 
 
 def get_masthead() -> dict:
