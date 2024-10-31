@@ -32,16 +32,18 @@ people_dict = {
 }
 
 
-def is_valid_email(email):
-    if isinstance(email, str):
-        email_format = (
-            r'^[a-zA-Z0-9]+'            # Start with alnum characters
+EMAIL_FORMAT = (
+            r'^[A-Za-z0-9]+'            # Start with alnum characters
             r'([_.+-][a-zA-Z0-9]+)*'    # Allow ., +, - followed by alnum char
             r'@[a-zA-Z0-9]+'            # "@" symbol followed by domain name
             r'([.-][a-zA-Z0-9]+)*'      # Allow for subdomains
             r'\.[a-zA-Z]{2,}$'          # End with TLD (min length of 2)
         )
-        if re.match(email_format, email):
+
+
+def is_valid_email(email):
+    if isinstance(email, str):
+        if re.match(EMAIL_FORMAT, email):
             return True
         else:
             raise ValueError(f'Email does not follow correct format: {email}')
