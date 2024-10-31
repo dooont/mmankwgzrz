@@ -2,6 +2,20 @@ import pytest
 import data.people as ppl
 from data.roles import TEST_CODE
 
+NO_AT = 'jkajsd'
+NO_NAME = '@kalsj'
+NO_DOMAIN = 'kajshd@'
+NO_SUB_DOMAIN = 'kajshd@com'
+DOMAIN_TOO_SHORT = 'kajshd@nyu.e'
+DOMAIN_TOO_LONG = 'kajshd@nyu.eedduu'
+
+TEMP_EMAIL = 'temp_person@temp.org'
+
+@pytest.fixture(scope='function')
+def temp_person():
+    ret = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, TEST_CODE)
+    yield ret
+    ppl.delete(ret)
 
 #testing the read endpoint
 def test_read():
@@ -17,6 +31,13 @@ def test_read():
         # checks if NAME is a key in the person (value)
         assert ppl.NAME in person
 
+
+def test_read_one(temp_person):
+    assert ppl.read_one(temp_person) is not None
+
+
+def test_read_one_not_there():
+    assert ppl.read_one('Not an existing email!') is None
 
 # testing the delete endpoint
 def test_delete():
