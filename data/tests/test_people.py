@@ -65,6 +65,15 @@ def test_create():
     assert ADD_EMAIL in people
 
 
+# testing the delete people endpoint
+def test_create_duplicate():
+    # checks if the email already exists after creating the person
+    # if so, it will raise an error
+    with pytest.raises(ValueError):
+        ppl.create('Name Does Not matter',
+                   'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
+
+
 # testing the update endpoint
 def test_update():
     test_email = "test@nyu.edu"
@@ -83,13 +92,12 @@ def test_update():
         ppl.update(test_email, role="invalid_role")
 
 
-# testing the delete people endpoint
-def test_create_duplicate():
-    # checks if the email already exists after creating the person
-    # if so, it will raise an error
-    with pytest.raises(ValueError):
-        ppl.create('Name Does Not matter',
-                   'Neither Does School', ppl.TEST_EMAIL, TEST_CODE)
+VALID_ROLES = ['ED', 'AU']
+
+
+@pytest.mark.skip('Skipping cause not done.')
+def test_update(temp_person):
+    ppl.update('Buffalo Bill', 'UBuffalo', temp_person, VALID_ROLES)
 
 
 # Some constants to test email validation

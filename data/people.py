@@ -103,22 +103,13 @@ def create(name: str, affiliation: str, email: str, role: str):
         return email
 
 
-def update(email: str, name: str = None, affiliation: str = None,
-           role: str = None):
-    people = read()
-    if email not in people:
-        return None
-
-    if name:
-        people[email][NAME] = name
-    if affiliation:
-        people[email][AFFILIATION] = affiliation
-    if role:
-        if not rls.is_valid(role):
-            raise ValueError(f'Invalid Role: {role}')
-        people[email][ROLES] = role
-
-    return email
+def update(name: str, affiliation: str, email: str, roles: list):
+    if email not in people_dict:
+        raise ValueError(f'Updating non-existent person: {email=}')
+    if is_valid_person(name, affiliation, email, roles=roles):
+        people_dict[email] = {NAME: name, AFFILIATION: affiliation,
+                              EMAIL: email, ROLES: roles}
+        return email
 
 
 def get_masthead() -> dict:
