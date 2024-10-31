@@ -16,7 +16,7 @@ TEST_EMAIL = 'ejc369@nyu.edu'
 DEL_EMAIL = 'delete@nyu.edu'
 
 
-TEST_PERSON_DICT = {
+people_dict = {
     TEST_EMAIL: {
         NAME: 'Eugene Callahan',
         ROLES: [],
@@ -32,15 +32,23 @@ TEST_PERSON_DICT = {
 }
 
 
-def read():
+def read() -> dict:
     """
     Our contract:
         - No arguments.
         - Returns a dictionary of users keyed on user email.
         - Each email must be the key for another dictionary.
     """
-    people = TEST_PERSON_DICT
+    people = people_dict
     return people
+
+
+def read_one(email: str) -> dict:
+    """
+    Return a person record if email present in DB,
+    else None.
+    """
+    return people_dict.get(email)
 
 
 def delete(_id):
@@ -71,29 +79,27 @@ def is_valid_email(email):
 
 def is_valid_person(name: str, affiliation: str, email: str,
                     role: str = None, roles: list = None) -> bool:
-    if email in TEST_PERSON_DICT:
-        raise ValueError('Email: {email=} already exists. Adding duplicate\
-                          email')
     if not is_valid_email(email):
-        raise ValueError('Invalid Email: {email}')
-    if not rls.is_valid(role):
-        raise ValueError('Invalid Role: {role}')
+        raise ValueError(f'Invalid email: {email}')
+    if role:
+        if not rls.is_valid(role):
+            raise ValueError(f'Invalid role: {role}')
     elif roles:
         for role in roles:
             if not rls.is_valid(role):
-                raise ValueError('Invalid Role: {role}')
+                raise ValueError(f'Invalid role: {role}')
     return True
 
 
 def create(name: str, affiliation: str, email: str, role: str):
-    if email in TEST_PERSON_DICT:
+    if email in people_dict:
         raise ValueError(f'Adding duplicate {email=}')
     if is_valid_person(name, affiliation, email, role):
         roles = []
         if role:
             roles.append(role)
-        TEST_PERSON_DICT[email] = {NAME: name, ROLES: roles,
-                                   AFFILIATION: affiliation, EMAIL: email}
+        people_dict[email] = {NAME: name, ROLES: roles,
+                              AFFILIATION: affiliation, EMAIL: email}
         return email
 
 
