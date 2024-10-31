@@ -116,9 +116,20 @@ def test_create_duplicate():
 VALID_ROLES = ['ED', 'AU']
 
 
-@pytest.mark.skip('Skipping cause not done.')
+# @pytest.mark.skip('Skipping cause not done.')
 def test_update(temp_person):
-    ppl.update('Buffalo Bill', 'UBuffalo', temp_person, VALID_ROLES)
+    new_name = 'Buffalo Bill'
+    new_affiliation = 'UBuffalo'
+    new_roles = VALID_ROLES
+
+    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
+
+    assert updated_email == temp_person
+
+    updated_person = ppl.read_one(temp_person)
+    assert updated_person[ppl.NAME] == new_name
+    assert updated_person[ppl.AFFILIATION] == new_affiliation
+    assert updated_person[ppl.ROLES] == new_roles
         
 
 def test_get_masthead():
