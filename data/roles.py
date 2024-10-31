@@ -36,9 +36,13 @@ def get_masthead_roles() -> dict:
     del_mh_roles = []
     for role in mh_roles:
         if role not in MH_ROLES:
+            # if roles are not masthead roles then delete
+            # by appending to array of roles to be removed
             del_mh_roles.append(role)
     for del_role in del_mh_roles:
+        # search through mh_roles to find keys of roles to be deleted
         del mh_roles[del_role]
+    # returned mh_roles should contain only mh_roles
     return mh_roles
 
 
