@@ -25,6 +25,17 @@ text_dict = {
     },
 }
 
+def create():
+    pass
+
+
+def delete():
+    pass
+
+
+def update():
+    pass
+
 
 def read():
     """
