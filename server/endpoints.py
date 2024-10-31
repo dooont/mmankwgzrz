@@ -189,6 +189,7 @@ class People(Resource):
 MASTHEAD = 'Masthead'
 
 
+# endpoint for Masthed
 @api.route(f'{PEOPLE_EP}/masthead')
 class Masthead(Resource):
     """
