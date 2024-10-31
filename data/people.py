@@ -115,7 +115,7 @@ def update(name: str, affiliation: str, email: str, roles: list):
 
 
 def has_role(person: dict, role: str) -> bool:
-    if role in person.get(ROLES):
+    if role in person[ROLES]:  #
         return True
     return False
 
@@ -124,11 +124,14 @@ def get_masthead() -> dict:
     masthead = {}
     mh_roles = rls.get_masthead_roles()
     for mh_role, text in mh_roles.items():
-        people_w_role = {}
-        for person in read():
-            pass
-            # If has_role(person):
-            # Put their record in people_w_role
+        people_w_role = []  # an array of people with role
+        people = read()
+        for _id, person in people.items():
+            if has_role(person, mh_role):
+                pass
+                # rec = create_mh_rec(person)
+                # # Put their record in people_w_role
+                # people_w_role.append(rec)
         masthead[text] = people_w_role
     return masthead
 
