@@ -122,7 +122,7 @@ def test_update(temp_person):
     new_affiliation = 'UBuffalo'
     new_roles = VALID_ROLES
 
-    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
+    updated_email = ppl.update(new_name, new_affiliation, temp_person, temp_person, new_roles)
 
     assert updated_email == temp_person
 

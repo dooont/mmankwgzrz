@@ -105,19 +105,32 @@ def create(name: str, affiliation: str, email: str, role: str):
         return email
 
 
-def update(name: str, affiliation: str, email: str, roles: list):
-    if email not in people_dict:
-        raise ValueError(f'Updating non-existent person: {email=}')
-    if is_valid_person(name, affiliation, email, roles=roles):
-        people_dict[email] = {NAME: name, AFFILIATION: affiliation,
-                              EMAIL: email, ROLES: roles}
-        return email
+def update(name: str, affiliation: str, old_email: str, new_email: str,
+           roles: list):
+    if old_email not in people_dict:
+        raise ValueError(f'Updating non-existent person: {old_email=}')
+    if is_valid_person(name, affiliation, new_email, roles=roles):
+        people_dict[new_email] = {NAME: name, AFFILIATION: affiliation,
+                                  EMAIL: new_email, ROLES: roles}
+        if old_email != new_email:
+            del people_dict[old_email]
+        return new_email
 
 
 def has_role(person: dict, role: str) -> bool:
     if role in person[ROLES]:  #
         return True
     return False
+
+
+MH_FIELDS = [NAME, AFFILIATION]
+
+
+def create_mh_rec(person: dict) -> dict:
+    mh_rec = {}
+    for field in MH_FIELDS:
+        mh_rec[field] = person.get(field, '')
+    return mh_rec
 
 
 def get_masthead() -> dict:

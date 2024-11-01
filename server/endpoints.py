@@ -41,6 +41,12 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.String,
 })
+PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
+    ppl.NAME: fields.String,
+    ppl.EMAIL: fields.String,
+    ppl.AFFILIATION: fields.String,
+    ppl.ROLES: fields.List(fields.String)
+})
 PEOPLE_CREATE_FORM = 'People Add Form'
 
 
@@ -109,22 +115,36 @@ class GetRepoName(Resource):
 
 
 # This is the endpoint for updating the people
-@api.route(PEOPLE_EP)
-class UpdatePeople(Resource):
-    """
-    This class handles creating, reading, updating
-    and deleting the journal people.
-    """
-    def get(self):
+@api.route(f'{PEOPLE_EP}/<email>')
+class PeopleUpdate(Resource):
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
+    @api.expect(PEOPLE_UPDATE_FLDS)
+    def put(self, email):
         """
-        Retrieve the journal people.
+        Update a person's details.
         """
-        return ppl.read()
+        try:
+            name = request.json.get(ppl.NAME)
+            affiliation = request.json.get(ppl.AFFILIATION)
+            roles = request.json.get(ppl.ROLES, [])
+            new_email = request.json.get(ppl.EMAIL)
+
+            ret = ppl.update(name, affiliation, email, new_email, roles)
+            return {
+                MESSAGE: 'Person updated successfully',
+                RETURN: ret
+            }
+        except ValueError as ve:
+            raise wz.NotFound(str(ve))
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
 
 # This is the endpoint for deleting people
 @api.route(f'{PEOPLE_EP}/<_id>')
-class DeletePeople(Resource):
+class PersonDelete(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
     def delete(self, _id):
@@ -153,9 +173,20 @@ class CreatePeopleForm(Resource):
         }
 
 
-# This is the endpoint for the people
-@api.route(f'{PEOPLE_EP}/create')
+@api.route(PEOPLE_EP)
 class People(Resource):
+    """
+    This class handles reading journal people.
+    """
+    def get(self):
+        """
+        Retrieve the journal people.
+        """
+        return ppl.read()
+
+
+@api.route(f'{PEOPLE_EP}/create')
+class PeopleCreate(Resource):
     """
     Add a person to the journal db.
     """
