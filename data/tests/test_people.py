@@ -145,3 +145,11 @@ def test_has_role(temp_person):
 def test_doesnt_have_role(temp_person):
     person_rec = ppl.read_one(temp_person)
     assert not ppl.has_role(person_rec, 'Not a good role!')
+
+
+def test_create_mh_rec(temp_person):
+    person_rec = ppl.read_one(temp_person)
+    mh_rec = ppl.create_mh_rec(person_rec)
+    assert isinstance(mh_rec, dict)
+    for field in ppl.MH_FIELDS:
+        assert field in mh_rec
