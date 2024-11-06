@@ -27,7 +27,11 @@ text_dict = {
 
 
 def create():
-    pass
+    new_page_key = 'NewPage'
+    text_dict[new_page_key] = {
+        TITLE: 'New Page',
+        TEXT: 'This is a new page.',
+    }
 
 
 def delete():
