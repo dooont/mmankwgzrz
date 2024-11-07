@@ -114,3 +114,11 @@ def test_update_person():
         json=invalid_data
     )
     assert resp.status_code == NOT_ACCEPTABLE
+
+
+def test_get_endpoints():
+    resp = TEST_CLIENT.get(ep.ENDPOINT_EP)
+    resp_json = resp.get_json()
+    assert "Available endpoints" in resp_json
+    assert isinstance(resp_json["Available endpoints"], list)
+    assert len(resp_json["Available endpoints"]) > 0
