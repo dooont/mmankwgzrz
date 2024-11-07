@@ -54,6 +54,7 @@ def is_valid(code: str) -> bool:
 # General main function for running the code
 def main():
     print(get_roles())
+    print(get_masthead_roles())
 
 
 if __name__ == '__main__':
