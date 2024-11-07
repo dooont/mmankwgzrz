@@ -19,13 +19,13 @@ DEL_EMAIL = 'delete@nyu.edu'
 people_dict = {
     TEST_EMAIL: {
         NAME: 'Eugene Callahan',
-        ROLES: [],
+        ROLES: [rls.ED_CODE],
         AFFILIATION: 'NYU',
         EMAIL: TEST_EMAIL
     },
     DEL_EMAIL: {
-        NAME: 'Another Person',
-        ROLES: [],
+        NAME: 'Jeffrey Person',
+        ROLES: [rls.CE_CODE],
         AFFILIATION: 'NYU',
         EMAIL: DEL_EMAIL,
     },
@@ -118,7 +118,7 @@ def update(name: str, affiliation: str, old_email: str, new_email: str,
 
 
 def has_role(person: dict, role: str) -> bool:
-    if role in person[ROLES]:  #
+    if role in person[ROLES]:
         return True
     return False
 
@@ -132,7 +132,7 @@ def get_mh_fields(journal_code=None) -> list:
 
 def create_mh_rec(person: dict) -> dict:
     mh_rec = {}
-    for field in MH_FIELDS:
+    for field in get_mh_fields():
         mh_rec[field] = person.get(field, '')
     return mh_rec
 
