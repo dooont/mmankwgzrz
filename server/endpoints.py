@@ -142,19 +142,6 @@ class PeopleUpdate(Resource):
             raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
 
-# This is the endpoint for deleting people
-@api.route(f'{PEOPLE_EP}/<_id>')
-class PersonDelete(Resource):
-    @api.response(HTTPStatus.OK, 'Success')
-    @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
-    def delete(self, _id):
-        ret = ppl.delete_person(_id)
-        if ret is not None:
-            return {'Deleted': ret}
-        else:
-            raise wz.NotFound(f'No such person: {_id}')
-
-
 # This is the endpoint for creating the people
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
@@ -183,6 +170,32 @@ class People(Resource):
         Retrieve the journal people.
         """
         return ppl.read()
+
+
+@api.route(f'{PEOPLE_EP}/<_id>')
+class Person(Resource):
+    """
+    This class handles creating, reading, updating
+    and deleting journal people.
+    """
+    def get(self, _id):
+        """
+        Retrieve a journal person.
+        """
+        person = ppl.read_one(_id)
+        if person:
+            return person
+        else:
+            raise wz.NotFound(f'No such record: {_id}')
+
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
+    def delete(self, _id):
+        ret = ppl.delete_person(_id)
+        if ret is not None:
+            return {'Deleted': ret}
+        else:
+            raise wz.NotFound(f'No such person: {_id}')
 
 
 @api.route(f'{PEOPLE_EP}/create')
