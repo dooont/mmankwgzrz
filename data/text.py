@@ -26,11 +26,11 @@ text_dict = {
 }
 
 
-def create():
-    new_page_key = 'NewPage'
+def create(page_key: str, title: str, text: str):
+    new_page_key = page_key
     text_dict[new_page_key] = {
-        TITLE: 'New Page',
-        TEXT: 'This is a new page.',
+        title: 'New Page',
+        text: 'This is a new page.',
     }
 
 
@@ -38,8 +38,12 @@ def delete():
     pass
 
 
-def update():
-    pass
+def update(page_key: str, title: str = None, text: str = None):
+    if page_key in text_dict:
+        if title:
+            text_dict[page_key][TITLE] = title
+        if text:
+            text_dict[page_key][TEXT] = text
 
 
 def read():

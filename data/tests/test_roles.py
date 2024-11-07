@@ -23,4 +23,4 @@ def test_get_role_codes():
 
 
 def test_is_valid():
-    assert rls.is_valid(rls.TEST_CODE)     
+    assert rls.is_valid(rls.TEST_CODE)

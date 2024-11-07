@@ -23,6 +23,7 @@ def test_get_hello():
     resp_json = resp.get_json()
     assert ep.HELLO_RESP in resp_json
 
+
 # testing the title endpoint
 def test_get_title():
     resp = TEST_CLIENT.get(ep.TITLE_EP)
@@ -32,6 +33,7 @@ def test_get_title():
     assert ep.TITLE_RESP in resp_json
     assert isinstance(resp_json[ep.TITLE_RESP], str)
     assert len(resp_json[ep.TITLE_RESP]) > 0
+
 
 # testing the repository name endpoint
 def test_get_repo_name():
@@ -43,6 +45,7 @@ def test_get_repo_name():
     assert isinstance(resp_json[ep.REPO_NAME_RESP], str)
     assert len(resp_json[ep.REPO_NAME_RESP]) > 0
 
+
 # testing the people endpoint
 def test_get_people():
     resp = TEST_CLIENT.get(ep.PEOPLE_EP)
@@ -53,6 +56,7 @@ def test_get_people():
         assert isinstance(_id, str)
         assert len(_id) > 0
         assert NAME in person
+
 
 def test_people_create_form():
     resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/create/form')
@@ -87,7 +91,7 @@ def test_update_person():
             f'{ep.PEOPLE_EP}/{test_email}',
             json=update_data
         )
-        
+
         assert resp.status_code == OK
         resp_json = resp.get_json()
         assert ep.MESSAGE in resp_json
@@ -105,7 +109,7 @@ def test_update_person():
 
     invalid_data = {
         ep.ppl.NAME: "",  # invalid empty name
-        ep.ppl.EMAIL: "ejc369@nyu.edu", # valid email
+        ep.ppl.EMAIL: "ejc369@nyu.edu",  # valid email
         ep.ppl.AFFILIATION: "",
         ep.ppl.ROLES: ["nonexistent_role"]  # invalid role
     }

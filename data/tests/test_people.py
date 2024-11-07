@@ -55,7 +55,7 @@ def temp_person():
     ppl.delete(_id)
 
 
-#testing the read endpoint
+# testing the read endpoint
 def test_read():
     people = ppl.read()
     assert isinstance(people, dict)
@@ -130,7 +130,7 @@ def test_update(temp_person):
     assert updated_person[ppl.NAME] == new_name
     assert updated_person[ppl.AFFILIATION] == new_affiliation
     assert updated_person[ppl.ROLES] == new_roles
-        
+
 
 def test_get_masthead():
     mh = ppl.get_masthead()
@@ -153,10 +153,9 @@ def test_create_mh_rec(temp_person):
     assert isinstance(mh_rec, dict)
     for field in ppl.MH_FIELDS:
         assert field in mh_rec
-        
-        
+
+
 def test_get_mh_fields():
     flds = ppl.get_mh_fields()
     assert isinstance(flds, list)
     assert len(flds) > 0
-    
