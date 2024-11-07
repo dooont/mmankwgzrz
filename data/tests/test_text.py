@@ -1,4 +1,13 @@
+import pytest
 import data.text as txt
+
+
+@pytest.fixture(scope='function')
+def temp_text():
+    temp_key = 'TempPage'
+    txt.create(temp_key, 'Temp Page Title', 'This is a temp page.')
+    yield temp_key
+    txt.delete(temp_key)
 
 
 def test_read():
@@ -9,9 +18,9 @@ def test_read():
         assert isinstance(key, str)
 
 
-def test_read_one():
+def test_read_one(temp_text):
     # Check that TEST_KEY is being read properly
-    assert len(txt.read_one(txt.TEST_KEY)) > 0
+    assert len(txt.read_one(temp_text)) > 0
 
 
 def test_read_one_not_found():
