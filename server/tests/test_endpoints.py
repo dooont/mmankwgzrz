@@ -65,6 +65,12 @@ def test_read_one(mock_read):
     assert resp.status_code == OK
 
 
+@patch('data.people.read_one', autospec=True, return_value=None)
+def test_read_one_not_found(mock_read):
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/mock_id')
+    assert resp.status_code == NOT_FOUND
+
+    
 # testing the people endpoint
 def test_get_people():
     resp = TEST_CLIENT.get(ep.PEOPLE_EP)
