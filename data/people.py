@@ -54,14 +54,14 @@ def is_valid_email(email):
 def is_valid_person(name: str, affiliation: str, email: str,
                     role: str = None, roles: list = None) -> bool:
     if not is_valid_email(email):
-        raise ValueError(f'Invalid email: {email}')
+        raise Exception(f'Invalid email: {email}')
     if role:
         if not rls.is_valid(role):
-            raise ValueError(f'Invalid role: {role}')
+            raise Exception(f'Invalid role: {role}')
     elif roles:
         for role in roles:
             if not rls.is_valid(role):
-                raise ValueError(f'Invalid role: {role}')
+                raise Exception(f'Invalid role: {role}')
     return True
 
 
