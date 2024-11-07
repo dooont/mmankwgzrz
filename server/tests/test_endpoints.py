@@ -35,6 +35,7 @@ def test_get_title():
     assert len(resp_json[ep.TITLE_RESP]) > 0
 
 
+
 # testing the repository name endpoint
 def test_get_repo_name():
     resp = TEST_CLIENT.get(ep.REPO_NAME_EP)
@@ -45,7 +46,17 @@ def test_get_repo_name():
     assert isinstance(resp_json[ep.REPO_NAME_RESP], str)
     assert len(resp_json[ep.REPO_NAME_RESP]) > 0
 
-
+@patch('data.people.read', autospec=True,
+       return_value={'id': {NAME: 'Joe Schmoe'}})
+def test_read(mock_read):
+    resp = TEST_CLIENT.get(ep.PEOPLE_EP)
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    for _id, person in resp_json.items():
+        assert isinstance(_id, str)
+        assert len(_id) > 0
+        assert NAME in person
+        
 # testing the people endpoint
 def test_get_people():
     resp = TEST_CLIENT.get(ep.PEOPLE_EP)
