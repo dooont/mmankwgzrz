@@ -29,13 +29,14 @@ text_dict = {
 def create(page_key: str, title: str, text: str):
     new_page_key = page_key
     text_dict[new_page_key] = {
-        title: 'New Page',
+        title: new_page_key,
         text: 'This is a new page.',
     }
 
 
-def delete():
-    pass
+def delete(page_key: str):
+    if page_key in text_dict:
+        del text_dict[page_key]
 
 
 def update(page_key: str, title: str = None, text: str = None):
