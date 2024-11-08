@@ -22,5 +22,5 @@ def test_read_one_not_found():
 def test_create():
     # check that a new page can be created
     txt.create('NewPage', 'New Page', 'This is a new page.')
-    assert txt.read_one('NewPage') == {'title': 'New Page', 
+    assert txt.read_one('NewPage') == {'title': 'New Page',
                                        'text': 'This is a new page.'}
