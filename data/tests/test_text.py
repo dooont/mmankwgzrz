@@ -28,41 +28,38 @@ def test_read_one_not_found():
     assert txt.read_one('Not a page key!') == {}
 
 
-def test_create():
-    new_key = 'NewPage'
-    txt.create(new_key, 'New Page Title', 'This is a new page.')
-
-    # Check that the new page has been added to the dictionary
-    page = txt.read_one(new_key)
+def test_create(temp_text):
+    new_key = temp_text
+    page = txt.read_one(temp_text)
     assert page != {}
-    assert page[txt.TITLE] == 'New Page Title'
-    assert page[txt.TEXT] == 'This is a new page.'
+    assert page[txt.TITLE] == 'Temp Page Title'
+    assert page[txt.TEXT] == 'This is a temp page.'
 
 
-def test_delete():
-    key_to_delete = txt.TEST_KEY
-
-    # Ensure the page exists before deletion
-    assert txt.read_one(key_to_delete) != {}
-
-    txt.delete(key_to_delete)
-    assert txt.read_one(key_to_delete) == {}
+def test_delete(temp_text):
+    assert txt.read_one(temp_text) != {}
+    txt.delete(temp_text)
+    assert txt.read_one(temp_text) == {}
 
 
-def test_update():
+@pytest.fixture(scope='function')
+def setup_update():
     key_to_update = txt.SUBM_KEY
-    
-    # Ensure the page exists before update
-    original_title = txt.read_one(key_to_update)[txt.TITLE]
-    original_text = txt.read_one(key_to_update)[txt.TEXT]
+    original_data = txt.read_one(key_to_update)
+    yield key_to_update
+    txt.update(key_to_update, title=original_data[txt.TITLE], text=original_data[txt.TEXT])
 
-    # Update the page
+
+def test_update(setup_update):
+    key_to_update = setup_update
+    
+    original_data = txt.read_one(key_to_update)
+    original_title = original_data[txt.TITLE]
+    original_text = original_data[txt.TEXT]
+
     txt.update(key_to_update, title="Updated Title", text="Updated text content.")
 
-    # Check that the page was updated
     updated_page = txt.read_one(key_to_update)
     assert updated_page[txt.TITLE] == "Updated Title"
     assert updated_page[txt.TEXT] == "Updated text content."
-
-    # Revert the changes for further testing
-    txt.update(key_to_update, title=original_title, text=original_text)
+    
