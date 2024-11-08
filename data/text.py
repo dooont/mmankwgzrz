@@ -26,26 +26,6 @@ text_dict = {
 }
 
 
-def create(page_key: str, title: str, text: str):
-    new_page_key = page_key
-    text_dict[new_page_key] = {
-        TITLE: title,
-        TEXT: text,
-    }
-
-
-def delete():
-    pass
-
-
-def update(page_key: str, title: str = None, text: str = None):
-    if page_key in text_dict:
-        if title:
-            text_dict[page_key][TITLE] = title
-        if text:
-            text_dict[page_key][TEXT] = text
-
-
 def read():
     """
     Our contract:
@@ -65,6 +45,27 @@ def read_one(page_key: str):
     """
     result = text_dict.get(page_key, {})
     return result
+
+
+def create(page_key: str, title: str, text: str):
+    new_page_key = page_key
+    text_dict[new_page_key] = {
+        TITLE: title,
+        TEXT: text,
+    }
+
+
+def delete(page_key: str):
+    if page_key in text_dict:
+        del text_dict[page_key]
+
+
+def update(page_key: str, title: str = None, text: str = None):
+    if page_key in text_dict:
+        if title:
+            text_dict[page_key][TITLE] = title
+        if text:
+            text_dict[page_key][TEXT] = text
 
 
 def main():

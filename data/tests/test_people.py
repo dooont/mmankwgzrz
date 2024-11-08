@@ -74,7 +74,7 @@ def test_read_one(temp_person):
     assert ppl.read_one(temp_person) is not None
 
 
-def test_read_one_not_there():
+def test_read_one_not_found():
     assert ppl.read_one('Not an existing email!') is None
 
 
