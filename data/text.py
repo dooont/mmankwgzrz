@@ -29,8 +29,8 @@ text_dict = {
 def create(page_key: str, title: str, text: str):
     new_page_key = page_key
     text_dict[new_page_key] = {
-        title: 'New Page',
-        text: 'This is a new page.',
+        TITLE: title,
+        TEXT: text,
     }
 
 

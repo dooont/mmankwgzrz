@@ -17,3 +17,10 @@ def test_read_one():
 def test_read_one_not_found():
     # check that non-existent pages can't be read
     assert txt.read_one('Not a page key!') == {}
+
+
+def test_create():
+    # check that a new page can be created
+    txt.create('NewPage', 'New Page', 'This is a new page.')
+    assert txt.read_one('NewPage') == {'title': 'New Page', 
+                                       'text': 'This is a new page.'}
