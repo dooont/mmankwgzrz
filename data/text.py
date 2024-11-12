@@ -48,8 +48,9 @@ def read_one(page_key: str):
 
 
 def create(page_key: str, title: str, text: str):
-    new_page_key = page_key
-    text_dict[new_page_key] = {
+    if page_key in text_dict:
+        raise ValueError(f'Adding duplicate page: {page_key}')
+    text_dict[page_key] = {
         TITLE: title,
         TEXT: text,
     }

@@ -36,6 +36,12 @@ def test_create(temp_text):
     assert page[txt.TEXT] == 'This is a temp page.'
 
 
+pytest.mark.skip('Skipping for now.')
+def test_create_duplicate():
+    with pytest.raises(ValueError):
+        txt.create(txt.TEST_KEY, 'Does Not Matter', 'Does Not Matter')
+
+
 def test_delete(temp_text):
     assert txt.read_one(temp_text) != {}
     txt.delete(temp_text)
