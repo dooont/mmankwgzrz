@@ -191,7 +191,7 @@ class Person(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
     def delete(self, _id):
-        ret = ppl.delete_person(_id)
+        ret = ppl.delete(_id)
         if ret is not None:
             return {'Deleted': ret}
         else:

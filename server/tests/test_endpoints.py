@@ -17,6 +17,8 @@ import server.endpoints as ep
 
 TEST_CLIENT = ep.app.test_client()
 
+
+
 # testing the hello endpoint
 def test_get_hello():
     resp = TEST_CLIENT.get(ep.HELLO_EP)
@@ -143,6 +145,21 @@ def test_update_person():
         json=invalid_data
     )
     assert resp.status_code == NOT_ACCEPTABLE
+
+
+@patch('data.people.delete', return_value='delete@nyu.edu')
+def test_delete_person_success(mock_delete):
+    resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/delete@nyu.edu')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'Deleted' in resp_json
+    mock_delete.assert_called_once()
+
+
+@patch('data.people.delete', return_value=None)
+def test_delete_person_not_found(mock_delete):
+    resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/nonexistent@email.com')
+    assert resp.status_code == NOT_FOUND
 
 
 def test_get_endpoints():
