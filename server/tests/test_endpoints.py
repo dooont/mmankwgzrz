@@ -168,3 +168,12 @@ def test_get_endpoints():
     assert "Available endpoints" in resp_json
     assert isinstance(resp_json["Available endpoints"], list)
     assert len(resp_json["Available endpoints"]) > 0
+
+
+@patch('data.people.get_masthead', return_value={})
+def test_get_masthead(mock_masthead):
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/masthead')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert ep.MASTHEAD in resp_json
+    assert isinstance(resp_json[ep.MASTHEAD], dict)
