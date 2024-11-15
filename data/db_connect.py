@@ -89,6 +89,14 @@ def read(collection, db=GAME_DB, no_id=True) -> list:
     return ret
 
 
+def read_dict(collection, key, db=GAME_DB, no_id=True) -> dict:
+    recs = read(collection, db=db, no_id=no_id)
+    recs_as_dict = {}
+    for rec in recs:
+        recs_as_dict[rec[key]] = rec
+    return recs_as_dict
+
+
 def fetch_all_as_dict(key, collection, db=GAME_DB):
     ret = {}
     for doc in client[db][collection].find():
