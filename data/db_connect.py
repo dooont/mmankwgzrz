@@ -35,6 +35,7 @@ def connect_db():
         else:
             print("Connecting to Mongo locally.")
             client = pm.MongoClient()
+    return client
 
 
 def insert_one(collection, doc, db=GAME_DB):
@@ -68,10 +69,23 @@ def update_doc(collection, filters, update_dict, db=GAME_DB):
     return client[db][collection].update_one(filters, {'$set': update_dict})
 
 
-def fetch_all(collection, db=GAME_DB):
+# might be unnecessary
+def fetch(collection, db=GAME_DB):
     ret = []
     for doc in client[db][collection].find():
         ret.append(doc)
+    return ret
+
+
+def read(collection, db=GAME_DB, no_id=True) -> list:
+    """
+    Returns a list from the db.
+    """
+    ret = []
+    for doc in client[db][collection].find():
+        if no_id:
+            del doc[MONGO_ID]
+            ret.append(doc)
     return ret
 
 
