@@ -12,6 +12,16 @@ def masthead_roles_data():
     return rls.get_masthead_roles()
 
 
+@pytest.fixture
+def role_codes_data():
+    return rls.get_role_codes()
+
+
+@pytest.fixture
+def validation_data():
+    return rls.is_valid()
+
+
 def test_get_roles(roles_data):
     assert isinstance(roles_data, dict)
     assert len(roles_data) > 0
