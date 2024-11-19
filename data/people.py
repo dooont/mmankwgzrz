@@ -4,6 +4,9 @@ This module interfaces to our user data.
 # importing python re module to match email strings based on patterns
 import re
 import data.roles as rls
+import data.db_connect as dbc
+
+PEOPLE_COLLECT = 'people'
 
 MIN_USER_NAME_LEN = 2
 # Fields
@@ -30,6 +33,10 @@ people_dict = {
         EMAIL: DEL_EMAIL,
     },
 }
+
+
+client = dbc.connect_db()
+print(f'{client=}')
 
 
 EMAIL_FORMAT = (
@@ -72,7 +79,8 @@ def read() -> dict:
         - Returns a dictionary of users keyed on user email.
         - Each email must be the key for another dictionary.
     """
-    people = people_dict
+    people = dbc.read_dict(PEOPLE_COLLECT, EMAIL)
+    print(f'{people=}')
     return people
 
 
@@ -102,6 +110,8 @@ def create(name: str, affiliation: str, email: str, role: str):
             roles.append(role)
         people_dict[email] = {NAME: name, ROLES: roles,
                               AFFILIATION: affiliation, EMAIL: email}
+        print(person)
+        dbc.create(PEOPLE_COLLECT, person)
         return email
 
 
