@@ -92,13 +92,9 @@ def read_one(email: str) -> dict:
     return people_dict.get(email)
 
 
-def delete(_id):
-    people = read()
-    if _id in people:
-        del people[_id]
-        return _id
-    else:
-        return None
+def delete(email: str):
+    print(f'{EMAIL=}, {email=}')
+    return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
 def create(name: str, affiliation: str, email: str, role: str):
@@ -109,7 +105,7 @@ def create(name: str, affiliation: str, email: str, role: str):
         if role:
             roles.append(role)
         person = {NAME: name, ROLES: roles,
-                              AFFILIATION: affiliation, EMAIL: email}
+                  AFFILIATION: affiliation, EMAIL: email}
         print(person)
         dbc.create(PEOPLE_COLLECT, person)
         return email
