@@ -121,23 +121,27 @@ class PeopleUpdate(Resource):
     @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
     @api.expect(PEOPLE_UPDATE_FLDS)
-    def put(email):
+    def put(self, email):
         """
         Update a person's details.
         """
         try:
+            person = ppl.read_one(email)
+            if not person:
+                raise wz.NotFound(f'Person with email {email} not found.')
+
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
             roles = request.json.get(ppl.ROLES, [])
-            new_email = request.json.get(ppl.EMAIL)
 
-            ret = ppl.update(name, affiliation, email, new_email, roles)
+            ret = ppl.update(name, affiliation, email, roles)
+
             return {
                 MESSAGE: 'Person updated successfully',
                 RETURN: ret
             }
         except ValueError as ve:
-            raise wz.NotFound(str(ve))
+            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
         except Exception as err:
             raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
@@ -213,21 +217,22 @@ class PeopleCreate(Resource):
         Add a person.
         """
         try:
-            # name = request.json[ppl.NAME]
             name = request.json.get(ppl.NAME)
-            # both above will return the value associated with name
-            # but get with parenthesis is safer and takes more time
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
             role = request.json.get(ppl.ROLES)
+
+            if ppl.exists(email):
+                raise wz.NotAcceptable(f'Email {email} is already in use.')
+
             ret = ppl.create(name, affiliation, email, role)
+            return {
+                MESSAGE: 'Person added!',
+                RETURN: ret,
+            }
+
         except Exception as err:
-            raise wz.NotAcceptable(f'Could not add person: '
-                                   f'{err=}')
-        return {
-            MESSAGE: 'Person added!',
-            RETURN: ret,
-        }
+            raise wz.NotAcceptable(f'Could not add person: {err=}')
 
 
 MASTHEAD = 'Masthead'

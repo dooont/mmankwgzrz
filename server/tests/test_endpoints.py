@@ -107,7 +107,7 @@ def test_update_person():
     test_email = "ejc369@nyu.edu"
     update_data = {
         ep.ppl.NAME: "Updated Name",
-        ep.ppl.EMAIL: "new@nyu.edu",
+        # ep.ppl.EMAIL: "new@nyu.edu",
         ep.ppl.AFFILIATION: "New Affiliation",
         ep.ppl.ROLES: ["AU", "CE"]
     }
@@ -136,7 +136,7 @@ def test_update_person():
 
     invalid_data = {
         ep.ppl.NAME: "",  # invalid empty name
-        ep.ppl.EMAIL: "ejc369@nyu.edu",  # valid email
+        # ep.ppl.EMAIL: "ejc369@nyu.edu",  # valid email
         ep.ppl.AFFILIATION: "",
         ep.ppl.ROLES: ["nonexistent_role"]  # invalid role
     }
