@@ -116,10 +116,10 @@ def update(name: str, affiliation: str, old_email: str, new_email: str,
     if old_email not in people_dict:
         raise ValueError(f'Updating non-existent person: {old_email=}')
     if is_valid_person(name, affiliation, new_email, roles=roles):
-        people_dict[new_email] = {NAME: name, AFFILIATION: affiliation,
-                                  EMAIL: new_email, ROLES: roles}
-        if old_email != new_email:
-            del people_dict[old_email]
+        person = {NAME: name, AFFILIATION: affiliation,
+                  EMAIL: new_email, ROLES: roles}
+        print(person)
+        dbc.update(PEOPLE_COLLECT, {EMAIL: old_email}, person)
         return new_email
 
 

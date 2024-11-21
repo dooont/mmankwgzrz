@@ -1,5 +1,6 @@
 import data.manuscripts.form as mform
 
+
 def test_get_form():
     assert isinstance(mform.get_form(), list)
 
@@ -7,7 +8,7 @@ def test_get_form():
 def test_get_form_descr():
     form_descr = mform.get_form_descr()
     for item in form_descr:
-      assert 'description' in item
+        assert 'description' in item
 
 
 def test_get_fld_names():
