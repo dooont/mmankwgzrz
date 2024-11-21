@@ -89,7 +89,7 @@ def read_one(email: str) -> dict:
     Return a person record if email present in DB,
     else None.
     """
-    return people_dict.get(email)
+    return dbc.read_one(PEOPLE_COLLECT, {EMAIL: email})
 
 
 def delete(email: str):
