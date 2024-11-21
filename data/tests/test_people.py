@@ -59,10 +59,11 @@ def temp_person():
 
 
 # testing the read endpoint
-def test_read():
+def test_read(temp_person):
     people = ppl.read()
     assert isinstance(people, dict)
     assert len(people) > 0
+
     # Check for string IDs:
     for _id, person in people.items():
         # id represents the key and person represents
@@ -71,6 +72,7 @@ def test_read():
         assert isinstance(_id, str)
         # checks if NAME is a key in the person (value)
         assert ppl.NAME in person
+    assert temp_person in people
 
 
 def test_read_one(temp_person):
@@ -81,17 +83,18 @@ def test_read_one_not_found():
     assert ppl.read_one('Not an existing email!') is None
 
 
+def test_exists(temp_person):
+    assert ppl.exists(temp_person)
+
+
+def test_doesnt_exist():
+    assert not ppl.exists('Not an existing email!')
+
+
 # testing the delete endpoint
-def test_delete():
-    people = ppl.read()
-    assert isinstance(people, dict)
-    old_len = len(people)
-    ppl.delete(ppl.DEL_EMAIL)
-    people = ppl.read()
-    # checks if new people dict has length smaller than old
-    assert len(people) < old_len
-    # make sure the email deleted is still not in people dict
-    assert ppl.DEL_EMAIL not in people
+def test_delete(temp_person):
+    ppl.delete(temp_person)
+    assert not ppl.exists(temp_person)
 
 
 # email is made constant here to make it easier to change later on
@@ -100,32 +103,29 @@ ADD_EMAIL = 'joe@nyu.edu'
 
 # testing the create endpoint
 def test_create():
-    # creates the person
     ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
-    people = ppl.read()
-    # checks if ADD_EMAIL is in people already
-    assert ADD_EMAIL in people
+    assert ppl.exists(ADD_EMAIL)
+    ppl.delete(ADD_EMAIL)
 
 
 # testing the delete people endpoint
-def test_create_duplicate():
+def test_create_duplicate(temp_person):
     # checks if the email already exists after creating the person
     # if so, it will raise an error
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', ppl.TEST_EMAIL, TEST_ROLE_CODE)
+                   'Neither Does School', temp_person, TEST_ROLE_CODE)
 
 
 VALID_ROLES = ['ED', 'AU']
 
 
-# @pytest.mark.skip('Skipping cause not done.')
 def test_update(temp_person):
     new_name = 'Buffalo Bill'
     new_affiliation = 'UBuffalo'
     new_roles = VALID_ROLES
 
-    updated_email = ppl.update(new_name, new_affiliation, temp_person, temp_person, new_roles)
+    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
 
     assert updated_email == temp_person
 
@@ -133,6 +133,12 @@ def test_update(temp_person):
     assert updated_person[ppl.NAME] == new_name
     assert updated_person[ppl.AFFILIATION] == new_affiliation
     assert updated_person[ppl.ROLES] == new_roles
+
+
+def test_update_not_there():
+    with pytest.raises(ValueError):
+        ppl.update('Will Fail', 'University of the Void',
+                   'Non-existent email', VALID_ROLES)
 
 
 def test_get_masthead():

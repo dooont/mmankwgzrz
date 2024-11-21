@@ -19,22 +19,6 @@ TEST_EMAIL = 'ejc369@nyu.edu'
 DEL_EMAIL = 'delete@nyu.edu'
 
 
-people_dict = {
-    TEST_EMAIL: {
-        NAME: 'Eugene Callahan',
-        ROLES: [rls.ED_CODE],
-        AFFILIATION: 'NYU',
-        EMAIL: TEST_EMAIL
-    },
-    DEL_EMAIL: {
-        NAME: 'Jeffrey Person',
-        ROLES: [rls.CE_CODE],
-        AFFILIATION: 'NYU',
-        EMAIL: DEL_EMAIL,
-    },
-}
-
-
 client = dbc.connect_db()
 print(f'{client=}')
 
@@ -92,13 +76,17 @@ def read_one(email: str) -> dict:
     return dbc.read_one(PEOPLE_COLLECT, {EMAIL: email})
 
 
+def exists(email: str) -> bool:
+    return read_one(email) is not None
+
+
 def delete(email: str):
     print(f'{EMAIL=}, {email=}')
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
 def create(name: str, affiliation: str, email: str, role: str):
-    if email in people_dict:
+    if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
     if is_valid_person(name, affiliation, email, role):
         roles = []
@@ -111,16 +99,15 @@ def create(name: str, affiliation: str, email: str, role: str):
         return email
 
 
-def update(name: str, affiliation: str, old_email: str, new_email: str,
-           roles: list):
-    if old_email not in people_dict:
-        raise ValueError(f'Updating non-existent person: {old_email=}')
-    if is_valid_person(name, affiliation, new_email, roles=roles):
+def update(name: str, affiliation: str, email: str, roles: list):
+    if not exists(email):
+        raise ValueError(f'Updating non-existent person: {email=}')
+    if is_valid_person(name, affiliation, email, roles=roles):
         person = {NAME: name, AFFILIATION: affiliation,
-                  EMAIL: new_email, ROLES: roles}
+                  EMAIL: email, ROLES: roles}
         print(person)
-        dbc.update(PEOPLE_COLLECT, {EMAIL: old_email}, person)
-        return new_email
+        dbc.update(PEOPLE_COLLECT, {EMAIL: email}, person)
+        return email
 
 
 def has_role(person: dict, role: str) -> bool:
@@ -161,6 +148,7 @@ def get_masthead() -> dict:
 
 def main():
     print(read())
+    print(get_masthead())
 
 
 if __name__ == '__main__':
