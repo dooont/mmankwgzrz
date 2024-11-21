@@ -121,7 +121,7 @@ class PeopleUpdate(Resource):
     @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
     @api.expect(PEOPLE_UPDATE_FLDS)
-    def put(self, email):
+    def put(email):
         """
         Update a person's details.
         """
