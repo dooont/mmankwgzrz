@@ -42,6 +42,13 @@ def test_get_role_codes():
         assert isinstance(code, str)
 
 
+def test_role_in_mh_roles():
+    assert rls.role_in_mh_roles(rls.CE_CODE)
+    assert rls.role_in_mh_roles(rls.ED_CODE)
+    assert rls.role_in_mh_roles(rls.ME_CODE)
+    assert not rls.role_in_mh_roles(rls.RE_CODE) 
+    assert not rls.role_in_mh_roles(rls.AUTHOR_CODE) 
+
 def test_is_valid():
     assert rls.is_valid(rls.TEST_CODE)
     assert not rls.is_valid("NOT A VALID ROLE")
