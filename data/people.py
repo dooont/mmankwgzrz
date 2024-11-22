@@ -90,7 +90,7 @@ def delete(email: str):
 def create(name: str, affiliation: str, email: str, role: str):
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
-    
+
     if is_valid_person(name, affiliation, email, role):
         roles = [role] if role else []
         person = {NAME: name, ROLES: roles,

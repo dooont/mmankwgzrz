@@ -103,17 +103,19 @@ def test_people_create_form():
 
 
 def test_update_person():
-    # Test data
     test_email = "ejc369@nyu.edu"
     update_data = {
         ep.ppl.NAME: "Updated Name",
-        # ep.ppl.EMAIL: "new@nyu.edu",
         ep.ppl.AFFILIATION: "New Affiliation",
         ep.ppl.ROLES: ["AU", "CE"]
     }
 
-    # Mock successful update. Use patch() so we dont touch real data
-    with patch('data.people.update', return_value=update_data) as mock_update:
+    # Success case
+    with patch('data.people.read_one') as mock_read_one, \
+         patch('data.people.update', return_value=update_data) as mock_update:
+        # Mock that person exists
+        mock_read_one.return_value = {"email": test_email}  
+        
         resp = TEST_CLIENT.put(
             f'{ep.PEOPLE_EP}/{test_email}',
             json=update_data
@@ -124,27 +126,53 @@ def test_update_person():
         assert ep.MESSAGE in resp_json
         assert ep.RETURN in resp_json
         assert resp_json[ep.RETURN] == update_data
+        mock_read_one.assert_called_once_with(test_email)
         mock_update.assert_called_once()
 
-    # nonexistent email case
-    with patch('data.people.update', side_effect=ValueError("Person not found")):
+    # Nonexistent email case
+    with patch('data.people.read_one', return_value=None):
         resp = TEST_CLIENT.put(
             f'{ep.PEOPLE_EP}/nonexistent@nyu.edu',
             json=update_data
         )
         assert resp.status_code == NOT_FOUND
 
-    invalid_data = {
-        ep.ppl.NAME: "",  # invalid empty name
-        # ep.ppl.EMAIL: "ejc369@nyu.edu",  # valid email
-        ep.ppl.AFFILIATION: "",
-        ep.ppl.ROLES: ["nonexistent_role"]  # invalid role
+    # Invalid data case
+    with patch('data.people.read_one') as mock_read_one:
+        mock_read_one.return_value = {"email": test_email}  
+        invalid_data = {
+            ep.ppl.NAME: "",  # invalid empty name
+            ep.ppl.AFFILIATION: "",
+            ep.ppl.ROLES: ["nonexistent_role"]  # invalid role
+        }
+        resp = TEST_CLIENT.put(
+            f'{ep.PEOPLE_EP}/{test_email}',
+            json=invalid_data
+        )
+        assert resp.status_code == NOT_ACCEPTABLE
+
+
+@patch('data.people.exists', autospec=True)
+@patch('data.people.create', autospec=True, return_value="test@nyu.edu")
+def test_create_person(mock_create, mock_exists):
+    mock_exists.return_value = False  # assume person doesn't exist yet
+    
+    test_data = {
+        ep.ppl.NAME: "Test Person",
+        ep.ppl.EMAIL: "test@nyu.edu",
+        ep.ppl.AFFILIATION: "NYU",
+        ep.ppl.ROLES: "AU"
     }
-    resp = TEST_CLIENT.put(
-        f'{ep.PEOPLE_EP}/{test_email}',
-        json=invalid_data
-    )
-    assert resp.status_code == NOT_ACCEPTABLE
+    
+    resp = TEST_CLIENT.put(f'{ep.PEOPLE_EP}/create', json=test_data)
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert ep.MESSAGE in resp_json
+    assert ep.RETURN in resp_json
+    assert resp_json[ep.RETURN] == "test@nyu.edu"
+    
+    mock_exists.assert_called_once_with("test@nyu.edu")
+    mock_create.assert_called_once()
 
 
 @patch('data.people.delete', return_value='delete@nyu.edu')

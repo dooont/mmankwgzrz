@@ -142,6 +142,8 @@ class PeopleUpdate(Resource):
             }
         except ValueError as ve:
             raise wz.NotFound(f'Invalid data provided: {str(ve)}')
+        except wz.NotFound:  # Let NotFound exceptions pass through
+            raise
         except Exception as err:
             raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
