@@ -87,6 +87,19 @@ def delete(email: str):
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
+def delete_role(email: str, role: str):
+    # check if person exists
+    person = exists(email) 
+    if person:
+        status = dbc.delete_role(PEOPLE_COLLECT, {EMAIL: email}, {ROLES: role})
+        if status:
+            print('Role successfully deleted')
+        else: 
+            print('Role of person could not be found')
+    else:
+        print('Person not found!')
+    
+
 def create(name: str, affiliation: str, email: str, role: str):
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
