@@ -44,7 +44,7 @@ def convert_mongo_id(doc: dict):
         doc[MONGO_ID] = str(doc[MONGO_ID])
 
 
-def create(collection, doc, db=JOURNAL_DB):
+def create(collection: str, doc: dict, db=JOURNAL_DB):
     """
     Insert a single doc into collection.
     """
@@ -52,7 +52,7 @@ def create(collection, doc, db=JOURNAL_DB):
     return client[db][collection].insert_one(doc)
 
 
-def read_one(collection, filt, db=JOURNAL_DB):
+def read_one(collection: str, filt: dict, db=JOURNAL_DB):
     """
     Find with a filter and return on the first doc found.
     Return None if not found.
@@ -71,8 +71,20 @@ def delete(collection: str, filt: dict, db=JOURNAL_DB):
     return del_result.deleted_count
 
 
-def update(collection, filters, update_dict, db=JOURNAL_DB):
-    return client[db][collection].update_one(filters, {'$set': update_dict})
+def delete_role(collection: str, filt: dict, role: str, db=JOURNAL_DB) -> bool:
+    """
+    Find with a filter and delete the role from the list of roles of person doc.
+    """
+    print(f'{filt=}')
+    result = client[db][collection].update_one(filt, {'$pull': role})
+    if result.modified_count > 0:
+        return True # role was deleted
+    else:
+        return False
+
+
+def update(collection: str, filt: dict, update_dict: dict, db=JOURNAL_DB):
+    return client[db][collection].update_one(filt, {'$set': update_dict})
 
 
 def read(collection, db=JOURNAL_DB, no_id=True) -> list:
