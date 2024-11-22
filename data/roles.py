@@ -31,12 +31,16 @@ def get_role_codes() -> list:
     return list(ROLES.keys())
 
 
+def role_in_mh_roles(role: str) -> bool:
+    return role in MH_ROLES
+
+
 # deletion of roles only happens in this module, this function
 def get_masthead_roles() -> dict:
     mh_roles = get_roles()
     del_mh_roles = []
     for role in mh_roles:
-        if role not in MH_ROLES:
+        if not role_in_mh_roles(role):
             # if roles are not masthead roles then delete
             # by appending to array of roles to be removed
             del_mh_roles.append(role)
