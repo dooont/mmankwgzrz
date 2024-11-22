@@ -175,6 +175,25 @@ def test_create_person(mock_create, mock_exists):
     mock_create.assert_called_once()
 
 
+@patch('data.people.exists', autospec=True)
+@patch('data.people.create', autospec=True)
+def test_create_person_exists(mock_create, mock_exists):
+    mock_exists.return_value = True  # Person already exists
+    
+    test_data = {
+        ep.ppl.NAME: "Test Person",
+        ep.ppl.EMAIL: "test@nyu.edu",
+        ep.ppl.AFFILIATION: "NYU",
+        ep.ppl.ROLES: "AU"
+    }
+    
+    resp = TEST_CLIENT.put(f'{ep.PEOPLE_EP}/create', json=test_data)
+    assert resp.status_code == NOT_ACCEPTABLE
+    
+    mock_exists.assert_called_once_with("test@nyu.edu")
+    mock_create.assert_not_called()  # create should never be called if person exists
+
+
 @patch('data.people.delete', return_value='delete@nyu.edu')
 def test_delete_person_success(mock_delete):
     resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/delete@nyu.edu')
