@@ -32,9 +32,9 @@ EMAIL_FORMAT = (
         )
 
 
-def is_valid_email(email):
+def is_valid_email(email: str) -> bool:
     if isinstance(email, str):
-        if re.match(EMAIL_FORMAT, email):
+        if re.fullmatch(EMAIL_FORMAT, email):
             return True
         else:
             raise ValueError(f'Email does not follow correct format: {email}')
