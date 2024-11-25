@@ -89,16 +89,16 @@ def delete(email: str):
 
 def delete_role(email: str, role: str):
     # check if person exists
-    person = exists(email) 
+    person = exists(email)
     if person:
         status = dbc.delete_role(PEOPLE_COLLECT, {EMAIL: email}, {ROLES: role})
         if status:
             print('Role successfully deleted')
-        else: 
+        else:
             print('Role of person could not be found')
     else:
         print('Person not found!')
-    
+
 
 def create(name: str, affiliation: str, email: str, role: str):
     if exists(email):

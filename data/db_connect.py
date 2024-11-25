@@ -73,12 +73,13 @@ def delete(collection: str, filt: dict, db=JOURNAL_DB):
 
 def delete_role(collection: str, filt: dict, role: str, db=JOURNAL_DB) -> bool:
     """
-    Find with a filter and delete the role from the list of roles of person doc.
+    Find with a filter and delete the role from the list of roles of person
+    doc.
     """
     print(f'{filt=}')
     result = client[db][collection].update_one(filt, {'$pull': role})
     if result.modified_count > 0:
-        return True # role was deleted
+        return True     # role was deleted
     else:
         return False
 
