@@ -1,15 +1,15 @@
 """
 This module interfaces to our user data.
 """
-# importing python re module to match email strings based on patterns
-import re
+import re   # Module for regular expressions, used for validating email format.
+
 import data.roles as rls
 import data.db_connect as dbc
 
 PEOPLE_COLLECT = 'people'
-
 MIN_USER_NAME_LEN = 2
-# Fields
+
+# Fields for person data
 NAME = 'name'
 ROLES = 'roles'
 AFFILIATION = 'affiliation'
@@ -33,6 +33,10 @@ EMAIL_FORMAT = (
 
 
 def is_valid_email(email: str) -> bool:
+    """
+    Validates if the provided email matches the expected format.
+    Raises ValueError if the email is invalid.
+    """
     if isinstance(email, str):
         if re.fullmatch(EMAIL_FORMAT, email):
             return True
@@ -44,6 +48,11 @@ def is_valid_email(email: str) -> bool:
 
 def is_valid_person(name: str, affiliation: str, email: str,
                     role: str = None, roles: list = None) -> bool:
+    """
+    Validates person attributes.
+        - The email is valid.
+        - The role(s) are valid if provided.
+    """
     if not is_valid_email(email):
         raise Exception(f'Invalid email: {email}')
 
@@ -60,10 +69,10 @@ def is_valid_person(name: str, affiliation: str, email: str,
 
 def read() -> dict:
     """
-    Our contract:
-        - No arguments.
-        - Returns a dictionary of users keyed on user email.
-        - Each email must be the key for another dictionary.
+    Reads all people data from the database.
+    Returns:
+        A dictionary where each key is an email, and the value is a dictionary
+        of person data.
     """
     people = dbc.read_dict(PEOPLE_COLLECT, EMAIL)
     print(f'{people=}')
@@ -72,23 +81,32 @@ def read() -> dict:
 
 def read_one(email: str) -> dict:
     """
-    Return a person record if email present in DB,
-    else None.
+    Reads a single person record by email.
+    Returns:
+        A dictionary if the email exists, otherwise None.
     """
     return dbc.read_one(PEOPLE_COLLECT, {EMAIL: email})
 
 
 def exists(email: str) -> bool:
+    """
+    Checks if a person with the given email exists in the database.
+    """
     return read_one(email) is not None
 
 
 def delete(email: str):
+    """
+    Deletes a person by email from the database.
+    """
     print(f'{EMAIL=}, {email=}')
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
 def delete_role(email: str, role: str):
-    # check if person exists
+    """
+    Deletes a specific role for a person by email.
+    """
     person = exists(email)
     if person:
         status = dbc.delete_role(PEOPLE_COLLECT, {EMAIL: email}, {ROLES: role})
@@ -101,6 +119,10 @@ def delete_role(email: str, role: str):
 
 
 def create(name: str, affiliation: str, email: str, role: str):
+    """
+    Creates a new person in the database.
+    Raises ValueError if the email already exists.
+    """
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
 
@@ -114,6 +136,10 @@ def create(name: str, affiliation: str, email: str, role: str):
 
 
 def update(name: str, affiliation: str, email: str, roles: list):
+    """
+    Updates an existing person's details in the database.
+    Raises ValueError if the person does not exist.
+    """
     if not exists(email):
         raise ValueError(f'Updating non-existent person: {email=}')
     if is_valid_person(name, affiliation, email, roles=roles):
@@ -125,19 +151,28 @@ def update(name: str, affiliation: str, email: str, roles: list):
 
 
 def has_role(person: dict, role: str) -> bool:
+    """
+    Checks if a person has a specific role.
+    """
     if role in person[ROLES]:
         return True
     return False
 
 
-MH_FIELDS = [NAME, AFFILIATION]
+MH_FIELDS = [NAME, AFFILIATION]  # Fields for masthead records
 
 
-def get_mh_fields(journal_code=None) -> list:
+def get_mh_fields() -> list:
+    """
+    Returns fields to include in masthead records.
+    """
     return MH_FIELDS
 
 
 def create_mh_rec(person: dict) -> dict:
+    """
+    Creates a masthead record for a person.
+    """
     mh_rec = {}
     for field in get_mh_fields():
         mh_rec[field] = person.get(field, '')
@@ -145,16 +180,18 @@ def create_mh_rec(person: dict) -> dict:
 
 
 def get_masthead() -> dict:
+    """
+    Compiles a masthead dictionary grouping people by their masthead roles.
+    """
     masthead = {}
     mh_roles = rls.get_masthead_roles()
     for mh_role, text in mh_roles.items():
         print(f'{mh_role=}')
-        people_w_role = []  # an array of people with role
+        people_w_role = []  # List of people with the role
         people = read()
-        for _id, person in people.items():
+        for email, person in people.items():
             if has_role(person, mh_role):
                 rec = create_mh_rec(person)
-                # Put their record in people_w_role
                 people_w_role.append(rec)
         masthead[text] = people_w_role
     return masthead

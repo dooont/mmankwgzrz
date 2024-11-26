@@ -39,14 +39,17 @@ def connect_db():
 
 
 def convert_mongo_id(doc: dict):
+    """
+    Converts MongoDB's ObjectId (_id) into a string so it can be serialized as
+    JSON.
+    """
     if MONGO_ID in doc:
-        # Convert mongo ID to a string so it works as JSON
         doc[MONGO_ID] = str(doc[MONGO_ID])
 
 
 def create(collection: str, doc: dict, db=JOURNAL_DB):
     """
-    Insert a single doc into collection.
+    Insert a single document into the specified collection in the database.
     """
     print(f'{db=}')
     return client[db][collection].insert_one(doc)
@@ -57,14 +60,17 @@ def read_one(collection: str, filt: dict, db=JOURNAL_DB):
     Find with a filter and return on the first doc found.
     Return None if not found.
     """
-    for doc in client[db][collection].find(filt):
+    doc = client[db][collection].find_one(filt)
+    if doc:
         convert_mongo_id(doc)
-        return doc
+    print(f"Document found: {doc}")
+    return doc
 
 
 def delete(collection: str, filt: dict, db=JOURNAL_DB):
     """
-    Find with a filter and return on the first doc found.
+    Deletes the first document matching the filter.
+    Returns the count of deleted documents.
     """
     print(f'{filt=}')
     del_result = client[db][collection].delete_one(filt)
@@ -73,24 +79,23 @@ def delete(collection: str, filt: dict, db=JOURNAL_DB):
 
 def delete_role(collection: str, filt: dict, role: str, db=JOURNAL_DB) -> bool:
     """
-    Find with a filter and delete the role from the list of roles of person
-    doc.
+    Removes a specific role from a list in a document based on the filter.
     """
     print(f'{filt=}')
     result = client[db][collection].update_one(filt, {'$pull': role})
-    if result.modified_count > 0:
-        return True     # role was deleted
-    else:
-        return False
+    return result.modified_count > 0  # True if a role was removed
 
 
 def update(collection: str, filt: dict, update_dict: dict, db=JOURNAL_DB):
+    """
+    Updates fields in a document matching the filter with the provided updates.
+    """
     return client[db][collection].update_one(filt, {'$set': update_dict})
 
 
 def read(collection, db=JOURNAL_DB, no_id=True) -> list:
     """
-    Returns a list from the db.
+    Retrieves all documents from the specified collection.
     """
     ret = []
     for doc in client[db][collection].find():
@@ -103,6 +108,10 @@ def read(collection, db=JOURNAL_DB, no_id=True) -> list:
 
 
 def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
+    """
+    Retrieves all documents as a dictionary with the specified key as the
+    dictionary key.
+    """
     recs = read(collection, db=db, no_id=no_id)
     recs_as_dict = {}
     for rec in recs:
@@ -111,6 +120,9 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
 
 
 def fetch_all_as_dict(key, collection, db=JOURNAL_DB):
+    """
+    Retrieves all documents as a dictionary with a specified field as the key.
+    """
     ret = {}
     for doc in client[db][collection].find():
         del doc[MONGO_ID]
