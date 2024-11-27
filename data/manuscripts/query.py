@@ -1,15 +1,28 @@
-# State Contants
+# States
+AUTHOR_REVIEW = 'AU_RVW'
+AUTHOR_REVISION = 'AU_REV'
 COPY_EDIT = 'CED'
-IN_REF_REV = 'REV'
+EDITOR_REVIEW = 'ED_RVW'
+FORMATTING = 'FMT'
+PUBLISHED = 'PUB'
+REFEREE_REVIEW = 'REF_RVW'
 REJECTED = 'REJ'
 SUBMITTED = 'SUB'
+WITHDRAWN = 'WDN'
+
 TEST_STATE = SUBMITTED
 
 VALID_STATES = [
+    AUTHOR_REVIEW,
+    AUTHOR_REVISION,
     COPY_EDIT,
-    IN_REF_REV,
+    EDITOR_REVIEW,
+    FORMATTING,
+    PUBLISHED,
+    REFEREE_REVIEW,
     REJECTED,
     SUBMITTED,
+    WITHDRAWN,
 ]
 
 
@@ -21,9 +34,10 @@ def is_valid_state(state: str) -> bool:
     return state in VALID_STATES
 
 
-# actions:
+# Actions
 ACTIONS = {
     'ACCEPT': 'ACC',
+    'ACCEPT_WITH_REV': 'AWR',
     'ASSIGN_REF': 'ARF',
     'DONE': 'DON',
     'REJECT': 'REJ',
@@ -50,13 +64,22 @@ def handle_action(curr_state, action) -> str:
         raise ValueError(f'Invalid action: {action}')
     new_state = curr_state
     if curr_state == SUBMITTED:
-        if action == ACTIONS['ACCEPT']:
-            new_state = IN_REF_REV
+        if action == ACTIONS['ASSIGN_REF']:
+            new_state = REFEREE_REVIEW
         elif action == ACTIONS['REJECT']:
             new_state = REJECTED
-    elif curr_state == IN_REF_REV:
-        if action == ACTIONS['DONE']:
+    elif curr_state == REFEREE_REVIEW:
+        if action == ACTIONS['ACCEPT']:
             new_state = COPY_EDIT
         elif action == ACTIONS['REJECT']:
             new_state = REJECTED
+        elif action == ACTIONS['ACCEPT_WITH_REV']:
+            new_state = AUTHOR_REVISION
+    elif curr_state == AUTHOR_REVISION:
+        if action == ACTIONS['DONE']:
+            new_state = EDITOR_REVIEW
+    elif curr_state == EDITOR_REVIEW:
+        if action == ACTIONS['ACCEPT']:
+            new_state = COPY_EDIT
+        
     return new_state

@@ -114,40 +114,6 @@ class GetRepoName(Resource):
         }
 
 
-# This is the endpoint for updating the people
-@api.route(f'{PEOPLE_EP}/<email>')
-class PeopleUpdate(Resource):
-    @api.response(HTTPStatus.OK, 'Success')
-    @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
-    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
-    @api.expect(PEOPLE_UPDATE_FLDS)
-    def put(self, email):
-        """
-        Update a person's details.
-        """
-        try:
-            person = ppl.read_one(email)
-            if not person:
-                raise wz.NotFound(f'Person with email {email} not found.')
-
-            name = request.json.get(ppl.NAME)
-            affiliation = request.json.get(ppl.AFFILIATION)
-            roles = request.json.get(ppl.ROLES, [])
-
-            ret = ppl.update(name, affiliation, email, roles)
-
-            return {
-                MESSAGE: 'Person updated successfully',
-                RETURN: ret
-            }
-        except ValueError as ve:
-            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
-        except wz.NotFound:  # Let NotFound exceptions pass through
-            raise
-        except Exception as err:
-            raise wz.NotAcceptable(f'Could not update person: {str(err)}')
-
-
 # This is the endpoint for creating the people
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
@@ -203,6 +169,36 @@ class Person(Resource):
         else:
             raise wz.NotFound(f'No such person: {email}')
 
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
+    @api.expect(PEOPLE_UPDATE_FLDS)
+    def put(self, email):
+        """
+        Update a person's details.
+        """
+        try:
+            person = ppl.read_one(email)
+            if not person:
+                raise wz.NotFound(f'Person with email {email} not found.')
+
+            name = request.json.get(ppl.NAME)
+            affiliation = request.json.get(ppl.AFFILIATION)
+            roles = request.json.get(ppl.ROLES, [])
+
+            ret = ppl.update(name, affiliation, email, roles)
+
+            return {
+                MESSAGE: 'Person updated successfully',
+                RETURN: ret
+            }
+        except ValueError as ve:
+            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
+        except wz.NotFound:  # Let NotFound exceptions pass through
+            raise
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not update person: {str(err)}')
+
 
 @api.route(f'{PEOPLE_EP}/create')
 class PeopleCreate(Resource):
@@ -232,7 +228,6 @@ class PeopleCreate(Resource):
                 MESSAGE: 'Person added!',
                 RETURN: ret,
             }
-
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add person: {err=}')
 

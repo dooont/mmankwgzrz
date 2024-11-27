@@ -60,10 +60,13 @@ def test_handle_action():
     """
     Test handling actions and state transitions.
     """
-    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['ACCEPT']) == mqry.IN_REF_REV
+    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF']) == mqry.REFEREE_REVIEW
     assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['REJECT']) == mqry.REJECTED
-    assert mqry.handle_action(mqry.IN_REF_REV, mqry.ACTIONS['DONE']) == mqry.COPY_EDIT
-    assert mqry.handle_action(mqry.IN_REF_REV, mqry.ACTIONS['REJECT']) == mqry.REJECTED
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT']) == mqry.COPY_EDIT
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['REJECT']) == mqry.REJECTED
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT_WITH_REV']) == mqry.AUTHOR_REVISION
+    assert mqry.handle_action(mqry.AUTHOR_REVISION, mqry.ACTIONS['DONE']) == mqry.EDITOR_REVIEW
+    assert mqry.handle_action(mqry.EDITOR_REVIEW, mqry.ACTIONS['ACCEPT']) == mqry.COPY_EDIT
 
 
 def test_handle_action_bad_state():
