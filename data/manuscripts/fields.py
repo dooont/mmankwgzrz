@@ -23,7 +23,7 @@ def get_fld_names() -> list:
 
 def get_disp_name(fld_nm: str) -> dict:
     fld = FIELDS.get(fld_nm, '')
-    return fld[DISP_NAME]  # should we use get() here?
+    return fld.get(DISP_NAME) # should we use get() here?
 
 
 def main():
