@@ -175,3 +175,12 @@ def test_delete_role(temp_person):
     ppl.delete_role(temp_person, TEST_ROLE_CODE)
     person_rec = ppl.read_one(temp_person)
     assert TEST_ROLE_CODE not in person_rec[ppl.ROLES]
+
+
+def test_is_valid_person():
+    assert ppl.is_valid_person(
+        "Test Name",
+        "Test Affiliation",
+        "test@example.com",
+        role=TEST_ROLE_CODE
+    )
