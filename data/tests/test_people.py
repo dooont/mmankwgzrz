@@ -184,3 +184,20 @@ def test_is_valid_person():
         "test@example.com",
         role=TEST_ROLE_CODE
     )
+
+
+def test_not_is_valid_person():
+    with pytest.raises(ValueError):
+        ppl.is_valid_person(
+            "Test Name",
+            "Test Affiliation",
+            "bad email",
+            role = TEST_ROLE_CODE
+        )
+    with pytest.raises(Exception):
+        ppl.is_valid_person(
+            "Test Name",
+            "Test Affiliation",
+            "test@example.com",
+            role = 'BAD CODE'
+        )
