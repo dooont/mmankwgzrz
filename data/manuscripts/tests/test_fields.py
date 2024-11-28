@@ -15,3 +15,8 @@ def test_get_disp_name():
     ret = mflds.get_disp_name(mflds.TITLE)
     assert isinstance(ret, str)
     assert ret == mflds.TEST_FLD_DISP_NM
+
+
+def test_is_valid():
+    assert mflds.is_valid(mflds.TEST_FLD_NM)
+    assert not mflds.is_valid("NOT A VALID FIELD")
