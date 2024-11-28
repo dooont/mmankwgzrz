@@ -52,3 +52,10 @@ def test_role_in_mh_roles():
 def test_is_valid():
     assert rls.is_valid(rls.TEST_CODE)
     assert not rls.is_valid("NOT A VALID ROLE")
+
+
+def test_roles_is_copy():
+    original = rls.get_roles()
+    original['TEST'] = 'Test'
+    new = rls.get_roles()
+    assert 'TEST' not in new
