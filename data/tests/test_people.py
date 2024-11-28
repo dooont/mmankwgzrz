@@ -169,3 +169,9 @@ def test_get_mh_fields():
     flds = ppl.get_mh_fields()
     assert isinstance(flds, list)
     assert len(flds) > 0
+
+
+def test_delete_role(temp_person):
+    ppl.delete_role(temp_person, TEST_ROLE_CODE)
+    person_rec = ppl.read_one(temp_person)
+    assert TEST_ROLE_CODE not in person_rec[ppl.ROLES]

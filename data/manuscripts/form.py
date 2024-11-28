@@ -2,9 +2,9 @@
 This module provides a sample query form.
 """
 
-import manuscripts.form_filler as ff
+import data.manuscripts.form_filler as ff
 
-from manuscripts.form_filler import FLD_NM
+from data.manuscripts.form_filler import FLD_NM
 
 USERNAME = 'username'
 PASSWORD = 'password'
