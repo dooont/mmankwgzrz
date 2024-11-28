@@ -17,3 +17,8 @@ def test_get_fld_names():
     fld_names = mform.get_fld_names()
     assert isinstance(fld_names, list)
     assert all(isinstance(name, str) for name in fld_names)
+
+
+def test_valid_forms():
+    for form in mform.get_form():
+        assert isinstance(form, dict)
