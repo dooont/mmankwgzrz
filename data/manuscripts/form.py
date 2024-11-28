@@ -2,15 +2,30 @@
 This module provides a sample query form.
 """
 
-import backendcore.data.form_filler as ff
+import manuscripts.form_filler as ff
 
-from templates.fields import CODE
+from manuscripts.form_filler import FLD_NM
+
+USERNAME = 'username'
+PASSWORD = 'password'
 
 FORM_FLDS = [
     {
-        ff.FLD_NM: CODE,
-        ff.QSTN: 'Sample:',
+        FLD_NM: 'Instructions',
+        ff.QSTN: 'Enter your username and password.',
+        ff.INSTRUCTIONS: True,
+    },
+    {
+        FLD_NM: USERNAME,
+        ff.QSTN: 'User name:',
         ff.PARAM_TYPE: ff.QUERY_STR,
+        ff.OPT: False,
+    },
+    {
+        FLD_NM: PASSWORD,
+        ff.QSTN: 'Password:',
+        ff.PARAM_TYPE: ff.QUERY_STR,
+        ff.OPT: False,
     },
 ]
 
