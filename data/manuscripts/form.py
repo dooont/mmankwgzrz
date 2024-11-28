@@ -46,9 +46,9 @@ def get_fld_names() -> list:
 
 
 def main():
-    print(f'Form: {get_form()=}')
+    # print(f'Form: {get_form()=}')
     print(f'Form: {get_form_descr()=}')
-    print(f'Field names: {get_fld_names()=}')
+    # print(f'Field names: {get_fld_names()=}')
 
 
 if __name__ == "__main__":
