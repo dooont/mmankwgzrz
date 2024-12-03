@@ -1,6 +1,8 @@
 import os
-
+from dotenv import load_dotenv
 import pymongo as pm
+
+load_dotenv()
 
 LOCAL = "0"
 CLOUD = "1"
@@ -24,14 +26,12 @@ def connect_db():
     if client is None:  # not connected yet!
         print("Setting client because it is None.")
         if os.environ.get("CLOUD_MONGO", LOCAL) == CLOUD:
-            password = os.environ.get("GAME_MONGO_PW")
-            if not password:
-                raise ValueError('You must set your password '
+            mongo_uri = os.environ.get("MONGO_URI")
+            if not mongo_uri:
+                raise ValueError('You must set your MONGO_URI '
                                  + 'to use Mongo in the cloud.')
             print("Connecting to Mongo in the cloud.")
-            client = pm.MongoClient(f'mongodb+srv://gcallah:{password}'
-                                    + '@koukoumongo1.yud9b.mongodb.net/'
-                                    + '?retryWrites=true&w=majority')
+            client = pm.MongoClient(mongo_uri)
         else:
             print("Connecting to Mongo locally.")
             client = pm.MongoClient()
