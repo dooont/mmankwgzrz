@@ -70,6 +70,9 @@ def test_handle_action():
     assert mqry.handle_action(mqry.COPY_EDIT, mqry.ACTIONS['DONE']) == mqry.AUTHOR_REVIEW
     assert mqry.handle_action(mqry.AUTHOR_REVIEW, mqry.ACTIONS['DONE']) == mqry.FORMATTING
     assert mqry.handle_action(mqry.FORMATTING, mqry.ACTIONS['DONE']) == mqry.PUBLISHED
+    assert mqry.handle_action(mqry.PUBLISHED, mqry.ACTIONS['DONE']) == mqry.PUBLISHED
+    assert mqry.handle_action(mqry.REJECTED, mqry.ACTIONS['DONE']) == mqry.REJECTED
+    assert mqry.handle_action(mqry.WITHDRAWN, mqry.ACTIONS['WITHDRAW']) == mqry.WITHDRAWN
 
 
 def test_handle_action_bad_state():

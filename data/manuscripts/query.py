@@ -41,6 +41,7 @@ ACTIONS = {
     'ASSIGN_REF': 'ARF',
     'DONE': 'DON',
     'REJECT': 'REJ',
+    'WITHDRAW': 'WDN',
 }
 
 # for testing:
@@ -70,7 +71,7 @@ STATE_TABLE = {
             FUNC: lambda x: EDITOR_REVIEW,
         }
     },
-     COPY_EDIT: {
+    COPY_EDIT: {
         ACTIONS['DONE']: {
             FUNC: lambda x: AUTHOR_REVIEW,
         }
@@ -85,7 +86,11 @@ STATE_TABLE = {
             FUNC: lambda x: PUBLISHED,
         }
     },
-    PUBLISHED: {},
+    PUBLISHED: {
+        ACTIONS['DONE']: {
+            FUNC: lambda x: PUBLISHED,
+        },
+    },
     REFEREE_REVIEW: {
         ACTIONS['ACCEPT']: {
             FUNC: lambda x: COPY_EDIT,
@@ -97,7 +102,11 @@ STATE_TABLE = {
             FUNC: lambda x: AUTHOR_REVISION,
         }
     }, 
-    REJECTED: {},
+    REJECTED: {
+        ACTIONS['DONE']: {
+            FUNC: lambda x: REJECTED,
+        }    
+    },
     SUBMITTED: {
         ACTIONS['ASSIGN_REF']: {
             FUNC: lambda x: REFEREE_REVIEW,
@@ -106,7 +115,11 @@ STATE_TABLE = {
             FUNC: lambda x: REJECTED,
         }
     },
-    WITHDRAWN: {},
+    WITHDRAWN: {
+        ACTIONS['WITHDRAW']: {
+            FUNC: lambda x: WITHDRAWN,
+        }
+    },
 }
 
 
