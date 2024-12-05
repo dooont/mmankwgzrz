@@ -26,6 +26,7 @@ def get_fld_names(fld_descrips: list) -> list:
         fld_nms.append(fld[FLD_NM])  # every field MUST have a name!
     return fld_nms
 
+
 def get_query_fld_names(fld_descrips: list) -> list:
     fld_nms = []
     for fld in fld_descrips:
