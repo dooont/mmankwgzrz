@@ -31,6 +31,9 @@ def test_get_referees():
     ret = mflds.get_referees()
     assert isinstance(ret, list)
     assert mflds.REFEREES in ret
+    ret = mflds.get_referees('not_referee')
+    assert ret == []
+    assert isinstance(ret, list)
 
 
 def test_is_valid():

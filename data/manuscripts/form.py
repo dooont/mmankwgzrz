@@ -45,6 +45,10 @@ def get_fld_names() -> list:
     return ff.get_fld_names(FORM_FLDS)
 
 
+def get_query_fld_names() -> list:
+    return ff.get_query_fld_names(FORM_FLDS)
+
+
 def main():
     # print(f'Form: {get_form()=}')
     print(f'Form: {get_form_descr()=}')
