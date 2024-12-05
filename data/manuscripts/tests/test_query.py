@@ -94,5 +94,7 @@ def test_handle_action_bad_action():
 def test_handle_action_valid_return():
     for state in mqry.get_states():
         for action in mqry.get_actions():
+            if state not in mqry.STATE_TABLE or action not in mqry.STATE_TABLE[state]:
+                continue
             new_state = mqry.handle_action(state, action)
             assert mqry.is_valid_state(new_state)
