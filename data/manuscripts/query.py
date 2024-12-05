@@ -70,7 +70,7 @@ STATE_TABLE = {
             FUNC: lambda x: EDITOR_REVIEW,
         }
     },
-    COPY_EDIT: {
+     COPY_EDIT: {
         ACTIONS['DONE']: {
             FUNC: lambda x: AUTHOR_REVIEW,
         }
@@ -110,14 +110,20 @@ STATE_TABLE = {
 }
 
 
+def get_valid_actions_by_state(state: str) -> list:
+    return list(STATE_TABLE[state].keys())
+                
+
 def handle_action(curr_state, action) -> str:
     if curr_state not in STATE_TABLE:
         raise ValueError(f'Invalid state: {curr_state}')
     if action not in STATE_TABLE[curr_state]:
         raise ValueError(f'Invalid action: {action}')
-        
+
     return STATE_TABLE[curr_state][action][FUNC](x=curr_state)
     
+    
+
 
 def main():
     print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF']))
