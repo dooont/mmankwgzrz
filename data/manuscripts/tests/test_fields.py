@@ -1,3 +1,5 @@
+import pytest
+
 import data.manuscripts.fields as mflds
 
 
@@ -39,3 +41,26 @@ def test_get_referees():
 def test_is_valid():
     assert mflds.is_valid(mflds.TEST_FLD_NM)
     assert not mflds.is_valid("NOT A VALID FIELD")
+
+
+def test_create_author():
+    mflds.create_author('JOE SMITH')
+    assert mflds.author_exists('JOE SMITH')
+
+
+def test_create_referee():
+    mflds.create_referee('JOE SMITH')
+    assert mflds.author_exists('JOE SMITH')
+
+
+# crude until delete functionality is created
+def test_create_author_duplicate():
+    mflds.create_author('TEMP')
+    with pytest.raises(ValueError):
+        mflds.create_author('TEMP')
+
+
+def test_create_referee_duplicate():
+    mflds.create_referee('TEMP')
+    with pytest.raises(ValueError):
+        mflds.create_referee('TEMP')

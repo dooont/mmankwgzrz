@@ -1,4 +1,3 @@
-
 TITLE = 'title'
 DISP_NAME = 'disp_name'
 
@@ -68,7 +67,7 @@ def create_author(name: str):
     authors.append(name)
 
 
-def create_referees(name: str):
+def create_referee(name: str):
     refs = FIELDS[REFEREES][DISP_NAME]
     if referee_exists(name):
         raise ValueError(f'Adding duplicate referee: {name=}')
