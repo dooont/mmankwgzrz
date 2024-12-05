@@ -57,6 +57,20 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
+FUNC = 'f'
+
+STATE_TABLE = {
+    SUBMITTED: {
+        ACTIONS['ASSIGN_REF']: {
+            FUNC: lambda x: REFEREE_REVIEW,
+        },
+        ACTIONS['REJECT']: {
+            FUNC: lambda x: REJECTED,
+        }
+    },
+}
+
+
 def handle_action(curr_state, action) -> str:
     if not is_valid_state(curr_state):
         raise ValueError(f'Invalid state: {curr_state}')
