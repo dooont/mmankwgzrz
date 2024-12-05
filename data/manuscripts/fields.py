@@ -51,6 +51,30 @@ def get_referees(field: str=REFEREES) -> dict:
     return []
 
 
+def author_exists(name: str):
+    authors = FIELDS[AUTHOR][DISP_NAME]
+    return name in authors
+
+
+def referee_exists(name: str):
+    referees = FIELDS[REFEREES][DISP_NAME]
+    return name in referees
+
+
+def create_author(name: str):
+    authors = FIELDS[AUTHOR][DISP_NAME]
+    if author_exists(name):
+        raise ValueError(f'Adding duplicate author: {name=}')
+    authors.append(name)
+
+
+def create_referees(name: str):
+    refs = FIELDS[REFEREES][DISP_NAME]
+    if referee_exists(name):
+        raise ValueError(f'Adding duplicate referee: {name=}')
+    refs.append(name)
+
+
 def main():
     print(f'{get_flds()=}')
 
