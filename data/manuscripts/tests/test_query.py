@@ -60,19 +60,19 @@ def test_handle_action():
     """
     Test handling actions and state transitions.
     """
-    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF']) == mqry.REFEREE_REVIEW
-    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['REJECT']) == mqry.REJECTED
-    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT']) == mqry.COPY_EDIT
-    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['REJECT']) == mqry.REJECTED
-    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT_WITH_REV']) == mqry.AUTHOR_REVISION
-    assert mqry.handle_action(mqry.AUTHOR_REVISION, mqry.ACTIONS['DONE']) == mqry.EDITOR_REVIEW
-    assert mqry.handle_action(mqry.EDITOR_REVIEW, mqry.ACTIONS['ACCEPT']) == mqry.COPY_EDIT
-    assert mqry.handle_action(mqry.COPY_EDIT, mqry.ACTIONS['DONE']) == mqry.AUTHOR_REVIEW
-    assert mqry.handle_action(mqry.AUTHOR_REVIEW, mqry.ACTIONS['DONE']) == mqry.FORMATTING
-    assert mqry.handle_action(mqry.FORMATTING, mqry.ACTIONS['DONE']) == mqry.PUBLISHED
-    assert mqry.handle_action(mqry.PUBLISHED, mqry.ACTIONS['DONE']) == mqry.PUBLISHED
-    assert mqry.handle_action(mqry.REJECTED, mqry.ACTIONS['DONE']) == mqry.REJECTED
-    assert mqry.handle_action(mqry.WITHDRAWN, mqry.ACTIONS['WITHDRAW']) == mqry.WITHDRAWN
+    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'],manu=mqry.SAMPLE_MANU) == mqry.REFEREE_REVIEW
+    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['REJECT'], manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT'], manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['REJECT'], manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT_WITH_REV'], manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVISION
+    assert mqry.handle_action(mqry.AUTHOR_REVISION, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.EDITOR_REVIEW
+    assert mqry.handle_action(mqry.EDITOR_REVIEW, mqry.ACTIONS['ACCEPT'], manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
+    assert mqry.handle_action(mqry.COPY_EDIT, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVIEW
+    assert mqry.handle_action(mqry.AUTHOR_REVIEW, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.FORMATTING
+    assert mqry.handle_action(mqry.FORMATTING, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
+    assert mqry.handle_action(mqry.PUBLISHED, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
+    assert mqry.handle_action(mqry.REJECTED, mqry.ACTIONS['DONE'], manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+    assert mqry.handle_action(mqry.WITHDRAWN, mqry.ACTIONS['WITHDRAW'], manu=mqry.SAMPLE_MANU) == mqry.WITHDRAWN
 
 
 def test_handle_action_bad_state():
@@ -81,7 +81,7 @@ def test_handle_action_bad_state():
     """
     invalid_state = gen_random_not_valid_str()
     try:
-        mqry.handle_action(invalid_state, mqry.ACTIONS['ACCEPT'])
+        mqry.handle_action(invalid_state, mqry.ACTIONS['ACCEPT'], manu=mqry.SAMPLE_MANU)
     except ValueError as e:
         assert str(e) == f'Invalid state: {invalid_state}'
 
@@ -92,7 +92,7 @@ def test_handle_action_bad_action():
     """
     invalid_action = gen_random_not_valid_str()
     try:
-        mqry.handle_action(mqry.SUBMITTED, invalid_action)
+        mqry.handle_action(mqry.SUBMITTED, invalid_action, manu=mqry.SAMPLE_MANU)
     except ValueError as e:
         assert str(e) == f'Invalid action: {invalid_action}'
         
@@ -102,5 +102,5 @@ def test_handle_action_valid_return():
         for action in mqry.get_actions():
             if state not in mqry.STATE_TABLE or action not in mqry.STATE_TABLE[state]:
                 continue
-            new_state = mqry.handle_action(state, action)
+            new_state = mqry.handle_action(state, action, manu=mqry.SAMPLE_MANU)
             assert mqry.is_valid_state(new_state)
