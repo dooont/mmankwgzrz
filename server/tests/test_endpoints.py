@@ -277,3 +277,46 @@ def test_create_form_field():
         resp = TEST_CLIENT.put(f'{ep.FORM_EP}/create', json=new_field_data)
         assert resp.status_code == NOT_ACCEPTABLE
         mock_get_form.assert_called_once()
+
+
+def test_delete_form_field():
+    field_name = "test_field"
+    field_data = {
+        form.FLD_NM: field_name,
+        'question': 'Test Question',
+        'param_type': 'string',
+        'optional': True
+    }
+
+    with patch('data.manuscripts.form.get_form', return_value=[field_data]) as mock_get_form:
+        resp = TEST_CLIENT.delete(f'{ep.FORM_EP}/{field_name}')
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert 'Deleted' in resp_json
+        mock_get_form.assert_called_once()
+
+    with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
+        resp = TEST_CLIENT.delete(f'{ep.FORM_EP}/{field_name}')
+        assert resp.status_code == NOT_FOUND
+        mock_get_form.assert_called_once()
+
+def test_update_form_field():
+    field_name = "test_field"
+    update_data = {
+        'question': 'Updated Question',
+        'param_type': 'integer',
+        'optional': False
+    }
+
+    with patch('data.manuscripts.form.get_form', return_value=[{form.FLD_NM: field_name}]) as mock_get_form:
+        resp = TEST_CLIENT.put(f'{ep.FORM_EP}/{field_name}', json=update_data)
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert ep.MESSAGE in resp_json
+        assert ep.RETURN in resp_json
+        mock_get_form.assert_called_once()
+
+    with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
+        resp = TEST_CLIENT.put(f'{ep.FORM_EP}/{field_name}', json=update_data)
+        assert resp.status_code == NOT_FOUND
+        mock_get_form.assert_called_once()
