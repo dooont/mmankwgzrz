@@ -20,7 +20,8 @@ ROLES = {
 
 MH_ROLES = [CE_CODE, ED_CODE, ME_CODE]
 
-# comment line 
+# comment line
+
 
 def get_roles() -> dict:
     """
