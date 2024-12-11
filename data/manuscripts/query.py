@@ -1,4 +1,5 @@
-from manuscripts import fields as flds
+# from manuscripts import fields as flds
+import data.manuscripts.fields as flds
 
 # States
 AUTHOR_REVIEW = 'AU_RVW'
