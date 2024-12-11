@@ -11,6 +11,7 @@ import werkzeug.exceptions as wz
 from http import HTTPStatus
 
 import data.people as ppl
+import data.manuscripts.form as form
 
 app = Flask(__name__)
 CORS(app)
@@ -48,6 +49,19 @@ PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.ROLES: fields.List(fields.String)
 })
 PEOPLE_CREATE_FORM = 'People Add Form'
+FORM_EP = '/form'
+FORM_CREATE_FLDS = api.model('CreateFormEntry', {
+    'field_name': fields.String,
+    'question': fields.String,
+    'param_type': fields.String,
+    'optional': fields.Boolean
+})
+FORM_UPDATE_FLDS = api.model('UpdateFormEntry', {
+    'field_name': fields.String,
+    'question': fields.String,
+    'param_type': fields.String,
+    'optional': fields.Boolean
+})
 
 
 # This is the endpoint for the hello world
@@ -243,3 +257,106 @@ class Masthead(Resource):
     """
     def get(self):
         return {MASTHEAD: ppl.get_masthead()}
+
+
+@api.route(FORM_EP)
+class Form(Resource):
+    """
+    This class handles reading the form.
+    """
+    def get(self):
+        """
+        Retrieve the form.
+        """
+        return form.get_form()
+
+
+@api.route(f'{FORM_EP}/<field_name>')
+class FormField(Resource):
+    """
+    This class handles CRUD for form fields.
+    """
+    def get(self, field_name):
+        """
+        Retrieve a form field.
+        """
+        fields = form.get_form()
+        field = next((fld for fld in fields if fld[form.FLD_NM]
+                      == field_name), None)
+        if field:
+            return field
+        else:
+            raise wz.NotFound(f'No such field: {field_name}')
+
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such field.')
+    def delete(self, field_name):
+        fields = form.get_form()
+        field = next((fld for fld in fields if fld[form.FLD_NM]
+                      == field_name), None)
+        if field:
+            fields.remove(field)
+            return {'Deleted': field}
+        else:
+            raise wz.NotFound(f'No such field: {field_name}')
+
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'Field not found')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
+    @api.expect(FORM_UPDATE_FLDS)
+    def put(self, field_name):
+        """
+        Update a form field.
+        """
+        try:
+            updated_field = form.update_form_field(
+                field_name,
+                question=request.json.get('question'),
+                param_type=request.json.get('param_type'),
+                optional=request.json.get('optional')
+            )
+            return {
+                MESSAGE: 'Field updated successfully',
+                RETURN: updated_field
+            }, HTTPStatus.OK
+        except ValueError as ve:
+            raise wz.NotFound(str(ve))
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not update field: {str(err)}')
+
+
+@api.route(f'{FORM_EP}/create')
+class FormCreate(Resource):
+    """
+    Add a field to the form.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
+    @api.expect(FORM_CREATE_FLDS)
+    def put(self):
+        """
+        Add a form field.
+        """
+        try:
+            field_name = request.json.get('field_name')
+            question = request.json.get('question')
+            param_type = request.json.get('param_type')
+            optional = request.json.get('optional')
+
+            fields = form.get_form()
+            if any(fld[form.FLD_NM] == field_name for fld in fields):
+                raise wz.NotAcceptable(f'{field_name} is already used.')
+
+            new_field = {
+                form.FLD_NM: field_name,
+                'question': question,
+                'param_type': param_type,
+                'optional': optional
+            }
+            fields.append(new_field)
+            return {
+                MESSAGE: 'Field added!',
+                RETURN: new_field,
+            }
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not add field: {str(err)}')

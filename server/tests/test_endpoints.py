@@ -12,6 +12,7 @@ from unittest.mock import patch
 import pytest
 
 from data.people import NAME
+from data.manuscripts import form
 
 import server.endpoints as ep
 
@@ -224,3 +225,55 @@ def test_get_masthead(mock_masthead):
     resp_json = resp.get_json()
     assert ep.MASTHEAD in resp_json
     assert isinstance(resp_json[ep.MASTHEAD], dict)
+    
+    
+def test_get_form():
+    with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
+        resp = TEST_CLIENT.get(ep.FORM_EP)
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert isinstance(resp_json, list)
+        mock_get_form.assert_called_once()
+
+def test_get_form_field():
+    field_name = "test_field"
+    field_data = {
+        form.FLD_NM: field_name,
+        'question': 'Test Question',
+        'param_type': 'string',
+        'optional': True
+    }
+
+    with patch('data.manuscripts.form.get_form', return_value=[field_data]) as mock_get_form:
+        resp = TEST_CLIENT.get(f'{ep.FORM_EP}/{field_name}')
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert resp_json == field_data
+        mock_get_form.assert_called_once()
+
+    with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
+        resp = TEST_CLIENT.get(f'{ep.FORM_EP}/{field_name}')
+        assert resp.status_code == NOT_FOUND
+        mock_get_form.assert_called_once()
+
+
+def test_create_form_field():
+    new_field_data = {
+        'field_name': 'new_field',
+        'question': 'New Question',
+        'param_type': 'string',
+        'optional': True
+    }
+
+    with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
+        resp = TEST_CLIENT.put(f'{ep.FORM_EP}/create', json=new_field_data)
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert ep.MESSAGE in resp_json
+        assert ep.RETURN in resp_json
+        mock_get_form.assert_called_once()
+
+    with patch('data.manuscripts.form.get_form', return_value=[{form.FLD_NM: 'new_field'}]) as mock_get_form:
+        resp = TEST_CLIENT.put(f'{ep.FORM_EP}/create', json=new_field_data)
+        assert resp.status_code == NOT_ACCEPTABLE
+        mock_get_form.assert_called_once()

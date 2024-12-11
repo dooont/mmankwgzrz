@@ -49,6 +49,22 @@ def get_query_fld_names() -> list:
     return ff.get_query_fld_names(FORM_FLDS)
 
 
+def update_form_field(field_name, question=None, param_type=None, optional=None):
+    fields = get_form()
+    field = next((fld for fld in fields if fld[FLD_NM] == field_name), None)
+    if not field:
+        raise ValueError(f'Field with name {field_name} not found.')
+
+    if question is not None:
+        field[ff.QSTN] = question
+    if param_type is not None:
+        field[ff.PARAM_TYPE] = param_type
+    if optional is not None:
+        field[ff.OPT] = optional
+
+    return field
+
+
 def main():
     # print(f'Form: {get_form()=}')
     print(f'Form: {get_form_descr()=}')
