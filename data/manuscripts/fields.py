@@ -62,6 +62,19 @@ def get_disp_name(fld_nm: str) -> dict:
 def is_valid(field: str) -> bool:
     return field in FIELDS
 
+
+def create_field(fld: str, disp_nm: str):
+    if is_valid(fld):
+        raise ValueError(f'Adding duplicate field: {fld=}')
+    FIELDS[fld] = {DISP_NAME: disp_nm}
+
+
+def update_field(fld: str, disp_nm: str):
+    if not is_valid(fld):
+        raise ValueError(f'Adding nonexistent field: {fld=}')
+    FIELDS[fld][DISP_NAME] = disp_nm
+
+
 """
 def get_authors(field: str=AUTHOR) -> str:
     if field == AUTHOR:
@@ -75,10 +88,6 @@ def get_referees(field: str=REFEREES) -> list:
     return []
 """
 
-def create_field(fld: str, disp_nm: str):
-    if is_valid(fld):
-        raise ValueError(f'Adding duplicate field: {fld=}')
-    FIELDS[fld] = {DISP_NAME: disp_nm}
 
 def main():
     print(f'{get_flds()=}')
