@@ -2,71 +2,76 @@
 This module interfaces to our text data.
 """
 
+import data.db_connect as dbc
+
+# Fields
+KEY = 'key'
 TITLE = 'title'
 TEXT = 'text'
-EMAIL = 'email'
 
-TEST_KEY = 'HomePage'
-SUBM_KEY = 'SubmissionsPage'
-DEL_KEY = 'DeletePage'
+TEXT_COLLECTION = 'text'
 
-text_dict = {
-    TEST_KEY: {
-        TITLE: 'Home Page',
-        TEXT: 'This is a journal about building API servers.',
-    },
-    SUBM_KEY: {
-        TITLE: 'Submissions Page',
-        TEXT: 'All submissions must be original work in Word format.',
-    },
-    DEL_KEY: {
-        TITLE: 'Delete Page',
-        TEXT: 'This is a text to delete.',
-    },
-}
+client = dbc.connect_db()
 
 
-def read():
+def read() -> dict:
     """
-    Our contract:
-        - No arguments.
-        - Returns a dictionary of users keyed on user email.
-        - Each user email must be the key for another dictionary.
+    Reads all text entries from the database and returns them as a dictionary.
     """
-    text = text_dict
-    return text
+    return dbc.read_dict(TEXT_COLLECTION, KEY)
 
 
-def read_one(page_key: str):
+def read_one(key: str) -> dict:
     """
-    Our contract:
-        - Pass in a page key as argument.
-        - Returns a dictionary for the page keyed on the page key.
+    Reads a single text entry by key.
     """
-    result = text_dict.get(page_key, {})
+    result = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    if not result:
+        return {}
     return result
 
 
-def create(page_key: str, title: str, text: str):
-    if page_key in text_dict:
-        raise ValueError(f'Adding duplicate page: {page_key}')
-    text_dict[page_key] = {
-        TITLE: title,
-        TEXT: text,
-    }
+def create(key: str, title: str, text: str) -> dict:
+    """
+    Creates a new text entry in the database.
+    """
+    existing = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+
+    if existing:
+        raise ValueError(f"Key '{key}' already exists in the database.")
+
+    doc = {KEY: key, TITLE: title, TEXT: text}
+    dbc.create(TEXT_COLLECTION, doc)
+    return doc
 
 
-def delete(page_key: str):
-    if page_key in text_dict:
-        del text_dict[page_key]
+def delete(key: str) -> int:
+    """
+    Deletes a text entry from the database by key.
+    """
+    result = dbc.delete(TEXT_COLLECTION, {KEY: key})
+    if result == 0:
+        raise ValueError(f"No text entry found for key '{key}'.")
+    return result
 
 
-def update(page_key: str, title: str = None, text: str = None):
-    if page_key in text_dict:
-        if title:
-            text_dict[page_key][TITLE] = title
-        if text:
-            text_dict[page_key][TEXT] = text
+def update(key: str, title: str = None, text: str = None) -> dict:
+    """
+    Updates the title and/or text of an existing entry in the database.
+    """
+    update_dict = {}
+    if title is not None:
+        update_dict[TITLE] = title
+    if text is not None:
+        update_dict[TEXT] = text
+
+    if not update_dict:
+        raise ValueError("No fields provided for update.")
+
+    result = dbc.update(TEXT_COLLECTION, {KEY: key}, update_dict)
+    if result.matched_count == 0:
+        raise ValueError(f"No text entry found for key '{key}'.")
+    return result
 
 
 def main():

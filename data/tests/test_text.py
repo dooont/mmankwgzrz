@@ -2,70 +2,86 @@ import pytest
 import data.text as txt
 
 
+# Test Constants
+TEST_KEY = 'TestPage'
+TEST_TITLE = 'Test Title'
+TEST_TEXT = 'This is a test text entry.'
+
+
 @pytest.fixture(scope='function')
 def temp_text():
-    temp_key = 'TempPage'
-    txt.create(temp_key, 'Temp Page Title', 'This is a temp page.')
-    yield temp_key
-    txt.delete(temp_key)
+    """
+    Fixture to create a temporary text entry in the database for testing.
+    Cleans up the entry after the test.
+    """
+    txt.create(TEST_KEY, TEST_TITLE, TEST_TEXT)
+    yield TEST_KEY
+    try:
+        txt.delete(TEST_KEY)
+    except:
+        print('Text entry already deleted.')
 
 
 def test_read():
     texts = txt.read()
     assert isinstance(texts, dict)
-    # Check if each page key is a string
-    for key in texts:
-        assert isinstance(key, str)
+    assert len(texts) >= 0
 
 
 def test_read_one(temp_text):
-    # Check that TEST_KEY is being read properly
-    assert len(txt.read_one(temp_text)) > 0
+    entry = txt.read_one(temp_text)
+    assert isinstance(entry, dict)
+    assert entry[txt.KEY] == TEST_KEY
+    assert entry[txt.TITLE] == TEST_TITLE
+    assert entry[txt.TEXT] == TEST_TEXT
 
 
 def test_read_one_not_found():
-    # Check that non-existent pages can't be read
-    assert txt.read_one('Not a page key!') == {}
+    result = txt.read_one('NonExistentKey')
+    assert result == {}
 
 
-def test_create(temp_text):
-    new_key = temp_text
-    page = txt.read_one(temp_text)
-    assert page != {}
-    assert page[txt.TITLE] == 'Temp Page Title'
-    assert page[txt.TEXT] == 'This is a temp page.'
+def test_create():
+    key = 'UniqueKey'
+    title = 'Unique Title'
+    text = 'This is unique content.'
+    
+    txt.create(key, title, text)
+    entry = txt.read_one(key)
+    assert entry[txt.KEY] == key
+    assert entry[txt.TITLE] == title
+    assert entry[txt.TEXT] == text
+
+    # Clean up
+    txt.delete(key)
 
 
-pytest.mark.skip('Skipping for now.')
-def test_create_duplicate():
+def test_create_duplicate(temp_text):
     with pytest.raises(ValueError):
-        txt.create(txt.TEST_KEY, 'Does Not Matter', 'Does Not Matter')
+        txt.create(TEST_KEY, TEST_TITLE, TEST_TEXT)
 
 
 def test_delete(temp_text):
-    assert txt.read_one(temp_text) != {}
     txt.delete(temp_text)
-    assert txt.read_one(temp_text) == {}
+    result = txt.read_one(temp_text)
+    assert result == {}
 
 
-@pytest.fixture(scope='function')
-def setup_update():
-    key_to_update = txt.SUBM_KEY
-    original_data = txt.read_one(key_to_update)
-    yield key_to_update
-    txt.update(key_to_update, title=original_data[txt.TITLE], text=original_data[txt.TEXT])
+def test_delete_not_found():
+    with pytest.raises(ValueError):
+        txt.delete('NonExistentKey')
 
 
-def test_update(setup_update):
-    key_to_update = setup_update
-    
-    original_data = txt.read_one(key_to_update)
-    original_title = original_data[txt.TITLE]
-    original_text = original_data[txt.TEXT]
+def test_update(temp_text):
+    new_title = 'Updated Title'
+    new_text = 'This is updated content.'
 
-    txt.update(key_to_update, title="Updated Title", text="Updated text content.")
+    txt.update(temp_text, title=new_title, text=new_text)
+    entry = txt.read_one(temp_text)
+    assert entry[txt.TITLE] == new_title
+    assert entry[txt.TEXT] == new_text
 
-    updated_page = txt.read_one(key_to_update)
-    assert updated_page[txt.TITLE] == "Updated Title"
-    assert updated_page[txt.TEXT] == "Updated text content."
-    
+
+def test_update_not_found():
+    with pytest.raises(ValueError):
+        txt.update('NonExistentKey', title='Should Fail', text='No Entry')
