@@ -40,3 +40,14 @@ def test_get_referees():
 def test_is_valid():
     assert mflds.is_valid(mflds.TEST_FLD_NM)
     assert not mflds.is_valid("NOT A VALID FIELD")
+
+
+def test_create_field():
+    mflds.create_field('TEST_FIELD', 'Test Field')
+    assert mflds.is_valid('TEST_FIELD')
+
+
+def test_create_field_duplicate():
+    mflds.create_field('TEMP', 'Temp')
+    with pytest.raises(ValueError):
+        mflds.create_field('TEMP', 'Other')

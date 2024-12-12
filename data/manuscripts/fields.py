@@ -75,8 +75,10 @@ def get_referees(field: str=REFEREES) -> list:
     return []
 """
 
-def create_field(disp_name: str):
-    return
+def create_field(fld: str, disp_nm: str):
+    if is_valid(fld):
+        raise ValueError(f'Adding duplicate field: {fld=}')
+    FIELDS[fld] = {DISP_NAME: disp_nm}
 
 def main():
     print(f'{get_flds()=}')
