@@ -1,22 +1,47 @@
-TITLE = 'title'
+TEST_FLD_DISP_NM = 'Title'
+TEST_FLD_NM = 'title'
+
 DISP_NAME = 'disp_name'
 
-TEST_FLD_NM = 'title'
-TEST_FLD_DISP_NM = 'Title'
-
+TITLE = 'title'
 AUTHOR = 'author'
 REFEREES = 'referees'
+AUTHOR_EMAIL = 'author email'
+STATE = 'state'
+TEXT = 'text'
+ABSTRACT = 'abstract'
+HISTORY = 'history'
+EDITOR = 'Editor'
+
 
 FIELDS = {
     TITLE: {
-        DISP_NAME: TEST_FLD_DISP_NM,
+        DISP_NAME: 'Title',
     },
     AUTHOR: {
-        DISP_NAME: [AUTHOR],
+        DISP_NAME: 'Author',
     },
     REFEREES: {
-        DISP_NAME: [REFEREES],
-    }
+        DISP_NAME: 'Referees',
+    },
+    AUTHOR_EMAIL: {
+        DISP_NAME: 'Author Email',
+    },
+    STATE: {
+        DISP_NAME: 'State',
+    },
+    TEXT: {
+        DISP_NAME: 'Text',
+    },
+    ABSTRACT: {
+        DISP_NAME: 'Abstract',
+    },
+    HISTORY: {
+        DISP_NAME: 'History',
+    },
+    EDITOR: {
+        DISP_NAME: 'Editor',
+    },
 }
 
 
@@ -37,42 +62,21 @@ def get_disp_name(fld_nm: str) -> dict:
 def is_valid(field: str) -> bool:
     return field in FIELDS
 
-
-def get_authors(field: str=AUTHOR) -> dict:
+"""
+def get_authors(field: str=AUTHOR) -> str:
     if field == AUTHOR:
         return FIELDS[AUTHOR][DISP_NAME]
-    return []
+    return ''
 
 
-def get_referees(field: str=REFEREES) -> dict:
+def get_referees(field: str=REFEREES) -> list:
     if field == REFEREES:
         return FIELDS[REFEREES][DISP_NAME]
     return []
+"""
 
-
-def author_exists(name: str):
-    authors = FIELDS[AUTHOR][DISP_NAME]
-    return name in authors
-
-
-def referee_exists(name: str):
-    referees = FIELDS[REFEREES][DISP_NAME]
-    return name in referees
-
-
-def create_author(name: str):
-    authors = FIELDS[AUTHOR][DISP_NAME]
-    if author_exists(name):
-        raise ValueError(f'Adding duplicate author: {name=}')
-    authors.append(name)
-
-
-def create_referee(name: str):
-    refs = FIELDS[REFEREES][DISP_NAME]
-    if referee_exists(name):
-        raise ValueError(f'Adding duplicate referee: {name=}')
-    refs.append(name)
-
+def create_field(disp_name: str):
+    return
 
 def main():
     print(f'{get_flds()=}')
