@@ -75,7 +75,7 @@ def update(key: str, title: str = None, text: str = None) -> dict:
 
 
 def main():
-    print(read())
+    print("All entries:", read())
 
 
 if __name__ == '__main__':

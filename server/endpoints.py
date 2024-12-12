@@ -12,6 +12,7 @@ from http import HTTPStatus
 
 import data.people as ppl
 import data.manuscripts.form as form
+import data.text as txt
 
 app = Flask(__name__)
 CORS(app)
@@ -23,9 +24,12 @@ EDITOR = 'ejc369@nyu.edu'
 EDITOR_RESP = 'Editor'
 ENDPOINT_EP = '/endpoints'
 ENDPOINT_RESP = 'Available endpoints'
+FORM_EP = '/form'
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
+MASTHEAD = 'Masthead'
 MESSAGE = 'Message'
+PEOPLE_CREATE_FORM = 'People Add Form'
 PEOPLE_EP = '/people'
 PUBLISHER = 'Palgave'
 PUBLISHER_RESP = 'Publisher'
@@ -33,9 +37,24 @@ REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
 RETURN = 'return'
+TEXT_EP = '/text'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
 TITLE_RESP = 'Title'
+
+FORM_CREATE_FLDS = api.model('CreateFormEntry', {
+    'field_name': fields.String,
+    'question': fields.String,
+    'param_type': fields.String,
+    'optional': fields.Boolean
+})
+FORM_UPDATE_FLDS = api.model('UpdateFormEntry', {
+    'field_name': fields.String,
+    'question': fields.String,
+    'param_type': fields.String,
+    'optional': fields.Boolean
+})
+
 PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
@@ -48,19 +67,16 @@ PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.List(fields.String)
 })
-PEOPLE_CREATE_FORM = 'People Add Form'
-FORM_EP = '/form'
-FORM_CREATE_FLDS = api.model('CreateFormEntry', {
-    'field_name': fields.String,
-    'question': fields.String,
-    'param_type': fields.String,
-    'optional': fields.Boolean
+
+TEXT_CREATE_FLDS = api.model('CreateTextEntry', {
+    'key': fields.String,
+    'title': fields.String,
+    'text': fields.String,
 })
-FORM_UPDATE_FLDS = api.model('UpdateFormEntry', {
-    'field_name': fields.String,
-    'question': fields.String,
-    'param_type': fields.String,
-    'optional': fields.Boolean
+
+TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
+    'title': fields.String,
+    'text': fields.String,
 })
 
 
@@ -246,9 +262,6 @@ class PeopleCreate(Resource):
             raise wz.NotAcceptable(f'Could not add person: {err=}')
 
 
-MASTHEAD = 'Masthead'
-
-
 # endpoint for Masthed
 @api.route(f'{PEOPLE_EP}/masthead')
 class Masthead(Resource):
@@ -360,3 +373,98 @@ class FormCreate(Resource):
             }
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add field: {str(err)}')
+
+
+@api.route(TEXT_EP)
+class Texts(Resource):
+    """
+    This class handles retrieving all text entries.
+    """
+    def get(self):
+        """
+        Retrieve all text entries.
+        """
+        try:
+            texts = txt.read()
+            return {'texts': texts}
+        except Exception as err:
+            raise wz.NotFound(f'Could not retrieve text entries: {str(err)}')
+
+
+@api.route(f'{TEXT_EP}/create')
+class CreateText(Resource):
+    """
+    This class handles creating a new text entry.
+    """
+    @api.expect(TEXT_CREATE_FLDS)
+    def put(self):
+        """
+        Add a new text entry.
+        """
+        try:
+            key = request.json.get('key')
+            title = request.json.get('title')
+            text = request.json.get('text')
+
+            # Check if the entry already exists
+            if txt.read_one(key):
+                raise wz.NotAcceptable(f"Key '{key}' already exists.")
+
+            # Create the entry
+            new_text = txt.create(key, title, text)
+            return {'Message': 'Text entry added!', 'Text Entry': new_text}
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not add text entry: {str(err)}')
+
+
+@api.route(f'{TEXT_EP}/<key>')
+class Text(Resource):
+    """
+    This class handles reading a single text entry by key and deleting a text
+    entry by key.
+    """
+    def get(self, key):
+        """
+        Retrieve a single text entry by key.
+        """
+        try:
+            text_entry = txt.read_one(key)
+            if not text_entry:
+                raise wz.NotFound(f'No text entry found for key: {key}')
+            return text_entry
+        except Exception as err:
+            raise wz.NotFound(f'Could not retrieve text entry: {str(err)}')
+
+    def delete(self, key):
+        """
+        Delete a text entry by key.
+        """
+        try:
+            deleted_count = txt.delete(key)
+            if deleted_count == 0:
+                raise wz.NotFound(f'No text entry found for key: {key}')
+            return {'Message': f'{deleted_count} text entry deleted.'}
+        except Exception as err:
+            raise wz.NotFound(f'Could not delete text entry: {str(err)}')
+
+
+@api.route(f'{TEXT_EP}/<key>')
+class UpdateText(Resource):
+    """
+    This class handles updating an existing text entry by key.
+    """
+    @api.expect(TEXT_UPDATE_FLDS)
+    def put(self, key):
+        """
+        Update a text entry.
+        """
+        try:
+            title = request.json.get('title')
+            text = request.json.get('text')
+
+            # Update the text entry
+            updated_text = txt.update(key, title=title, text=text)
+            return {'Message': 'Text entry updated!',
+                    'Updated Entry': updated_text}
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not update text entry: {str(err)}')

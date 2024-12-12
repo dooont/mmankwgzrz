@@ -320,3 +320,61 @@ def test_update_form_field():
         resp = TEST_CLIENT.put(f'{ep.FORM_EP}/{field_name}', json=update_data)
         assert resp.status_code == NOT_FOUND
         mock_get_form.assert_called_once()
+
+
+@patch('data.text.create', autospec=True, return_value={"message": "Test text created"})
+def test_create_text(mock_create):
+    text_data = {"key": "test_key", "title": "Test Title", "text": "This is a new text message"}
+    resp = TEST_CLIENT.put(f'{ep.TEXT_EP}/create', json=text_data)
+    assert resp.status_code == OK
+    mock_create.assert_called_once_with("test_key", "Test Title", "This is a new text message")
+
+
+@patch('data.text.read_one', autospec=True, return_value={"text": "This is a new text message"})
+def test_read_text(mock_read_one):
+    text_id = "sample_id"
+    resp = TEST_CLIENT.get(f'{ep.TEXT_EP}/{text_id}')
+    assert resp.status_code == OK
+    mock_read_one.assert_called_once_with(text_id)
+
+
+@patch('data.text.read_one', autospec=True, return_value=None)
+def test_read_text_not_found(mock_read_one):
+    text_id = "nonexistent_id"
+    resp = TEST_CLIENT.get(f'{ep.TEXT_EP}/{text_id}')
+    assert resp.status_code == NOT_FOUND
+    mock_read_one.assert_called_once_with(text_id)
+
+
+@patch('data.text.update', autospec=True, return_value={"updated_text": "Updated text message"})
+def test_update_text(mock_update):
+    text_id = "sample_id"
+    update_data = {"title": "Updated Title", "text": "Updated text message"}
+    resp = TEST_CLIENT.put(f'{ep.TEXT_EP}/{text_id}', json=update_data)
+    assert resp.status_code == OK
+    mock_update.assert_called_once_with(text_id, title="Updated Title", text="Updated text message")
+
+
+def test_update_text_invalid_data():
+    text_id = "sample_id"
+    invalid_data = {"title": "Updated Title", "text": ""}  # Empty text should not be allowed
+
+    resp = TEST_CLIENT.put(f'{ep.TEXT_EP}/{text_id}', json=invalid_data)
+    assert resp.status_code == NOT_ACCEPTABLE
+
+
+@patch('data.text.delete', autospec=True, return_value="Text deleted")
+def test_delete_text(mock_delete):
+    text_id = "sample_id"
+    resp = TEST_CLIENT.delete(f'{ep.TEXT_EP}/{text_id}')
+    assert resp.status_code == OK
+    mock_delete.assert_called_once_with(text_id)
+
+
+@patch('data.text.delete', autospec=True, side_effect=ValueError("No text entry found for key 'nonexistent_id'"))
+def test_delete_text_not_found(mock_delete):
+    text_id = "nonexistent_id"
+    resp = TEST_CLIENT.delete(f'{ep.TEXT_EP}/{text_id}')
+    assert resp.status_code == NOT_FOUND
+    mock_delete.assert_called_once_with(text_id)
+
