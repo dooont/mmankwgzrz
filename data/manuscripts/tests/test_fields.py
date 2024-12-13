@@ -20,33 +20,50 @@ def test_get_disp_name():
     assert mflds.get_disp_name('nonexistent_field') == None
 
 
-# Will add fixture for these
 def test_is_valid():
     assert mflds.is_valid(mflds.TEST_FLD_NM)
     assert not mflds.is_valid("NOT A VALID FIELD")
 
 
-def test_create_field():
-    mflds.create_field('TEST_FIELD', 'Test Field')
-    assert mflds.is_valid('TEST_FIELD')
+@pytest.fixture(scope='function')
+def temp_field():
+    field = 'TEST_FIELD'
+    mflds.create_field(field, 'Test Field')
+    yield field
+    try:
+        mflds.delete_field(field)
+    except:
+        print('Field already deleted.')
 
 
-def test_create_field_duplicate():
-    mflds.create_field('TEMP', 'Temp')
+def test_create_field(temp_field):
+    assert mflds.is_valid(temp_field)
+
+
+def test_create_field_duplicate(temp_field):
     with pytest.raises(ValueError):
-        mflds.create_field('TEMP', 'Other')
+        mflds.create_field(temp_field, 'Other')
 
 
-def test_update_field():
-    mflds.create_field('NEW_FIELD', 'Original Name')
-    assert mflds.is_valid('NEW_FIELD')
-    mflds.update_field('NEW_FIELD', 'New Name')
-    assert mflds.get_disp_name('NEW_FIELD') == 'New Name'
+def test_update_field(temp_field):
+    mflds.update_field(temp_field, 'New Name')
+    assert mflds.get_disp_name(temp_field) == 'New Name'
 
 
 def test_update_nonexistent_field():
     with pytest.raises(ValueError):
         mflds.update_field('NONEXISTENT_FIELD', 'New Name')
+
+
+def test_delete_field(temp_field):
+    mflds.delete_field(temp_field)
+    assert not mflds.is_valid(temp_field)
+
+
+def test_delete_nonexistent_field(temp_field):
+    with pytest.raises(ValueError):
+        mflds.delete_field('NONEXISTENT_FIELD')
+
 
 """
 def test_get_authors():
