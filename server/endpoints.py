@@ -262,6 +262,18 @@ class PeopleCreate(Resource):
             raise wz.NotAcceptable(f'Could not add person: {err=}')
 
 
+@api.route(f'{PEOPLE_EP}/role/<role>')
+class PeopleByRole(Resource):
+    def get(self, role):
+        """
+        Get all people with a specific role.
+        """
+        all_people = ppl.read()
+        people_with_role = [all_people[email] for email in
+                            all_people if role in all_people[email][ppl.ROLES]]
+        return {"people": people_with_role}
+
+
 # endpoint for Masthed
 @api.route(f'{PEOPLE_EP}/masthead')
 class Masthead(Resource):
