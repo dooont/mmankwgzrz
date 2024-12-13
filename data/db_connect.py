@@ -51,8 +51,8 @@ def create(collection: str, doc: dict, db=JOURNAL_DB):
     """
     Insert a single document into the specified collection in the database.
     """
-    print(f'{db=}')
-    return client[db][collection].insert_one(doc)
+    result = client[db][collection].insert_one(doc)
+    return result
 
 
 def read_one(collection: str, filt: dict, db=JOURNAL_DB):

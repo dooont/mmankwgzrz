@@ -69,14 +69,13 @@ PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
 })
 
 TEXT_CREATE_FLDS = api.model('CreateTextEntry', {
-    'key': fields.String,
-    'title': fields.String,
-    'text': fields.String,
+    txt.KEY: fields.String,
+    txt.TITLE: fields.String,
+    txt.TEXT: fields.String,
 })
-
 TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
-    'title': fields.String,
-    'text': fields.String,
+    txt.TITLE: fields.String,
+    txt.TEXT: fields.String,
 })
 
 
@@ -437,6 +436,11 @@ class CreateText(Resource):
 
             # Create the entry
             new_text = txt.create(key, title, text)
+
+            # Convert _id to string to avoid JSON serialization issues
+            if '_id' in new_text:
+                new_text['_id'] = str(new_text['_id'])
+
             return {'Message': 'Text entry added!', 'Text Entry': new_text}
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add text entry: {str(err)}')
@@ -445,8 +449,7 @@ class CreateText(Resource):
 @api.route(f'{TEXT_EP}/<key>')
 class Text(Resource):
     """
-    This class handles reading a single text entry by key and deleting a text
-    entry by key.
+    This class handles operations on a single text entry by key.
     """
     def get(self, key):
         """
@@ -472,12 +475,6 @@ class Text(Resource):
         except Exception as err:
             raise wz.NotFound(f'Could not delete text entry: {str(err)}')
 
-
-@api.route(f'{TEXT_EP}/<key>')
-class UpdateText(Resource):
-    """
-    This class handles updating an existing text entry by key.
-    """
     @api.expect(TEXT_UPDATE_FLDS)
     def put(self, key):
         """
@@ -489,6 +486,11 @@ class UpdateText(Resource):
 
             # Update the text entry
             updated_text = txt.update(key, title=title, text=text)
+
+            # Convert _id to string to avoid JSON serialization issues
+            if updated_text and '_id' in updated_text:
+                updated_text['_id'] = str(updated_text['_id'])
+
             return {'Message': 'Text entry updated!',
                     'Updated Entry': updated_text}
         except Exception as err:

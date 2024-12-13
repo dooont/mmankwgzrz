@@ -69,9 +69,12 @@ def update(key: str, title: str = None, text: str = None) -> dict:
         raise ValueError("No fields provided for update.")
 
     result = dbc.update(TEXT_COLLECTION, {KEY: key}, update_dict)
+
     if result.matched_count == 0:
         raise ValueError(f"No text entry found for key '{key}'.")
-    return result
+
+    updated_document = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    return updated_document
 
 
 def main():
