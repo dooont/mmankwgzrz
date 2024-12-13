@@ -19,15 +19,12 @@ import server.endpoints as ep
 TEST_CLIENT = ep.app.test_client()
 
 
-
-# testing the hello endpoint
 def test_get_hello():
     resp = TEST_CLIENT.get(ep.HELLO_EP)
     resp_json = resp.get_json()
     assert ep.HELLO_RESP in resp_json
 
 
-# testing the title endpoint
 def test_get_title():
     resp = TEST_CLIENT.get(ep.TITLE_EP)
     print(f'{ep.TITLE_EP=}')
@@ -38,7 +35,6 @@ def test_get_title():
     assert len(resp_json[ep.TITLE_RESP]) > 0
 
 
-# testing the repository name endpoint
 def test_get_repo_name():
     resp = TEST_CLIENT.get(ep.REPO_NAME_EP)
     print(f'{ep.REPO_NAME_EP=}')
@@ -73,18 +69,6 @@ def test_read_one_not_found(mock_read):
     resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/mock_id')
     assert resp.status_code == NOT_FOUND
 
-    
-# testing the people endpoint
-def test_get_people():
-    resp = TEST_CLIENT.get(ep.PEOPLE_EP)
-    print(f'{ep.PEOPLE_EP=}')
-    resp_json = resp.get_json()
-    print(f'{resp_json=}')
-    for _id, person in resp_json.items():
-        assert isinstance(_id, str)
-        assert len(_id) > 0
-        assert NAME in person
-
 
 def test_people_create_form():
     resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/create/form')
@@ -96,11 +80,9 @@ def test_people_create_form():
     assert ep.ppl.NAME in form_data
     assert ep.ppl.EMAIL in form_data
     assert ep.ppl.AFFILIATION in form_data
-    # assert ep.ppl.ROLES in form_data
     assert form_data[ep.ppl.NAME] == "string"
     assert form_data[ep.ppl.EMAIL] == "string"
     assert form_data[ep.ppl.AFFILIATION] == "string"
-    # assert form_data[ep.ppl.ROLES] == "list of strings"
 
 
 def test_update_person():
@@ -208,6 +190,91 @@ def test_delete_person_success(mock_delete):
 def test_delete_person_not_found(mock_delete):
     resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/nonexistent@email.com')
     assert resp.status_code == NOT_FOUND
+
+
+@patch('data.people.read', autospec=True)
+def test_get_people_by_role(mock_read):
+    mock_data = {
+        'user1@email.com': {
+            'name': 'User 1',
+            'roles': ['AU', 'CE']
+        },
+        'user2@email.com': {
+            'name': 'User 2',
+            'roles': ['AU']
+        },
+        'user3@email.com': {
+            'name': 'User 3',
+            'roles': ['ED']
+        }
+    }
+    mock_read.return_value = mock_data
+
+    # Test getting AU
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/role/AU')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'people' in resp_json
+    authors = resp_json['people']
+    assert len(authors) == 2
+    assert all('AU' in person['roles'] for person in authors)
+
+    # Test getting CE
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/role/CE')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    copy_editors = resp_json['people']
+    assert len(copy_editors) == 1 
+    assert all('CE' in person['roles'] for person in copy_editors)
+
+    # Test non-existent role
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/role/somerole')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert len(resp_json['people']) == 0 
+
+
+@patch('data.people.read', autospec=True)
+def test_get_people_by_affiliation(mock_read):
+    mock_data = {
+        'user1@email.com': {
+            'name': 'User 1',
+            'affiliation': 'NYU'
+        },
+        'user2@email.com': {
+            'name': 'User 2',
+            'affiliation': 'NYU'
+        },
+        'user3@email.com': {
+            'name': 'User 3',
+            'affiliation': 'BYU'
+        }
+    }
+    mock_read.return_value = mock_data
+
+    # Test getting NYU
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/NYU')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'people' in resp_json
+    people = resp_json['people']
+    assert len(people) == 2
+    assert all('NYU' in person['affiliation'] for person in people)
+
+    # Test getting BYU
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/BYU')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'people' in resp_json
+    people = resp_json['people']
+    assert len(people) == 1
+    assert all('BYU' in person['affiliation'] for person in people)
+
+    # Test non-existent affiliation
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/a')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert len(resp_json['people']) == 0 
 
 
 def test_get_endpoints():

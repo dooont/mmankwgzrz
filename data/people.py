@@ -2,22 +2,23 @@
 This module interfaces to our user data.
 """
 import re   # Module for regular expressions, used for validating email format.
+from typing import Union
 
 import data.roles as rls
 import data.db_connect as dbc
 
-PEOPLE_COLLECT = 'people'
-MIN_USER_NAME_LEN = 2
 
 # Fields for person data
 NAME = 'name'
 ROLES = 'roles'
 AFFILIATION = 'affiliation'
 EMAIL = 'email'
+MH_FIELDS = [NAME, AFFILIATION]  # Fields for masthead records
 
 TEST_EMAIL = 'ejc369@nyu.edu'
 DEL_EMAIL = 'delete@nyu.edu'
 
+PEOPLE_COLLECT = 'people'
 
 client = dbc.connect_db()
 print(f'{client=}')
@@ -32,7 +33,7 @@ EMAIL_FORMAT = (
         )
 
 
-def is_valid_email(email: str) -> bool:
+def is_valid_email(email: str) -> Union[bool, ValueError]:
     """
     Validates if the provided email matches the expected format.
     Raises ValueError if the email is invalid.
@@ -47,7 +48,8 @@ def is_valid_email(email: str) -> bool:
 
 
 def is_valid_person(name: str, affiliation: str, email: str,
-                    role: str = None, roles: list = None) -> bool:
+                    role: str = None, roles: list = None) \
+                                -> Union[bool, Exception]:
     """
     Validates person attributes.
         - The email is valid.
@@ -67,7 +69,7 @@ def is_valid_person(name: str, affiliation: str, email: str,
     return True
 
 
-def read() -> dict:
+def read() -> dict[str, dict]:
     """
     Reads all people data from the database.
     Returns:
@@ -95,7 +97,7 @@ def exists(email: str) -> bool:
     return read_one(email) is not None
 
 
-def delete(email: str):
+def delete(email: str) -> dict:
     """
     Deletes a person by email from the database.
     """
@@ -103,7 +105,7 @@ def delete(email: str):
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
-def delete_role(email: str, role: str):
+def delete_role(email: str, role: str) -> None:
     """
     Deletes a specific role for a person by email.
     """
@@ -118,7 +120,8 @@ def delete_role(email: str, role: str):
         print('Person not found!')
 
 
-def create(name: str, affiliation: str, email: str, role: str):
+def create(name: str, affiliation: str, email: str, role: str) \
+                                        -> Union[str, ValueError]:
     """
     Creates a new person in the database.
     Raises ValueError if the email already exists.
@@ -135,13 +138,15 @@ def create(name: str, affiliation: str, email: str, role: str):
         return email
 
 
-def update(name: str, affiliation: str, email: str, roles: list):
+def update(name: str, affiliation: str, email: str, roles: list) \
+                                        -> Union[str, ValueError]:
     """
     Updates an existing person's details in the database.
     Raises ValueError if the person does not exist.
     """
     if not exists(email):
         raise ValueError(f'Updating non-existent person: {email=}')
+
     if is_valid_person(name, affiliation, email, roles=roles):
         person = {NAME: name, AFFILIATION: affiliation,
                   EMAIL: email, ROLES: roles}
@@ -159,10 +164,7 @@ def has_role(person: dict, role: str) -> bool:
     return False
 
 
-MH_FIELDS = [NAME, AFFILIATION]  # Fields for masthead records
-
-
-def get_mh_fields() -> list:
+def get_mh_fields() -> list[str]:
     """
     Returns fields to include in masthead records.
     """
@@ -179,7 +181,7 @@ def create_mh_rec(person: dict) -> dict:
     return mh_rec
 
 
-def get_masthead() -> dict:
+def get_masthead() -> dict[str, list[dict]]:
     """
     Compiles a masthead dictionary grouping people by their masthead roles.
     """
@@ -187,7 +189,7 @@ def get_masthead() -> dict:
     mh_roles = rls.get_masthead_roles()
     for mh_role, text in mh_roles.items():
         print(f'{mh_role=}')
-        people_w_role = []  # List of people with the role
+        people_w_role = []
         people = read()
         for email, person in people.items():
             if has_role(person, mh_role):

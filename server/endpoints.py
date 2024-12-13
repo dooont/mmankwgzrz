@@ -79,7 +79,6 @@ TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
 })
 
 
-# This is the endpoint for the hello world
 @api.route(HELLO_EP)
 class HelloWorld(Resource):
     """
@@ -93,7 +92,6 @@ class HelloWorld(Resource):
         return {HELLO_RESP: 'world'}
 
 
-# This is the endpoint for the available endpoints
 @api.route(ENDPOINT_EP)
 class Endpoints(Resource):
     """
@@ -108,7 +106,6 @@ class Endpoints(Resource):
         return {"Available endpoints": endpoints}
 
 
-# This is the endpoint for the journal title
 @api.route(TITLE_EP)
 class GetJournalTitle(Resource):
     """
@@ -127,7 +124,6 @@ class GetJournalTitle(Resource):
         }
 
 
-# This is the endpoint for the repository name
 @api.route(REPO_NAME_EP)
 class GetRepoName(Resource):
     """
@@ -143,14 +139,12 @@ class GetRepoName(Resource):
         }
 
 
-# This is the endpoint for creating the people
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
     """
     Form to add a new person to the journal database.
     """
     def get(self):
-        # return {PEOPLE_CREATE_FORM: pfrm.get_add_form()}
         return {
             PEOPLE_CREATE_FORM: {
                 ppl.NAME: "string",
@@ -237,8 +231,6 @@ class PeopleCreate(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
     @api.expect(PEOPLE_CREATE_FLDS)
-    # api.expects indicates that you should expect
-    # the PEOPLE_CREATE_FLDS in your payload in swagger
     def put(self):
         """
         Add a person.
@@ -286,7 +278,6 @@ class PeopleByAffiliation(Resource):
         return {"people": people_with_affiliation}
 
 
-# endpoint for Masthed
 @api.route(f'{PEOPLE_EP}/masthead')
 class Masthead(Resource):
     """
@@ -449,7 +440,8 @@ class CreateText(Resource):
 @api.route(f'{TEXT_EP}/<key>')
 class Text(Resource):
     """
-    This class handles operations on a single text entry by key.
+    This class handles operations on a single text entry by key: getting,
+    deleting, and updating.
     """
     def get(self, key):
         """

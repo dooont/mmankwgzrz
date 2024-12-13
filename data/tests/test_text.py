@@ -1,7 +1,6 @@
 import pytest
 import data.text as txt
 
-
 # Test Constants
 TEST_KEY = 'TestPage'
 TEST_TITLE = 'Test Title'
@@ -52,8 +51,7 @@ def test_create():
     assert entry[txt.TITLE] == title
     assert entry[txt.TEXT] == text
 
-    # Clean up
-    txt.delete(key)
+    txt.delete(key) # Clean up
 
 
 def test_create_duplicate(temp_text):

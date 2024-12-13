@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 import pymongo as pm
+from typing import Union
+
 
 load_dotenv()
 
@@ -8,13 +10,12 @@ LOCAL = "0"
 CLOUD = "1"
 
 JOURNAL_DB = 'journalDB'
+MONGO_ID = '_id'
 
 client = None
 
-MONGO_ID = '_id'
 
-
-def connect_db():
+def connect_db() -> pm.MongoClient:
     """
     This provides a uniform way to connect to the DB across all uses.
     Returns a mongo client object... maybe we shouldn't?
@@ -38,7 +39,7 @@ def connect_db():
     return client
 
 
-def convert_mongo_id(doc: dict):
+def convert_mongo_id(doc: dict) -> None:
     """
     Converts MongoDB's ObjectId (_id) into a string so it can be serialized as
     JSON.
@@ -55,7 +56,7 @@ def create(collection: str, doc: dict, db=JOURNAL_DB):
     return result
 
 
-def read_one(collection: str, filt: dict, db=JOURNAL_DB):
+def read_one(collection: str, filt: dict, db=JOURNAL_DB) -> Union[dict, None]:
     """
     Find with a filter and return on the first doc found.
     Return None if not found.
@@ -67,7 +68,7 @@ def read_one(collection: str, filt: dict, db=JOURNAL_DB):
     return doc
 
 
-def delete(collection: str, filt: dict, db=JOURNAL_DB):
+def delete(collection: str, filt: dict, db=JOURNAL_DB) -> int:
     """
     Deletes the first document matching the filter.
     Returns the count of deleted documents.
@@ -93,7 +94,7 @@ def update(collection: str, filt: dict, update_dict: dict, db=JOURNAL_DB):
     return client[db][collection].update_one(filt, {'$set': update_dict})
 
 
-def read(collection, db=JOURNAL_DB, no_id=True) -> list:
+def read(collection, db=JOURNAL_DB, no_id=True) -> list[dict]:
     """
     Retrieves all documents from the specified collection.
     """
@@ -119,7 +120,7 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     return recs_as_dict
 
 
-def fetch_all_as_dict(key, collection, db=JOURNAL_DB):
+def fetch_all_as_dict(key, collection, db=JOURNAL_DB) -> dict:
     """
     Retrieves all documents as a dictionary with a specified field as the key.
     """

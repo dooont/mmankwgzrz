@@ -8,6 +8,9 @@ NO_NAME = '@nyu'
 NO_DOMAIN = 'example@'
 NO_SUB_DOMAIN = 'example@com'
 DOMAIN_TOO_SHORT = 'example@nyu.e'
+TEMP_EMAIL = 'temp_person@temp.org'
+ADD_EMAIL = 'joe@nyu.edu'
+VALID_ROLES = ['ED', 'AU']
 
 
 def test_is_valid_email():
@@ -39,14 +42,10 @@ def test_is_valid_email_domain_too_short():
         ppl.is_valid_email(DOMAIN_TOO_SHORT)
 
 
-# Test that checks how bad emails are handled
 def test_create_bad_email():
     with pytest.raises(ValueError):
         ppl.create('Do not care about name',
                    'Or affiliation', 'bademail', TEST_ROLE_CODE)
-
-
-TEMP_EMAIL = 'temp_person@temp.org'
 
 
 @pytest.fixture(scope='function')
@@ -59,19 +58,13 @@ def temp_person():
         print('Person already deleted.')
 
 
-# testing the read endpoint
 def test_read(temp_person):
     people = ppl.read()
     assert isinstance(people, dict)
     assert len(people) > 0
 
-    # Check for string IDs:
     for _id, person in people.items():
-        # id represents the key and person represents
-        # the value of each dict item
-        # people.items() returns a list of dictionary key-val pairs
         assert isinstance(_id, str)
-        # checks if NAME is a key in the person (value)
         assert ppl.NAME in person
     assert temp_person in people
 
@@ -92,33 +85,21 @@ def test_doesnt_exist():
     assert not ppl.exists('Not an existing email!')
 
 
-# testing the delete endpoint
 def test_delete(temp_person):
     ppl.delete(temp_person)
     assert not ppl.exists(temp_person)
 
 
-# email is made constant here to make it easier to change later on
-ADD_EMAIL = 'joe@nyu.edu'
-
-
-# testing the create endpoint
 def test_create():
     ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
     assert ppl.exists(ADD_EMAIL)
     ppl.delete(ADD_EMAIL)
 
 
-# testing the delete people endpoint
 def test_create_duplicate(temp_person):
-    # checks if the email already exists after creating the person
-    # if so, it will raise an error
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
                    'Neither Does School', temp_person, TEST_ROLE_CODE)
-
-
-VALID_ROLES = ['ED', 'AU']
 
 
 def test_update(temp_person):
