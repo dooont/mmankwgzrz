@@ -71,8 +71,14 @@ def create_field(fld: str, disp_nm: str):
 
 def update_field(fld: str, disp_nm: str):
     if not is_valid(fld):
-        raise ValueError(f'Adding nonexistent field: {fld=}')
+        raise ValueError(f'Updating nonexistent field: {fld=}')
     FIELDS[fld][DISP_NAME] = disp_nm
+
+
+def delete_field(fld: str):
+    if not is_valid(fld):
+        raise ValueError(f'Deleting nonexistent field: {fld=}')
+    del FIELDS[fld]
 
 
 """
