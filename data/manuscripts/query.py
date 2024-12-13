@@ -48,6 +48,7 @@ ACTIONS = {
     'ACCEPT': 'ACC',
     'ACCEPT_WITH_REV': 'AWR',
     'ASSIGN_REF': 'ARF',
+    'DELETE_REF': 'DRF',
     'DONE': 'DON',
     'REJECT': 'REJ',
     'WITHDRAW': 'WDN',
@@ -67,6 +68,21 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
+def assign_ref(manu: dict, ref: str, extra=None) -> str:
+    print(extra)
+    manu[flds.REFEREES].append(ref)
+    return REFEREE_REVIEW
+
+
+def delete_ref(manu: dict, ref: str) -> str:
+    if len(manu[flds.REFEREES]) > 0:
+        manu[flds.REFEREES].remove(ref)
+    if len(manu[flds.REFEREES]) > 0:
+        return REFEREE_REVIEW
+    else:
+        return SUBMITTED
+
+
 FUNC = 'f'
 
 COMMON_ACTIONS = {
@@ -79,32 +95,38 @@ STATE_TABLE = {
     AUTHOR_REVIEW: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: FORMATTING,
-        }
+        },
+        **COMMON_ACTIONS,
     },
     AUTHOR_REVISION: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: EDITOR_REVIEW,
-        }
+        },
+        **COMMON_ACTIONS,
     },
     COPY_EDIT: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: AUTHOR_REVIEW,
-        }
+        },
+        **COMMON_ACTIONS,
     },
     EDITOR_REVIEW: {
         ACTIONS['ACCEPT']: {
             FUNC: lambda **kwargs: COPY_EDIT,
-        }
+        },
+        **COMMON_ACTIONS,
     },
     FORMATTING: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: PUBLISHED,
-        }
+        },
+        **COMMON_ACTIONS,
     },
     PUBLISHED: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: PUBLISHED,
         },
+        **COMMON_ACTIONS,
     },
     REFEREE_REVIEW: {
         ACTIONS['ACCEPT']: {
@@ -115,26 +137,32 @@ STATE_TABLE = {
         },
         ACTIONS['ACCEPT_WITH_REV']: {
             FUNC: lambda **kwargs: AUTHOR_REVISION,
-        }
+        },
+        ACTIONS['ASSIGN_REF']: {
+            FUNC: assign_ref,
+        },
+        ACTIONS['DELETE_REF']: {
+            FUNC: delete_ref,
+        },
+        **COMMON_ACTIONS,
     }, 
     REJECTED: {
         ACTIONS['DONE']: {
             FUNC: lambda **kwargs: REJECTED,
-        }    
+        },
+        **COMMON_ACTIONS,
     },
     SUBMITTED: {
         ACTIONS['ASSIGN_REF']: {
-            FUNC: lambda **kwargs: REFEREE_REVIEW,
+            FUNC: assign_ref,
         },
         ACTIONS['REJECT']: {
             FUNC: lambda **kwargs: REJECTED,
         },
-        **COMMON_ACTIONS
+        **COMMON_ACTIONS,
     },
     WITHDRAWN: {
-        ACTIONS['WITHDRAW']: {
-            FUNC: lambda **kwargs: WITHDRAWN,
-        }
+        **COMMON_ACTIONS,
     },
 }
 
