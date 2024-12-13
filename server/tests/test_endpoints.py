@@ -252,6 +252,49 @@ def test_get_people_by_role(mock_read):
     assert len(resp_json['people']) == 0 
 
 
+@patch('data.people.read', autospec=True)
+def test_get_people_by_affiliation(mock_read):
+    mock_data = {
+        'user1@email.com': {
+            'name': 'User 1',
+            'affiliation': 'NYU'
+        },
+        'user2@email.com': {
+            'name': 'User 2',
+            'affiliation': 'NYU'
+        },
+        'user3@email.com': {
+            'name': 'User 3',
+            'affiliation': 'BYU'
+        }
+    }
+    mock_read.return_value = mock_data
+
+    # Test getting NYU
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/NYU')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'people' in resp_json
+    people = resp_json['people']
+    assert len(people) == 2
+    assert all('NYU' in person['affiliation'] for person in people)
+
+    # Test getting BYU
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/BYU')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert 'people' in resp_json
+    people = resp_json['people']
+    assert len(people) == 1
+    assert all('BYU' in person['affiliation'] for person in people)
+
+    # Test non-existent affiliation
+    resp = TEST_CLIENT.get(f'{ep.PEOPLE_EP}/affiliation/a')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert len(resp_json['people']) == 0 
+
+
 def test_get_endpoints():
     resp = TEST_CLIENT.get(ep.ENDPOINT_EP)
     resp_json = resp.get_json()

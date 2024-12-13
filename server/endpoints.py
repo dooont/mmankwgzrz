@@ -274,6 +274,19 @@ class PeopleByRole(Resource):
         return {"people": people_with_role}
 
 
+@api.route(f'{PEOPLE_EP}/affiliation/<affiliation>')
+class PeopleByAffiliation(Resource):
+    def get(self, affiliation):
+        """
+        Get all people from a specific affiliation.
+        """
+        all_people = ppl.read()
+        people_with_affiliation = [all_people[email] for email in all_people
+                                   if all_people[email][ppl.AFFILIATION]
+                                   == affiliation]
+        return {"people": people_with_affiliation}
+
+
 # endpoint for Masthed
 @api.route(f'{PEOPLE_EP}/masthead')
 class Masthead(Resource):
