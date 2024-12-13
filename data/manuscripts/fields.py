@@ -1,3 +1,5 @@
+from typing import Union
+
 TEST_FLD_DISP_NM = 'Title'
 TEST_FLD_NM = 'title'
 
@@ -63,19 +65,19 @@ def is_valid(field: str) -> bool:
     return field in FIELDS
 
 
-def create_field(fld: str, disp_nm: str) -> None | ValueError:
+def create_field(fld: str, disp_nm: str) -> Union[None, ValueError]:
     if is_valid(fld):
         raise ValueError(f'Adding duplicate field: {fld=}')
     FIELDS[fld] = {DISP_NAME: disp_nm}
 
 
-def update_field(fld: str, disp_nm: str) -> None | ValueError:
+def update_field(fld: str, disp_nm: str) -> Union[None, ValueError]:
     if not is_valid(fld):
         raise ValueError(f'Updating nonexistent field: {fld=}')
     FIELDS[fld][DISP_NAME] = disp_nm
 
 
-def delete_field(fld: str) -> None | ValueError:
+def delete_field(fld: str) -> Union[None, ValueError]:
     if not is_valid(fld):
         raise ValueError(f'Deleting nonexistent field: {fld=}')
     del FIELDS[fld]
