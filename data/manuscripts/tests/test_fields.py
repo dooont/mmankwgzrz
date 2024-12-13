@@ -63,22 +63,3 @@ def test_delete_field(temp_field):
 def test_delete_nonexistent_field(temp_field):
     with pytest.raises(ValueError):
         mflds.delete_field('NONEXISTENT_FIELD')
-
-
-"""
-def test_get_authors():
-    ret = mflds.get_authors()
-    assert isinstance(ret, str)
-    ret = mflds.get_authors('not_author')
-    assert ret == ''
-    assert isinstance(ret, str)
-
-
-def test_get_referees():
-    ret = mflds.get_referees()
-    assert isinstance(ret, list)
-    assert mflds.REFEREES in ret
-    ret = mflds.get_referees('not_referee')
-    assert ret == []
-    assert isinstance(ret, list)
-"""

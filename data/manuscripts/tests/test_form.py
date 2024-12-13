@@ -30,6 +30,7 @@ def test_get_query_fld_names():
 def test_valid_forms():
     for form in mform.get_form():
         assert isinstance(form, dict)
+
         
 def test_update_form_field():
     # Test updating question

@@ -63,36 +63,22 @@ def is_valid(field: str) -> bool:
     return field in FIELDS
 
 
-def create_field(fld: str, disp_nm: str):
+def create_field(fld: str, disp_nm: str) -> None | ValueError:
     if is_valid(fld):
         raise ValueError(f'Adding duplicate field: {fld=}')
     FIELDS[fld] = {DISP_NAME: disp_nm}
 
 
-def update_field(fld: str, disp_nm: str):
+def update_field(fld: str, disp_nm: str) -> None | ValueError:
     if not is_valid(fld):
         raise ValueError(f'Updating nonexistent field: {fld=}')
     FIELDS[fld][DISP_NAME] = disp_nm
 
 
-def delete_field(fld: str):
+def delete_field(fld: str) -> None | ValueError:
     if not is_valid(fld):
         raise ValueError(f'Deleting nonexistent field: {fld=}')
     del FIELDS[fld]
-
-
-"""
-def get_authors(field: str=AUTHOR) -> str:
-    if field == AUTHOR:
-        return FIELDS[AUTHOR][DISP_NAME]
-    return ''
-
-
-def get_referees(field: str=REFEREES) -> list:
-    if field == REFEREES:
-        return FIELDS[REFEREES][DISP_NAME]
-    return []
-"""
 
 
 def main():

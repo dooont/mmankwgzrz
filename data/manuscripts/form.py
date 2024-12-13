@@ -34,7 +34,7 @@ def get_form() -> list:
     return FORM_FLDS
 
 
-def get_form_descr():
+def get_form_descr() -> dict:
     """
     For Swagger!
     """
@@ -49,7 +49,7 @@ def get_query_fld_names() -> list:
     return ff.get_query_fld_names(FORM_FLDS)
 
 
-def update_form_field(field_name, question=None, param_type=None, optional=None):
+def update_form_field(field_name, question=None, param_type=None, optional=None) -> dict:
     fields = get_form()
     field = next((fld for fld in fields if fld[FLD_NM] == field_name), None)
     if not field:
@@ -66,9 +66,9 @@ def update_form_field(field_name, question=None, param_type=None, optional=None)
 
 
 def main():
-    # print(f'Form: {get_form()=}')
+    print(f'Form: {get_form()=}')
     print(f'Form: {get_form_descr()=}')
-    # print(f'Field names: {get_fld_names()=}')
+    print(f'Field names: {get_fld_names()=}')
 
 
 if __name__ == "__main__":
