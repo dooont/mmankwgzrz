@@ -47,9 +47,8 @@ def is_valid_email(email: str) -> Union[bool, ValueError]:
         raise ValueError(f'Email is not a string: {email}')
 
 
-def is_valid_person(name: str, affiliation: str, email: str,
-                    role: str = None, roles: list = None) \
-                                -> Union[bool, Exception]:
+def is_valid_person(name: str, affiliation: str, email: str, role: str = None,
+                    roles: list = None) -> Union[bool, Exception]:
     """
     Validates person attributes.
         - The email is valid.

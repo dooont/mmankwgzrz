@@ -99,53 +99,41 @@ def test_handle_action():
                               ref='Some ref') == mqry.REFEREE_REVIEW
     assert mqry.handle_action(mqry.SUBMITTED, 
                               mqry.ACTIONS['REJECT'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.REJECTED
+                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ACCEPT'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.COPY_EDIT
+                              manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['REJECT'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.REJECTED
+                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ACCEPT_WITH_REV'],
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.AUTHOR_REVISION
+                              manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVISION
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ASSIGN_REF'], 
                               manu=mqry.SAMPLE_MANU, 
                               ref='Some ref') == mqry.REFEREE_REVIEW
     assert mqry.handle_action(mqry.AUTHOR_REVISION, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.EDITOR_REVIEW
+                              manu=mqry.SAMPLE_MANU) == mqry.EDITOR_REVIEW
     assert mqry.handle_action(mqry.EDITOR_REVIEW, 
                               mqry.ACTIONS['ACCEPT'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.COPY_EDIT
+                              manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
     assert mqry.handle_action(mqry.COPY_EDIT, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.AUTHOR_REVIEW
+                              manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVIEW
     assert mqry.handle_action(mqry.AUTHOR_REVIEW, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.FORMATTING
+                              manu=mqry.SAMPLE_MANU) == mqry.FORMATTING
     assert mqry.handle_action(mqry.FORMATTING, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.PUBLISHED
+                              manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
     assert mqry.handle_action(mqry.PUBLISHED, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.PUBLISHED
+                              manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
     assert mqry.handle_action(mqry.REJECTED, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.REJECTED
+                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
     assert mqry.handle_action(mqry.WITHDRAWN, 
                               mqry.ACTIONS['WITHDRAW'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.WITHDRAWN
+                              manu=mqry.SAMPLE_MANU) == mqry.WITHDRAWN

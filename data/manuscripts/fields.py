@@ -10,10 +10,12 @@ AUTHOR = 'author'
 REFEREES = 'referees'
 AUTHOR_EMAIL = 'author email'
 STATE = 'state'
+ACTION = 'action'
 TEXT = 'text'
 ABSTRACT = 'abstract'
 HISTORY = 'history'
 EDITOR = 'Editor'
+
 
 
 FIELDS = {

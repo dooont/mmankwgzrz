@@ -1,6 +1,11 @@
 # from manuscripts import fields as flds (this give you errors when deploying)
 import data.manuscripts.fields as flds
 #the other import breaks matthew and andy's builds
+import data.people as ppl
+import data.db_connect as dbc
+
+# Manuscript Collection
+MANU_COLLECT = 'manuscripts'
 
 # States
 AUTHOR_REVIEW = 'AU_RVW'
@@ -29,20 +34,6 @@ VALID_STATES = [
     WITHDRAWN,
 ]
 
-SAMPLE_MANU = {
-    flds.TITLE: 'Sample Manuscript',
-    flds.AUTHOR: 'Andy Ng',
-    flds.REFEREES: [],
-}
-
-def get_states() -> list[str]:
-    return VALID_STATES
-
-
-def is_valid_state(state: str) -> bool:
-    return state in VALID_STATES
-
-
 # Actions
 ACTIONS = {
     'ACCEPT': 'ACC',
@@ -58,18 +49,46 @@ ACTIONS = {
 TEST_ACTION = ACTIONS['ACCEPT']
 
 VALID_ACTIONS = list(ACTIONS.values())
+SAMPLE_MANU = {
+    flds.TITLE: 'Sample Manuscript',
+    flds.AUTHOR: 'Andy Ng',
+    flds.AUTHOR_EMAIL: 'an3299@Nyu.edu',
+    flds.REFEREES: [],
+    flds.STATE: SUBMITTED,
+    flds.ACTION: ACTIONS['ASSIGN_REF'],
+}
 
+def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> dict:
+    if not ppl.exists(author_email):
+        raise ValueError('Author does not exist')
+    
+    if ppl.exists(author_email):
+        referees = [referee] if referee else []
+        manuscript = {flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, 
+                      flds.REFEREES: referees, flds.STATE: state, flds.ACTION: action}
+        print(manuscript)
+        dbc.create(MANU_COLLECT, manuscript)
+        return manuscript
+    
+def get_states() -> list[str]:
+    return VALID_STATES
+
+
+def is_valid_state(state: str) -> bool:
+    return state in VALID_STATES
 
 def get_actions() -> list:
     return VALID_ACTIONS
 
-
 def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
+def get_queue() -> list:
+    return []
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
     print(extra)
+    # adding a referree to the list of referres for the manuscript record
     manu[flds.REFEREES].append(ref)
     return REFEREE_REVIEW
 
