@@ -99,7 +99,10 @@ def read(collection, db=JOURNAL_DB, no_id=True) -> list[dict]:
     Retrieves all documents from the specified collection.
     """
     ret = []
+    # for each document in the database collection (ex: people, manuscripts)
+    # returns a cursor that iterates over each document
     for doc in client[db][collection].find():
+        # each doc is a dictioanry representing a document in the collection
         if no_id:
             del doc[MONGO_ID]
         else:
@@ -116,6 +119,7 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     recs = read(collection, db=db, no_id=no_id)
     recs_as_dict = {}
     for rec in recs:
+        # creates a dictionary of dictionaries with the specified key
         recs_as_dict[rec[key]] = rec
     return recs_as_dict
 

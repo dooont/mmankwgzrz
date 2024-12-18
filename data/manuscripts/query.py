@@ -58,6 +58,23 @@ SAMPLE_MANU = {
     flds.ACTION: ACTIONS['ASSIGN_REF'],
 }
 
+
+def get_states() -> list[str]:
+    return VALID_STATES
+
+
+def is_valid_state(state: str) -> bool:
+    return state in VALID_STATES
+
+
+def get_actions() -> list:
+    return VALID_ACTIONS
+
+
+def is_valid_action(action: str) -> bool:
+    return action in VALID_ACTIONS
+
+
 def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> dict:
     if not ppl.exists(author_email):
         raise ValueError('Author does not exist')
@@ -70,21 +87,25 @@ def create_manuscript(title : str, author : str, author_email : str, referee : s
         dbc.create(MANU_COLLECT, manuscript)
         return manuscript
     
-def get_states() -> list[str]:
-    return VALID_STATES
+
+# returns the exisitng manuscripts in database
+def get_manuscripts() -> dict[str, dict]:
+    """
+    Retrieves all manuscripts from the database.
+    """ 
+    manuscripts = dbc.read_dict(MANU_COLLECT, flds.AUTHOR_EMAIL)
+    print(f'Manuscripts retrieved: {manuscripts}')
+    return manuscripts
 
 
-def is_valid_state(state: str) -> bool:
-    return state in VALID_STATES
+def get_one_manu(email : str) -> dict:
+    """
+    Retrieves a manuscript from the database, by taking in an email.
+    """
+    manuscript = dbc.read_one(MANU_COLLECT, {flds.AUTHOR_EMAIL: email})
+    print(f'Manuscript retrieved: {manuscript}')
+    return manuscript
 
-def get_actions() -> list:
-    return VALID_ACTIONS
-
-def is_valid_action(action: str) -> bool:
-    return action in VALID_ACTIONS
-
-def get_queue() -> list:
-    return []
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
     print(extra)
