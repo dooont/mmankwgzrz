@@ -14,6 +14,7 @@ import data.people as ppl
 import data.manuscripts.form as form
 import data.text as txt
 import data.manuscripts.query as qry
+import data.manuscripts.fields as flds
 
 app = Flask(__name__)
 CORS(app)
@@ -45,12 +46,13 @@ TITLE_EP = '/title'
 TITLE_RESP = 'Title'
 
 
-QUEUE_CREATE_FLDS = api.model('CreateQueueEntry', {
-    'title': fields.String,
-    'author': fields.String,
-    'referees': fields.List(fields.String),
-    'state': fields.String,
-    'action': fields.String
+QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
+    flds.TITLE: fields.String,
+    flds.AUTHOR: fields.String,
+    flds.AUTHOR_EMAIL: fields.String,
+    flds.REFEREES: fields.List(fields.String),
+    flds.STATE: fields.String,
+    flds.ACTION: fields.String
 })
 
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
@@ -310,15 +312,38 @@ class Query(Resource):
         return qry.get_manuscripts()
 
 
-# @api.route(f'{QUERY_EP}/create')
-# class QueryCreate(Resource):
-#     """
-#     This class handles creating a manuscript in the query to the database.
-#     """
-#     def put(self):
-#         """
-#         Create a manuscript on the query.
-#         """
+@api.route(f'{QUERY_EP}/create')
+class QueryCreate(Resource):
+    """
+    This class handles creating a manuscript in the query to the database.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
+    @api.expect(QUERY_CREATE_FLDS)
+    def put(self):
+        """
+        Create a manuscript on the query.
+        """
+        try:
+            title = request.json.get(flds.TITLE)
+            author = request.json.get(flds.AUTHOR)
+            author_email = request.json.get(flds.AUTHOR_EMAIL)
+            referees = request.json.get(flds.REFEREES)
+            state = request.json.get(flds.STATE)
+            action = request.json.get(flds.ACTION)
+
+            if qry.exists(title):
+                raise wz.NotAcceptable(f'Title {title} is already in use.')
+
+            new_manuscript = qry.create_manuscript(title, author, author_email,
+                                                   referees, state, action)
+            return {
+                MESSAGE: 'Manuscript added!',
+                RETURN: new_manuscript
+            }
+
+        except Exception as err:
+            raise wz.NotAcceptable(f'Could not add manuscript: {err=}')
 
 
 @api.route(FORM_EP)
