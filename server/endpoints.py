@@ -13,6 +13,7 @@ from http import HTTPStatus
 import data.people as ppl
 import data.manuscripts.form as form
 import data.text as txt
+import data.manuscripts.query as qry
 
 app = Flask(__name__)
 CORS(app)
@@ -33,6 +34,7 @@ PEOPLE_CREATE_FORM = 'People Add Form'
 PEOPLE_EP = '/people'
 PUBLISHER = 'Palgave'
 PUBLISHER_RESP = 'Publisher'
+QUERY_EP = '/query'
 REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
@@ -41,6 +43,15 @@ TEXT_EP = '/text'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
 TITLE_RESP = 'Title'
+
+
+QUEUE_CREATE_FLDS = api.model('CreateQueueEntry', {
+    'title': fields.String,
+    'author': fields.String,
+    'referees': fields.List(fields.String),
+    'state': fields.String,
+    'action': fields.String
+})
 
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
     'field_name': fields.String,
@@ -285,6 +296,29 @@ class Masthead(Resource):
     """
     def get(self):
         return {MASTHEAD: ppl.get_masthead()}
+
+
+@api.route(QUERY_EP)
+class Query(Resource):
+    """
+    This class handles reading the queue.
+    """
+    def get(self):
+        """
+        Retrieve the queue.
+        """
+        return qry.get_manuscripts()
+
+
+# @api.route(f'{QUERY_EP}/create')
+# class QueryCreate(Resource):
+#     """
+#     This class handles creating a manuscript in the query to the database.
+#     """
+#     def put(self):
+#         """
+#         Create a manuscript on the query.
+#         """
 
 
 @api.route(FORM_EP)
