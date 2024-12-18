@@ -93,18 +93,25 @@ def get_manuscripts() -> dict[str, dict]:
     """
     Retrieves all manuscripts from the database.
     """ 
-    manuscripts = dbc.read_dict(MANU_COLLECT, flds.AUTHOR_EMAIL)
+    manuscripts = dbc.read_dict(MANU_COLLECT, flds.TITLE)
     print(f'Manuscripts retrieved: {manuscripts}')
     return manuscripts
 
 
-def get_one_manu(email : str) -> dict:
+def get_one_manu(title : str) -> dict:
     """
     Retrieves a manuscript from the database, by taking in an email.
     """
-    manuscript = dbc.read_one(MANU_COLLECT, {flds.AUTHOR_EMAIL: email})
+    manuscript = dbc.read_one(MANU_COLLECT, {flds.TITLE: title})
     print(f'Manuscript retrieved: {manuscript}')
     return manuscript
+
+
+def exists(title: str) -> bool:
+    """
+    Checks if a manuscript with the given title exists in the database.
+    """
+    return get_one_manu(title) is not None
 
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
