@@ -85,7 +85,7 @@ def create_manuscript(title : str, author : str, author_email : str, referee : s
                       flds.REFEREES: referees, flds.STATE: state, flds.ACTION: action}
         print(manuscript)
         dbc.create(MANU_COLLECT, manuscript)
-        return manuscript
+        return title
     
 
 # returns the exisitng manuscripts in database
@@ -226,9 +226,7 @@ def handle_action(curr_state, action, **kwargs) -> str:
 
     return STATE_TABLE[curr_state][action][FUNC](**kwargs)
     
-    
-
-
+   
 def main():
     print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU))
 
