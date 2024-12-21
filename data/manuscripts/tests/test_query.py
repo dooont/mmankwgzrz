@@ -1,6 +1,20 @@
 import random
-
+import pytest 
 import data.manuscripts.query as mqry
+import data.manuscripts.fields as flds
+
+
+TEST_TITLE = "Three Little Bears"
+
+
+@pytest.fixture(scope='function')
+def temp_manu():
+    title = mqry.create_manuscript('Three Bears', 'Andy Ng', 'an3299@nyu.edu', 'Bob', mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
+    yield title
+    try: 
+        mqry.delete(title)
+    except:
+        print('Manuscript already deleted.')
 
 
 def gen_random_not_valid_str() -> str:
@@ -54,6 +68,62 @@ def test_is_not_valid_action():
     """
     for i in range(10):
         assert not mqry.is_valid_action(gen_random_not_valid_str())
+
+
+# create
+def test_create_manuscript():
+    """
+    Test creating a manuscript.
+    """
+    mqry.create_manuscript(TEST_TITLE, 'Andy Ng', 'an3299@nyu.edu', 'Bob', mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
+    assert mqry.exists(TEST_TITLE)
+    mqry.delete(TEST_TITLE)
+
+
+# delete
+def test_delete(temp_manu):
+    """
+    Test deleting a manuscript.
+    """
+    mqry.delete(temp_manu)
+    assert not mqry.exists(temp_manu)
+
+
+# read 
+def test_get_manuscripts(temp_manu):
+    """
+    Test reading all manuscripts.
+    """
+    manuscripts = mqry.get_manuscripts() 
+    assert isinstance(manuscripts, dict)
+    assert len(manuscripts) > 0
+
+    for _id, manuscript in manuscripts.items():
+        assert isinstance(_id, str)
+        assert isinstance(manuscript, dict)
+        assert flds.TITLE in manuscript
+        assert flds.AUTHOR in manuscript
+        assert flds.AUTHOR_EMAIL in manuscript 
+        assert flds.REFEREES in manuscript
+        assert flds.STATE in manuscript
+        assert flds.ACTION in manuscript
+    
+    assert temp_manu in manuscripts
+
+
+# read one
+def test_get_one_manu(temp_manu):
+    """
+    Test reading an existing manuscript.
+    """
+    assert mqry.get_one_manu(temp_manu) is not None
+
+# exists
+def test_exists(temp_manu):
+    """
+    Test checking if a manuscript exists.
+    """
+    assert mqry.exists(temp_manu)
 
 
 def test_handle_action_bad_state():

@@ -117,6 +117,7 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     dictionary key.
     """
     recs = read(collection, db=db, no_id=no_id)
+    # list of dicts
     recs_as_dict = {}
     for rec in recs:
         # creates a dictionary of dictionaries with the specified key

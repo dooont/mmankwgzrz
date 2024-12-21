@@ -51,7 +51,8 @@ def test_create_bad_email():
 @pytest.fixture(scope='function')
 def temp_person():
     email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, TEST_ROLE_CODE)
-    yield email
+    # yields return email as a sample or instance for testing 
+    yield email 
     try:
         ppl.delete(email)
     except:
@@ -59,12 +60,14 @@ def temp_person():
 
 
 def test_read(temp_person):
+    # people eturns a dictionary of dictionaries with the specified key
     people = ppl.read()
     assert isinstance(people, dict)
     assert len(people) > 0
 
     for _id, person in people.items():
         assert isinstance(_id, str)
+        # person is a regular person dictionary
         assert ppl.NAME in person
     assert temp_person in people
 

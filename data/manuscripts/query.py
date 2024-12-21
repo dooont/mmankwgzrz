@@ -74,8 +74,11 @@ def get_actions() -> list:
 def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
-
+# create
 def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> dict:
+    if exists(title):
+        raise ValueError('Title already exists use another one')
+
     if not ppl.exists(author_email):
         raise ValueError('Author does not exist')
     
@@ -88,11 +91,13 @@ def create_manuscript(title : str, author : str, author_email : str, referee : s
         return title
     
 
+# read
 # returns the exisitng manuscripts in database
 def get_manuscripts() -> dict[str, dict]:
     """
     Retrieves all manuscripts from the database.
     """ 
+    # returns a dictionary of {title, each manuscript represented by a dictionary}
     manuscripts = dbc.read_dict(MANU_COLLECT, flds.TITLE)
     print(f'Manuscripts retrieved: {manuscripts}')
     return manuscripts
@@ -106,6 +111,14 @@ def get_one_manu(title : str) -> dict:
     print(f'Manuscript retrieved: {manuscript}')
     return manuscript
 
+
+#  delete
+def delete(title : str):
+    """ 
+    Deletes a selected manusciprt from the database.
+    """
+    print(f'{flds.TITLE=}: {title=}')
+    return dbc.delete(MANU_COLLECT, {flds.TITLE: title})
 
 def exists(title: str) -> bool:
     """
