@@ -2,14 +2,23 @@ import random
 import pytest 
 import data.manuscripts.query as mqry
 import data.manuscripts.fields as flds
+from data.tests.test_people import temp_person  # Import the fixture from test_people.py
 
 
 TEST_TITLE = "Three Little Bears"
-
+TEST_AUTHOR_NAME = 'Joe Smith'
+TEST_REFEREE = 'bob@nyu.edu'
 
 @pytest.fixture(scope='function')
-def temp_manu():
-    title = mqry.create_manuscript('Three Bears', 'Andy Ng', 'an3299@nyu.edu', 'Bob', mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
+def temp_manu(temp_person):
+    title = mqry.create_manuscript( 
+        TEST_TITLE,
+        TEST_AUTHOR_NAME,
+        temp_person,
+        TEST_REFEREE,
+        mqry.SUBMITTED,
+        mqry.ACTIONS['ASSIGN_REF']
+    )
     yield title
     try: 
         mqry.delete(title)
@@ -69,19 +78,16 @@ def test_is_not_valid_action():
     for i in range(10):
         assert not mqry.is_valid_action(gen_random_not_valid_str())
 
-@pytest.mark.skip(reason="Skipping due to build breaking")
-# create
-def test_create_manuscript():
+
+def test_create_manuscript(temp_person):
     """
     Test creating a manuscript.
     """
-    mqry.create_manuscript(TEST_TITLE, 'Andy Ng', 'an3299@nyu.edu', 'Bob', mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
+    mqry.create_manuscript(TEST_TITLE, TEST_AUTHOR_NAME, temp_person, TEST_REFEREE, mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
     assert mqry.exists(TEST_TITLE)
     mqry.delete(TEST_TITLE)
 
 
-@pytest.mark.skip(reason="Skipping due to build breaking")
-# delete
 def test_delete(temp_manu):
     """
     Test deleting a manuscript.
@@ -90,8 +96,6 @@ def test_delete(temp_manu):
     assert not mqry.exists(temp_manu)
 
 
-@pytest.mark.skip(reason="Skipping due to build breaking")
-# read 
 def test_get_manuscripts(temp_manu):
     """
     Test reading all manuscripts.
@@ -113,8 +117,6 @@ def test_get_manuscripts(temp_manu):
     assert temp_manu in manuscripts
 
 
-@pytest.mark.skip(reason="Skipping due to build breaking")
-# read one
 def test_get_one_manu(temp_manu):
     """
     Test reading an existing manuscript.
@@ -122,13 +124,18 @@ def test_get_one_manu(temp_manu):
     assert mqry.get_one_manu(temp_manu) is not None
 
 
-@pytest.mark.skip(reason="Skipping due to build breaking")
-# exists
 def test_exists(temp_manu):
     """
     Test checking if a manuscript exists.
     """
     assert mqry.exists(temp_manu)
+
+
+def test_doesnt_exist():
+    """
+    Test checking if a manuscript does not exist.
+    """
+    assert not mqry.exists('Not an existing manuscript!')
 
 
 def test_handle_action_bad_state():

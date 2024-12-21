@@ -76,24 +76,35 @@ def get_actions() -> list:
 def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
-# create
+
 def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> dict:
     if exists(title):
         raise ValueError('Title already exists use another one')
 
     if not ppl.exists(author_email):
         raise ValueError('Author does not exist')
+
+    if not is_valid_state(state):
+        raise ValueError(f'Invalid state: {state}')
     
-    if ppl.exists(author_email):
-        referees = [referee] if referee else []
-        manuscript = {flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, 
-                      flds.REFEREES: referees, flds.STATE: state, flds.ACTION: action}
-        print(manuscript)
-        dbc.create(MANU_COLLECT, manuscript)
-        return title
+    if not is_valid_action(action):
+        raise ValueError(f'Invalid action: {action}')
+    
+    referees = [referee] if referee else []
+    manuscript = {
+                    flds.TITLE: title,
+                    flds.AUTHOR: author,
+                    flds.AUTHOR_EMAIL: author_email, 
+                    flds.REFEREES: referees,
+                    flds.STATE: state,
+                    flds.ACTION: action
+                }
+    
+    print(manuscript)
+    dbc.create(MANU_COLLECT, manuscript)
+    return title
     
 
-# read
 # returns the exisitng manuscripts in database
 def get_manuscripts() -> dict[str, dict]:
     """
@@ -114,7 +125,6 @@ def get_one_manu(title : str) -> dict:
     return manuscript
 
 
-#  delete
 def delete(title : str):
     """ 
     Deletes a selected manusciprt from the database.
@@ -227,7 +237,7 @@ STATE_TABLE = {
 }
 
 
-def get_valid_actions_by_state(state: str) -> list:
+def get_valid_actions_by_state(state: str) -> list[str]:
     return list(STATE_TABLE[state].keys())
                 
 
