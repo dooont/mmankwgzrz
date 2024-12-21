@@ -58,6 +58,8 @@ SAMPLE_MANU = {
     flds.ACTION: ACTIONS['ASSIGN_REF'],
 }
 
+FUNC = 'f'
+
 
 def get_states() -> list[str]:
     return VALID_STATES
@@ -142,8 +144,6 @@ def delete_ref(manu: dict, ref: str) -> str:
     else:
         return SUBMITTED
 
-
-FUNC = 'f'
 
 COMMON_ACTIONS = {
     ACTIONS['WITHDRAW']: {
