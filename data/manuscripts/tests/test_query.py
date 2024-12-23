@@ -90,17 +90,17 @@ def test_create_manuscript(temp_person):
 
 
 # test update
-def test_update(temp_manu):
+def test_update(temp_manu, temp_person):
     """
     Test updating a manuscript.
     """
     new_author = 'Andy Ng'
-    new_author_email = 'an3299@nyu.edu'
+    new_author_email = temp_person
     new_state = mqry.REFEREE_REVIEW
     new_action = mqry.ACTIONS['ACCEPT']
     new_referee = 'some ref'
 
-    updated_manu = mqry.update(temp_manu, new_author, new_author_email, new_referee, new_state, new_action)
+    updated_manu = mqry.update(temp_manu, new_author, temp_person, new_referee, new_state, new_action)
 
     assert updated_manu == temp_manu
 
