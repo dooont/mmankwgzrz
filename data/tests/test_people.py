@@ -111,7 +111,6 @@ def test_update(temp_person):
     new_roles = VALID_ROLES
 
     updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
-
     assert updated_email == temp_person
 
     updated_person = ppl.read_one(temp_person)

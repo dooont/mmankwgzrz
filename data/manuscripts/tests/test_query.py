@@ -79,6 +79,7 @@ def test_is_not_valid_action():
         assert not mqry.is_valid_action(gen_random_not_valid_str())
 
 
+# test create
 def test_create_manuscript(temp_person):
     """
     Test creating a manuscript.
@@ -88,6 +89,30 @@ def test_create_manuscript(temp_person):
     mqry.delete(TEST_TITLE)
 
 
+# test update
+def test_update(temp_manu):
+    """
+    Test updating a manuscript.
+    """
+    new_author = 'Andy Ng'
+    new_author_email = 'an3299@nyu.edu'
+    new_state = mqry.REFEREE_REVIEW
+    new_action = mqry.ACTIONS['ACCEPT']
+    new_referee = 'some ref'
+
+    updated_manu = mqry.update(temp_manu, new_author, new_author_email, new_referee, new_state, new_action)
+
+    assert updated_manu == temp_manu
+
+    updated_manu = mqry.get_one_manu(temp_manu)
+    assert updated_manu[flds.AUTHOR] == new_author
+    assert updated_manu[flds.AUTHOR_EMAIL] == new_author_email
+    assert updated_manu[flds.STATE] == new_state
+    assert updated_manu[flds.ACTION] == new_action 
+    assert new_referee in updated_manu[flds.REFEREES]
+
+
+# test delete
 def test_delete(temp_manu):
     """
     Test deleting a manuscript.
@@ -96,6 +121,7 @@ def test_delete(temp_manu):
     assert not mqry.exists(temp_manu)
 
 
+# test read 
 def test_get_manuscripts(temp_manu):
     """
     Test reading all manuscripts.

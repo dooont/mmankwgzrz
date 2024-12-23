@@ -4,6 +4,7 @@ import data.manuscripts.fields as flds
 import data.people as ppl
 import data.db_connect as dbc
 
+
 # Manuscript Collection
 MANU_COLLECT = 'manuscripts'
 
@@ -77,7 +78,7 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
-def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> dict:
+def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> str:
     if exists(title):
         raise ValueError('Title already exists use another one')
 
@@ -105,6 +106,33 @@ def create_manuscript(title : str, author : str, author_email : str, referee : s
     return title
     
 
+def update(title: str, author: str, author_email: str, referee: str, state: str, action: str) -> str:
+    """ 
+    Updates an existing manuscripts information in the db. 
+    If manuscript doesn't exist then a ValueError is raised.
+    """
+    if not exists(title):
+        raise ValueError(f'Can not update non-existent manuscript: {title=}')
+    
+    if referee: 
+        if not ppl.is_valid_email(author_email):
+            raise ValueError(f'Email is invalid: {referee=}')
+    
+    if not ppl.exists(author_email):
+        raise ValueError(f'Author doesnt exist: {author_email=}')
+    
+    if not is_valid_state(state):
+        raise ValueError(f'Invalid state: {state=}')
+    
+    if not is_valid_action(action):          
+        raise ValueError(f'Invalid action: {action=}')
+    
+    manuscript = {flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, flds.REFEREES: referee, flds.STATE: state, flds.ACTION: action}
+    print(manuscript)
+    dbc.update(MANU_COLLECT, {flds.TITLE: title}, manuscript)
+    return title
+
+
 # returns the exisitng manuscripts in database
 def get_manuscripts() -> dict[str, dict]:
     """
@@ -125,7 +153,7 @@ def get_one_manu(title : str) -> dict:
     return manuscript
 
 
-def delete(title : str):
+def delete(title : str) -> int:
     """ 
     Deletes a selected manusciprt from the database.
     """
