@@ -54,6 +54,20 @@ def test_create():
     txt.delete(key) # Clean up
 
 
+def test_create_empty_inputs():
+    with pytest.raises(ValueError):
+        txt.create("", TEST_TITLE, TEST_TEXT)
+
+    with pytest.raises(ValueError):
+        txt.create(TEST_KEY, "", TEST_TEXT)
+
+    with pytest.raises(ValueError):
+        txt.create(TEST_KEY, TEST_TITLE, "")
+
+    with pytest.raises(ValueError):
+        txt.create("", "", "")
+
+
 def test_create_duplicate(temp_text):
     with pytest.raises(ValueError):
         txt.create(TEST_KEY, TEST_TITLE, TEST_TEXT)

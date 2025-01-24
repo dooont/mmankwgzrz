@@ -35,9 +35,11 @@ def create(key: str, title: str, text: str) -> dict:
     """
     Creates a new text entry in the database.
     """
-    existing = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    if not key or not title or not text:
+        raise ValueError("Key, title, and text must all be provided and \
+                         non-empty.")
 
-    if existing:
+    if dbc.read_one(TEXT_COLLECTION, {KEY: key}):
         raise ValueError(f"Key '{key}' already exists in the database.")
 
     doc = {KEY: key, TITLE: title, TEXT: text}
