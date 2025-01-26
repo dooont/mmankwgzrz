@@ -46,6 +46,7 @@ def convert_mongo_id(doc: dict) -> None:
     """
     if MONGO_ID in doc:
         doc[MONGO_ID] = str(doc[MONGO_ID])
+    return doc
 
 
 def create(collection: str, doc: dict, db=JOURNAL_DB):

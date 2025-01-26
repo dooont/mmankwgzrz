@@ -44,7 +44,8 @@ def create(key: str, title: str, text: str) -> dict:
 
     doc = {KEY: key, TITLE: title, TEXT: text}
     dbc.create(TEXT_COLLECTION, doc)
-    return doc
+    inserted_doc = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    return dbc.convert_mongo_id(inserted_doc)
 
 
 def delete(key: str) -> int:
