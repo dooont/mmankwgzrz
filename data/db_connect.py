@@ -103,9 +103,12 @@ def read(collection, db=JOURNAL_DB, no_id=True) -> list[dict]:
     # returns a cursor that iterates over each document
     for doc in client[db][collection].find():
         # each doc is a dictioanry representing a document in the collection
+        # if no_id is passed in an argument or value, then no_id will no longer 
+        # hold a value of true so below if statement does not execute
         if no_id:
             del doc[MONGO_ID]
         else:
+            # converts the id to a string to be appended into ret
             convert_mongo_id(doc)
         ret.append(doc)
     return ret
