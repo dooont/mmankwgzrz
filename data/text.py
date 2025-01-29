@@ -35,14 +35,17 @@ def create(key: str, title: str, text: str) -> dict:
     """
     Creates a new text entry in the database.
     """
-    existing = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    if not key or not title or not text:
+        raise ValueError("Key, title, and text must all be provided and "
+                         "non-empty.")
 
-    if existing:
+    if dbc.read_one(TEXT_COLLECTION, {KEY: key}):
         raise ValueError(f"Key '{key}' already exists in the database.")
 
     doc = {KEY: key, TITLE: title, TEXT: text}
     dbc.create(TEXT_COLLECTION, doc)
-    return doc
+    inserted_doc = dbc.read_one(TEXT_COLLECTION, {KEY: key})
+    return dbc.convert_mongo_id(inserted_doc)
 
 
 def delete(key: str) -> int:
@@ -55,26 +58,19 @@ def delete(key: str) -> int:
     return result
 
 
-def update(key: str, title: str = None, text: str = None) -> dict:
+def update(key: str, title: str, text: str) -> dict:
     """
     Updates the title and/or text of an existing entry in the database.
     """
-    update_dict = {}
-    if title is not None:
-        update_dict[TITLE] = title
-    if text is not None:
-        update_dict[TEXT] = text
+    if not key or not title or not text:
+        raise ValueError("Key, title, and text must all be provided and "
+                         "non-empty.")
 
-    if not update_dict:
-        raise ValueError("No fields provided for update.")
-
-    result = dbc.update(TEXT_COLLECTION, {KEY: key}, update_dict)
-
-    if result.matched_count == 0:
+    if not dbc.read_one(TEXT_COLLECTION, {KEY: key}):
         raise ValueError(f"No text entry found for key '{key}'.")
 
-    updated_document = dbc.read_one(TEXT_COLLECTION, {KEY: key})
-    return updated_document
+    dbc.update(TEXT_COLLECTION, {KEY: key}, {TITLE: title, TEXT: text})
+    return dbc.read_one(TEXT_COLLECTION, {KEY: key})
 
 
 def main():

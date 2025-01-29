@@ -480,16 +480,10 @@ class CreateText(Resource):
             title = request.json.get('title')
             text = request.json.get('text')
 
-            # Check if the entry already exists
             if txt.read_one(key):
                 raise wz.NotAcceptable(f"Key '{key}' already exists.")
 
-            # Create the entry
             new_text = txt.create(key, title, text)
-
-            # Convert _id to string to avoid JSON serialization issues
-            if '_id' in new_text:
-                new_text['_id'] = str(new_text['_id'])
 
             return {'Message': 'Text entry added!', 'Text Entry': new_text}
         except Exception as err:
@@ -535,12 +529,7 @@ class Text(Resource):
             title = request.json.get('title')
             text = request.json.get('text')
 
-            # Update the text entry
             updated_text = txt.update(key, title=title, text=text)
-
-            # Convert _id to string to avoid JSON serialization issues
-            if updated_text and '_id' in updated_text:
-                updated_text['_id'] = str(updated_text['_id'])
 
             return {'Message': 'Text entry updated!',
                     'Updated Entry': updated_text}
