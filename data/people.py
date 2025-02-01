@@ -101,6 +101,7 @@ def delete(email: str) -> int:
     Deletes a person by email from the database.
     """
     print(f'{EMAIL=}, {email=}')
+    # returns an integer indicating the delected count
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 

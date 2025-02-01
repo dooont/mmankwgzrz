@@ -55,12 +55,22 @@ QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
     flds.ACTION: fields.String
 })
 
+QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
+    flds.TITLE: fields.String,
+    flds.AUTHOR: fields.String,
+    flds.AUTHOR_EMAIL: fields.String,
+    flds.REFEREES: fields.List(fields.String),
+    flds.STATE: fields.String,
+    flds.ACTION: fields.String
+})
+
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
     'field_name': fields.String,
     'question': fields.String,
     'param_type': fields.String,
     'optional': fields.Boolean
 })
+
 FORM_UPDATE_FLDS = api.model('UpdateFormEntry', {
     'field_name': fields.String,
     'question': fields.String,
@@ -74,6 +84,7 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.String,
 })
+
 PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
@@ -86,6 +97,7 @@ TEXT_CREATE_FLDS = api.model('CreateTextEntry', {
     txt.TITLE: fields.String,
     txt.TEXT: fields.String,
 })
+
 TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
     txt.TITLE: fields.String,
     txt.TEXT: fields.String,
@@ -303,26 +315,85 @@ class Masthead(Resource):
 @api.route(QUERY_EP)
 class Query(Resource):
     """
-    This class handles reading the queue.
+    This class handles reading all the manuscripts.
     """
     def get(self):
         """
-        Retrieve the queue.
+        Retrieve the all the manuscripts.
         """
         return qry.get_manuscripts()
+
+
+@api.route(f'{QUERY_EP}/<title>')
+class QueryEntry(Resource):
+    """
+    This class handles read, update, and delete for a single
+    manuscript in the manuscript db collection.
+    """
+    def get(self, title):
+        """
+        Retrieve a single manuscript.
+        """
+        manuscript = qry.get_one_manu(title)
+        if manuscript:
+            return manuscript
+        else:
+            raise wz.NotFound(f'No such manuscript: {title}')
+
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
+    @api.expect(QUERY_UPDATE_FLDS)
+    def put(self, title):
+        """
+        Update a manuscript.
+        """
+        try:
+            if not qry.exists(title):
+                raise wz.NotFound(f'No such manuscript: {title}')
+
+            author = request.json.get(flds.AUTHOR)
+            author_email = request.json.get(flds.AUTHOR_EMAIL)
+            referees = request.json.get(flds.REFEREES)
+            state = request.json.get(flds.STATE)
+            action = request.json.get(flds.ACTION)
+
+            ret = qry.update(title, author, author_email, referees,
+                             state, action)
+
+            return {
+                MESSAGE: 'Manuscript updated successfully',
+                RETURN: ret
+            }
+        except ValueError as ve:
+            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
+        except Exception as exp:
+            raise wz.NotAcceptable(f'Could not update manuscript: {str(exp)}')
+
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
+    def delete(self, title):
+        """
+        Delete a manuscript.
+        """
+        deleted_count = qry.delete(title)
+        if deleted_count == 0:
+            raise wz.NotFound(f'No such manuscript: {title}')
+        return {'Deleted': deleted_count}
 
 
 @api.route(f'{QUERY_EP}/create')
 class QueryCreate(Resource):
     """
-    This class handles creating a manuscript in the query to the database.
+    This class handles creating a manuscript and adding
+    to the manuscript database collection.
     """
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
     @api.expect(QUERY_CREATE_FLDS)
     def put(self):
         """
-        Create a manuscript on the query.
+        Create a manuscript and add to the databse.
         """
         try:
             title = request.json.get(flds.TITLE)
@@ -480,16 +551,10 @@ class CreateText(Resource):
             title = request.json.get('title')
             text = request.json.get('text')
 
-            # Check if the entry already exists
             if txt.read_one(key):
                 raise wz.NotAcceptable(f"Key '{key}' already exists.")
 
-            # Create the entry
             new_text = txt.create(key, title, text)
-
-            # Convert _id to string to avoid JSON serialization issues
-            if '_id' in new_text:
-                new_text['_id'] = str(new_text['_id'])
 
             return {'Message': 'Text entry added!', 'Text Entry': new_text}
         except Exception as err:
@@ -535,12 +600,7 @@ class Text(Resource):
             title = request.json.get('title')
             text = request.json.get('text')
 
-            # Update the text entry
             updated_text = txt.update(key, title=title, text=text)
-
-            # Convert _id to string to avoid JSON serialization issues
-            if updated_text and '_id' in updated_text:
-                updated_text['_id'] = str(updated_text['_id'])
 
             return {'Message': 'Text entry updated!',
                     'Updated Entry': updated_text}

@@ -54,6 +54,20 @@ def test_create():
     txt.delete(key) # Clean up
 
 
+def test_create_empty_inputs():
+    with pytest.raises(ValueError):
+        txt.create('', 'Sample Title', 'Sample Text')
+
+    with pytest.raises(ValueError):
+        txt.create('Sample Key', '', 'Sample Text')
+
+    with pytest.raises(ValueError):
+        txt.create('Sample Key', 'Sample Title', '')
+
+    with pytest.raises(ValueError):
+        txt.create('', '', '')
+
+
 def test_create_duplicate(temp_text):
     with pytest.raises(ValueError):
         txt.create(TEST_KEY, TEST_TITLE, TEST_TEXT)
@@ -78,6 +92,20 @@ def test_update(temp_text):
     entry = txt.read_one(temp_text)
     assert entry[txt.TITLE] == new_title
     assert entry[txt.TEXT] == new_text
+
+
+def test_update_empty_inputs():
+    with pytest.raises(ValueError):
+        txt.update('', 'Sample Title', 'Sample Text')
+
+    with pytest.raises(ValueError):
+        txt.update('Sample Key', '', 'Sample Text')
+
+    with pytest.raises(ValueError):
+        txt.update('Sample Key', 'Sample Title', '')
+
+    with pytest.raises(ValueError):
+        txt.update('', '', '')
 
 
 def test_update_not_found():

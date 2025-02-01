@@ -46,6 +46,7 @@ def convert_mongo_id(doc: dict) -> None:
     """
     if MONGO_ID in doc:
         doc[MONGO_ID] = str(doc[MONGO_ID])
+    return doc
 
 
 def create(collection: str, doc: dict, db=JOURNAL_DB):
@@ -103,9 +104,12 @@ def read(collection, db=JOURNAL_DB, no_id=True) -> list[dict]:
     # returns a cursor that iterates over each document
     for doc in client[db][collection].find():
         # each doc is a dictioanry representing a document in the collection
+        # if no_id is passed in an argument or value, then no_id will no longer
+        # hold a value of true so below if statement does not execute
         if no_id:
             del doc[MONGO_ID]
         else:
+            # converts the id to a string to be appended into ret
             convert_mongo_id(doc)
         ret.append(doc)
     return ret
@@ -117,6 +121,7 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     dictionary key.
     """
     recs = read(collection, db=db, no_id=no_id)
+    # list of dicts
     recs_as_dict = {}
     for rec in recs:
         # creates a dictionary of dictionaries with the specified key
