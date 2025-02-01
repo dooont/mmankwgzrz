@@ -96,7 +96,7 @@ def exists(email: str) -> bool:
     return read_one(email) is not None
 
 
-def delete(email: str) -> dict:
+def delete(email: str) -> int:
     """
     Deletes a person by email from the database.
     """
