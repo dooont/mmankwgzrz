@@ -13,6 +13,8 @@ import pytest
 
 from data.people import NAME
 from data.manuscripts import form
+from data.manuscripts import query 
+from data.manuscripts import fields as flds
 
 import server.endpoints as ep
 
@@ -292,8 +294,28 @@ def test_get_masthead(mock_masthead):
     resp_json = resp.get_json()
     assert ep.MASTHEAD in resp_json
     assert isinstance(resp_json[ep.MASTHEAD], dict)
-    
-    
+
+
+@patch('data.manuscripts.query.get_manuscripts', return_value={'id': {flds.TITLE: 'Three Bears', 
+                                                    flds.AUTHOR: 'Andy Ng', flds.AUTHOR_EMAIL: 'an3299@nyu.edu', 
+                                                    flds.REFEREES: ['bob898@nyu.edu'], flds.STATE: 'Submitted', 
+                                                    flds.ACTION: 'Assign Ref'}})
+def test_get_manuscripts(mock_read):
+        resp = TEST_CLIENT.get(f'{ep.QUERY_EP}')
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert isinstance(resp_json, dict)
+        for _id, manuscript in resp_json.items():
+            assert isinstance(_id, str)
+            assert len(_id) > 0
+            assert flds.TITLE in manuscript
+            assert flds.AUTHOR in manuscript
+            assert flds.AUTHOR_EMAIL in manuscript
+            assert flds.REFEREES in manuscript
+            assert flds.STATE in manuscript
+            assert flds.ACTION in manuscript
+
+        
 def test_get_form():
     with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
         resp = TEST_CLIENT.get(ep.FORM_EP)
