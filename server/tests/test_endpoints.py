@@ -179,16 +179,17 @@ def test_create_person_exists(mock_create, mock_exists):
     mock_create.assert_not_called()  # create should never be called if person exists
 
 
-@patch('data.people.delete', return_value='delete@nyu.edu')
+@patch('data.people.delete', return_value=1)
 def test_delete_person_success(mock_delete):
     resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/delete@nyu.edu')
     assert resp.status_code == OK
     resp_json = resp.get_json()
     assert 'Deleted' in resp_json
+    assert type(resp_json['Deleted'] == int)
     mock_delete.assert_called_once()
 
 
-@patch('data.people.delete', return_value=None)
+@patch('data.people.delete', return_value=0)
 def test_delete_person_not_found(mock_delete):
     resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/nonexistent@email.com')
     assert resp.status_code == NOT_FOUND
