@@ -103,6 +103,11 @@ TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
     txt.TEXT: fields.String,
 })
 
+MANU_ACTION_FLDS = api.model('ManuscriptAction', {
+    flds.CURR_STATE: fields.String,
+    flds.ACTION: fields.String,
+})
+
 
 @api.route(HELLO_EP)
 class HelloWorld(Resource):
@@ -415,6 +420,31 @@ class QueryCreate(Resource):
 
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add manuscript: {err=}')
+
+
+@api.route(f'{QUERY_EP}/receive_next_state')
+class ReceiveNextState(Resource):
+    """
+    Receive the next state for a manuscript based on current state and action.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
+    @api.expect(MANU_ACTION_FLDS)
+    def put(self):
+        """
+        Receive the next state for a manuscript based on current state and
+        action.
+        """
+        try:
+            curr_state = request.json.get(flds.CURR_STATE)
+            action = request.json.get(flds.ACTION)
+            ret = qry.handle_action(curr_state, action)
+        except Exception as err:
+            raise wz.NotAcceptable(f'Bad input: {err=}')
+        return {
+            MESSAGE: 'Action received!',
+            RETURN: ret,
+        }
 
 
 @api.route(FORM_EP)

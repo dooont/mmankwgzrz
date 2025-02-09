@@ -1,6 +1,4 @@
-# from manuscripts import fields as flds (this give you errors when deploying)
 import data.manuscripts.fields as flds
-#the other import breaks matthew and andy's builds
 import data.people as ppl
 import data.db_connect as dbc
 
@@ -20,8 +18,6 @@ REJECTED = 'REJ'
 SUBMITTED = 'SUB'
 WITHDRAWN = 'WDN'
 
-TEST_STATE = SUBMITTED
-
 VALID_STATES = [
     AUTHOR_REVIEW,
     AUTHOR_REVISION,
@@ -35,6 +31,8 @@ VALID_STATES = [
     WITHDRAWN,
 ]
 
+TEST_STATE = SUBMITTED
+
 # Actions
 ACTIONS = {
     'ACCEPT': 'ACC',
@@ -46,10 +44,10 @@ ACTIONS = {
     'WITHDRAW': 'WDN',
 }
 
-# for testing:
+VALID_ACTIONS = list(ACTIONS.values())
+
 TEST_ACTION = ACTIONS['ACCEPT']
 
-VALID_ACTIONS = list(ACTIONS.values())
 SAMPLE_MANU = {
     flds.TITLE: 'Sample Manuscript',
     flds.AUTHOR: 'Andy Ng',
@@ -133,12 +131,11 @@ def update(title: str, author: str, author_email: str, referee: str, state: str,
     return title
 
 
-# returns the exisitng manuscripts in database
 def get_manuscripts() -> dict[str, dict]:
     """
     Retrieves all manuscripts from the database.
-    """ 
-    # returns a dictionary of {title, each manuscript represented by a dictionary}
+    Returns a dictionary of {title, each manuscript represented by a dictionary}
+    """
     manuscripts = dbc.read_dict(MANU_COLLECT, flds.TITLE)
     print(f'Manuscripts retrieved: {manuscripts}')
     return manuscripts
@@ -169,7 +166,6 @@ def exists(title: str) -> bool:
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
     print(extra)
-    # adding a referree to the list of referres for the manuscript record
     manu[flds.REFEREES].append(ref)
     return REFEREE_REVIEW
 

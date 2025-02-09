@@ -8,14 +8,14 @@ DISP_NAME = 'disp_name'
 TITLE = 'title'
 AUTHOR = 'author'
 REFEREES = 'referees'
-AUTHOR_EMAIL = 'author email'
+AUTHOR_EMAIL = 'author_email'
 STATE = 'state'
 ACTION = 'action'
 TEXT = 'text'
 ABSTRACT = 'abstract'
 HISTORY = 'history'
-EDITOR = 'Editor'
-
+EDITOR = 'editor'
+CURR_STATE = 'curr_state'
 
 
 FIELDS = {
