@@ -165,18 +165,14 @@ def exists(title: str) -> bool:
 
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
-    print(extra)
     manu[flds.REFEREES].append(ref)
     return REFEREE_REVIEW
 
 
 def delete_ref(manu: dict, ref: str) -> str:
-    if len(manu[flds.REFEREES]) > 0:
+    if ref in manu[flds.REFEREES]:
         manu[flds.REFEREES].remove(ref)
-    if len(manu[flds.REFEREES]) > 0:
-        return REFEREE_REVIEW
-    else:
-        return SUBMITTED
+    return REFEREE_REVIEW
 
 
 COMMON_ACTIONS = {

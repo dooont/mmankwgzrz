@@ -104,6 +104,8 @@ TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
 })
 
 MANU_ACTION_FLDS = api.model('ManuscriptAction', {
+    flds.TITLE: fields.String,
+    flds.REFEREES: fields.String,
     flds.CURR_STATE: fields.String,
     flds.ACTION: fields.String,
 })
@@ -422,28 +424,36 @@ class QueryCreate(Resource):
             raise wz.NotAcceptable(f'Could not add manuscript: {err=}')
 
 
-@api.route(f'{QUERY_EP}/receive_next_state')
-class ReceiveNextState(Resource):
+@api.route(f'{QUERY_EP}/handle_action')
+class HandleAction(Resource):
     """
-    Receive the next state for a manuscript based on current state and action.
+    Handle query action and receive the next state for a manuscript.
     """
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Not acceptable')
     @api.expect(MANU_ACTION_FLDS)
     def put(self):
         """
-        Receive the next state for a manuscript based on current state and
-        action.
+        Handle query action and receive the next state for a manuscript.
         """
         try:
+            title = request.json.get(flds.TITLE)
+            manu = qry.get_one_manu(title)
+            ref = request.json.get(flds.REFEREES)
             curr_state = request.json.get(flds.CURR_STATE)
             action = request.json.get(flds.ACTION)
-            ret = qry.handle_action(curr_state, action)
+            new_state = qry.handle_action(curr_state, action,
+                                          manu=manu, ref=ref)
+
+            qry.update(manu[flds.TITLE], manu[flds.AUTHOR],
+                       manu[flds.AUTHOR_EMAIL],
+                       manu[flds.REFEREES], new_state, manu[flds.ACTION])
+
         except Exception as err:
             raise wz.NotAcceptable(f'Bad input: {err=}')
         return {
             MESSAGE: 'Action received!',
-            RETURN: ret,
+            RETURN: new_state,
         }
 
 
