@@ -3,7 +3,6 @@ import data.people as ppl
 import data.db_connect as dbc
 
 
-# Manuscript Collection
 MANU_COLLECT = 'manuscripts'
 
 # States
@@ -165,13 +164,16 @@ def exists(title: str) -> bool:
 
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
+    if ref in manu[flds.REFEREES]:
+        raise ValueError(f'Referee already in manuscript: {ref}')
     manu[flds.REFEREES].append(ref)
     return REFEREE_REVIEW
 
 
 def delete_ref(manu: dict, ref: str) -> str:
-    if ref in manu[flds.REFEREES]:
-        manu[flds.REFEREES].remove(ref)
+    if ref not in manu[flds.REFEREES]:
+        raise ValueError(f'Referee not in manuscript: {ref}')
+    manu[flds.REFEREES].remove(ref)
     return REFEREE_REVIEW
 
 

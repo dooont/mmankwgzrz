@@ -1,5 +1,7 @@
 import random
+import copy
 import pytest 
+
 import data.manuscripts.query as mqry
 import data.manuscripts.fields as flds
 from data.tests.test_people import temp_person  # Import the fixture from test_people.py
@@ -8,6 +10,8 @@ from data.tests.test_people import temp_person  # Import the fixture from test_p
 TEST_TITLE = "Three Little Bears"
 TEST_AUTHOR_NAME = 'Joe Smith'
 TEST_REFEREE = 'bob@nyu.edu'
+TEST_NEW_REFEREE = 'alice@nyu.edu'
+
 
 @pytest.fixture(scope='function')
 def temp_manu(temp_person):
@@ -79,7 +83,6 @@ def test_is_not_valid_action():
         assert not mqry.is_valid_action(gen_random_not_valid_str())
 
 
-# test create
 def test_create_manuscript(temp_person):
     """
     Test creating a manuscript.
@@ -89,7 +92,6 @@ def test_create_manuscript(temp_person):
     mqry.delete(TEST_TITLE)
 
 
-# test update
 def test_update(temp_manu, temp_person):
     """
     Test updating a manuscript.
@@ -112,7 +114,6 @@ def test_update(temp_manu, temp_person):
     assert new_referee in updated_manu[flds.REFEREES]
 
 
-# test delete
 def test_delete(temp_manu):
     """
     Test deleting a manuscript.
@@ -121,7 +122,6 @@ def test_delete(temp_manu):
     assert not mqry.exists(temp_manu)
 
 
-# test read 
 def test_get_manuscripts(temp_manu):
     """
     Test reading all manuscripts.
@@ -169,9 +169,10 @@ def test_handle_action_bad_state():
     Test handling actions with an invalid state.
     """
     invalid_state = gen_random_not_valid_str()
+    manu = copy.deepcopy(mqry.SAMPLE_MANU)
     try:
         mqry.handle_action(invalid_state, mqry.ACTIONS['ACCEPT'], 
-                           manu=mqry.SAMPLE_MANU, ref='Some ref')
+                           manu=manu, ref='Some ref')
     except ValueError as e:
         assert str(e) == f'Invalid state: {invalid_state}'
 
@@ -181,19 +182,22 @@ def test_handle_action_bad_action():
     Test handling actions with an invalid action.
     """
     invalid_action = gen_random_not_valid_str()
+    manu = copy.deepcopy(mqry.SAMPLE_MANU)
     try:
         mqry.handle_action(mqry.SUBMITTED, invalid_action, 
-                           manu=mqry.SAMPLE_MANU, ref='Some ref')
+                           manu=manu, ref='Some ref')
     except ValueError as e:
         assert str(e) == f'Invalid action: {invalid_action}'
         
         
 def test_handle_action_valid_return():
+    manu = copy.deepcopy(mqry.SAMPLE_MANU)
+
     for state in mqry.get_states():
         for action in mqry.get_actions():
             if state not in mqry.STATE_TABLE or action not in mqry.STATE_TABLE[state]:
                 continue
-            new_state = mqry.handle_action(state, action, manu=mqry.SAMPLE_MANU, ref='Some ref')
+            new_state = mqry.handle_action(state, action, manu=manu, ref='Some ref')
             assert mqry.is_valid_state(new_state)
 
 
@@ -201,47 +205,80 @@ def test_handle_action():
     """
     Test handling actions and state transitions.
     """
+    manu = copy.deepcopy(mqry.SAMPLE_MANU)
     assert mqry.handle_action(mqry.SUBMITTED, 
                               mqry.ACTIONS['ASSIGN_REF'],
-                              manu=mqry.SAMPLE_MANU, 
+                              manu=manu, 
                               ref='Some ref') == mqry.REFEREE_REVIEW
     assert mqry.handle_action(mqry.SUBMITTED, 
                               mqry.ACTIONS['REJECT'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+                              manu=manu) == mqry.REJECTED
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ACCEPT'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
+                              manu=manu) == mqry.COPY_EDIT
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['REJECT'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+                              manu=manu) == mqry.REJECTED
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ACCEPT_WITH_REV'],
-                              manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVISION
+                              manu=manu) == mqry.AUTHOR_REVISION
     assert mqry.handle_action(mqry.REFEREE_REVIEW, 
                               mqry.ACTIONS['ASSIGN_REF'], 
-                              manu=mqry.SAMPLE_MANU, 
-                              ref='Some ref') == mqry.REFEREE_REVIEW
+                              manu=manu, 
+                              ref='Some ref 2') == mqry.REFEREE_REVIEW
     assert mqry.handle_action(mqry.AUTHOR_REVISION, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.EDITOR_REVIEW
+                              manu=manu) == mqry.EDITOR_REVIEW
     assert mqry.handle_action(mqry.EDITOR_REVIEW, 
                               mqry.ACTIONS['ACCEPT'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.COPY_EDIT
+                              manu=manu) == mqry.COPY_EDIT
     assert mqry.handle_action(mqry.COPY_EDIT, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.AUTHOR_REVIEW
+                              manu=manu) == mqry.AUTHOR_REVIEW
     assert mqry.handle_action(mqry.AUTHOR_REVIEW, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.FORMATTING
+                              manu=manu) == mqry.FORMATTING
     assert mqry.handle_action(mqry.FORMATTING, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
+                              manu=manu) == mqry.PUBLISHED
     assert mqry.handle_action(mqry.PUBLISHED, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.PUBLISHED
+                              manu=manu) == mqry.PUBLISHED
     assert mqry.handle_action(mqry.REJECTED, 
                               mqry.ACTIONS['DONE'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.REJECTED
+                              manu=manu) == mqry.REJECTED
     assert mqry.handle_action(mqry.WITHDRAWN, 
                               mqry.ACTIONS['WITHDRAW'], 
-                              manu=mqry.SAMPLE_MANU) == mqry.WITHDRAWN
+                              manu=manu) == mqry.WITHDRAWN
+    
+
+def test_assign_ref(temp_manu):
+    """
+    Test assigning a referee to a manuscript.
+    """
+    manu = mqry.get_one_manu(temp_manu)
+    
+    assert TEST_NEW_REFEREE not in manu[flds.REFEREES]
+
+    result = mqry.assign_ref(manu, TEST_NEW_REFEREE)
+    assert result == mqry.REFEREE_REVIEW
+    assert TEST_NEW_REFEREE in manu[flds.REFEREES]
+
+    with pytest.raises(ValueError):
+        mqry.assign_ref(manu, TEST_NEW_REFEREE)
+
+
+def test_delete_ref(temp_manu):
+    """
+    Test removing a referee from a manuscript.
+    """
+    manu = mqry.get_one_manu(temp_manu)
+    
+    mqry.assign_ref(manu, TEST_NEW_REFEREE)
+
+    result = mqry.delete_ref(manu, TEST_NEW_REFEREE)
+    assert result == mqry.REFEREE_REVIEW
+    assert TEST_NEW_REFEREE not in manu[flds.REFEREES]
+
+    with pytest.raises(ValueError):
+        mqry.delete_ref(manu, TEST_NEW_REFEREE)
