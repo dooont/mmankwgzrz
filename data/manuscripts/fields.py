@@ -5,6 +5,7 @@ TEST_FLD_NM = 'title'
 
 DISP_NAME = 'disp_name'
 
+ID = 'id'
 TITLE = 'title'
 AUTHOR = 'author'
 REFEREES = 'referees'
@@ -19,6 +20,9 @@ CURR_STATE = 'curr_state'
 
 
 FIELDS = {
+    ID :{
+        DISP_NAME: 'ID',
+    },
     TITLE: {
         DISP_NAME: 'Title',
     },
