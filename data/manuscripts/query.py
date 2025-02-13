@@ -48,6 +48,7 @@ VALID_ACTIONS = list(ACTIONS.values())
 TEST_ACTION = ACTIONS['ACCEPT']
 
 SAMPLE_MANU = {
+    flds.ID : '1',
     flds.TITLE: 'Sample Manuscript',
     flds.AUTHOR: 'Andy Ng',
     flds.AUTHOR_EMAIL: 'an3299@Nyu.edu',
@@ -75,9 +76,9 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
-def create_manuscript(title : str, author : str, author_email : str, referee : str, state : str, action : str) -> str:
-    if exists(title):
-        raise ValueError('Title already exists use another one')
+def create_manuscript(id : str, title : str, author : str, author_email : str, referee : str, state : str) -> str:
+    if exists(id):
+        raise ValueError('ID already exists use another one')
 
     if not ppl.exists(author_email):
         raise ValueError('Author does not exist')
@@ -85,31 +86,31 @@ def create_manuscript(title : str, author : str, author_email : str, referee : s
     if not is_valid_state(state):
         raise ValueError(f'Invalid state: {state}')
     
-    if not is_valid_action(action):
-        raise ValueError(f'Invalid action: {action}')
+    # if not is_valid_action(action):
+    #     raise ValueError(f'Invalid action: {action}')
     
     referees = [referee] if referee else []
     manuscript = {
+                    flds.ID: id,
                     flds.TITLE: title,
                     flds.AUTHOR: author,
                     flds.AUTHOR_EMAIL: author_email, 
                     flds.REFEREES: referees,
                     flds.STATE: state,
-                    flds.ACTION: action
                 }
     
     print(manuscript)
     dbc.create(MANU_COLLECT, manuscript)
-    return title
+    return id
     
 
-def update(title: str, author: str, author_email: str, referee: str, state: str, action: str) -> str:
+def update(id : str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
     """ 
     Updates an existing manuscripts information in the db. 
     If manuscript doesn't exist then a ValueError is raised.
     """
-    if not exists(title):
-        raise ValueError(f'Can not update non-existent manuscript: {title=}')
+    if not exists(id):
+        raise ValueError(f'Can not update non-existent manuscript: {id=}')
     
     if referee: 
         if not ppl.is_valid_email(author_email):
@@ -121,13 +122,13 @@ def update(title: str, author: str, author_email: str, referee: str, state: str,
     if not is_valid_state(state):
         raise ValueError(f'Invalid state: {state=}')
     
-    if not is_valid_action(action):          
-        raise ValueError(f'Invalid action: {action=}')
+    # if not is_valid_action(action):          
+    #     raise ValueError(f'Invalid action: {action=}')
     
-    manuscript = {flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, flds.REFEREES: referee, flds.STATE: state, flds.ACTION: action}
+    manuscript = {flds.ID: id, flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, flds.REFEREES: referee, flds.STATE: state}
     print(manuscript)
-    dbc.update(MANU_COLLECT, {flds.TITLE: title}, manuscript)
-    return title
+    dbc.update(MANU_COLLECT, {flds.ID: id}, manuscript)
+    return id
 
 
 def get_manuscripts() -> dict[str, dict]:
@@ -135,32 +136,32 @@ def get_manuscripts() -> dict[str, dict]:
     Retrieves all manuscripts from the database.
     Returns a dictionary of {title, each manuscript represented by a dictionary}
     """
-    manuscripts = dbc.read_dict(MANU_COLLECT, flds.TITLE)
+    manuscripts = dbc.read_dict(MANU_COLLECT, flds.ID)
     print(f'Manuscripts retrieved: {manuscripts}')
     return manuscripts
 
 
-def get_one_manu(title : str) -> dict:
+def get_one_manu(id : str) -> dict:
     """
     Retrieves a manuscript from the database, by taking in an email.
     """
-    manuscript = dbc.read_one(MANU_COLLECT, {flds.TITLE: title})
+    manuscript = dbc.read_one(MANU_COLLECT, {flds.ID: id})
     print(f'Manuscript retrieved: {manuscript}')
     return manuscript
 
 
-def delete(title : str) -> int:
+def delete(id : str) -> int:
     """ 
     Deletes a selected manusciprt from the database.
     """
-    print(f'{flds.TITLE=}: {title=}')
-    return dbc.delete(MANU_COLLECT, {flds.TITLE: title})
+    print(f'{flds.ID=}: {id=}')
+    return dbc.delete(MANU_COLLECT, {flds.ID: id})
 
-def exists(title: str) -> bool:
+def exists(id: str) -> bool:
     """
     Checks if a manuscript with the given title exists in the database.
     """
-    return get_one_manu(title) is not None
+    return get_one_manu(id) is not None
 
 
 def assign_ref(manu: dict, ref: str, extra=None) -> str:
