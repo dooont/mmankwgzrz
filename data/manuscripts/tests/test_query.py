@@ -6,7 +6,7 @@ import data.manuscripts.query as mqry
 import data.manuscripts.fields as flds
 from data.tests.test_people import temp_person  # Import the fixture from test_people.py
 
-
+TEST_ID = '1'
 TEST_TITLE = "Three Little Bears"
 TEST_AUTHOR_NAME = 'Joe Smith'
 TEST_REFEREE = 'bob@nyu.edu'
@@ -15,17 +15,17 @@ TEST_NEW_REFEREE = 'alice@nyu.edu'
 
 @pytest.fixture(scope='function')
 def temp_manu(temp_person):
-    title = mqry.create_manuscript( 
+    id = mqry.create_manuscript( 
+        TEST_ID,
         TEST_TITLE,
         TEST_AUTHOR_NAME,
         temp_person,
         TEST_REFEREE,
-        mqry.SUBMITTED,
-        mqry.ACTIONS['ASSIGN_REF']
-    )
-    yield title
+        mqry.SUBMITTED
+)
+    yield id
     try: 
-        mqry.delete(title)
+        mqry.delete(id)
     except:
         print('Manuscript already deleted.')
 
@@ -87,30 +87,31 @@ def test_create_manuscript(temp_person):
     """
     Test creating a manuscript.
     """
-    mqry.create_manuscript(TEST_TITLE, TEST_AUTHOR_NAME, temp_person, TEST_REFEREE, mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'])
-    assert mqry.exists(TEST_TITLE)
-    mqry.delete(TEST_TITLE)
+    mqry.create_manuscript(TEST_ID, TEST_TITLE, TEST_AUTHOR_NAME, temp_person, TEST_REFEREE, mqry.SUBMITTED)
+    assert mqry.exists(TEST_ID)
+    mqry.delete(TEST_ID)
 
 
 def test_update(temp_manu, temp_person):
     """
     Test updating a manuscript.
     """
+    new_title = "History of CS"
     new_author = 'Andy Ng'
     new_author_email = temp_person
     new_state = mqry.REFEREE_REVIEW
-    new_action = mqry.ACTIONS['ACCEPT']
     new_referee = 'some ref'
 
-    updated_manu = mqry.update(temp_manu, new_author, temp_person, new_referee, new_state, new_action)
+    updated_manu = mqry.update(temp_manu, new_title, new_author, temp_person, new_referee, new_state)
 
     assert updated_manu == temp_manu
 
     updated_manu = mqry.get_one_manu(temp_manu)
+
+    assert updated_manu[flds.TITLE] == new_title
     assert updated_manu[flds.AUTHOR] == new_author
     assert updated_manu[flds.AUTHOR_EMAIL] == new_author_email
     assert updated_manu[flds.STATE] == new_state
-    assert updated_manu[flds.ACTION] == new_action 
     assert new_referee in updated_manu[flds.REFEREES]
 
 
@@ -133,12 +134,12 @@ def test_get_manuscripts(temp_manu):
     for _id, manuscript in manuscripts.items():
         assert isinstance(_id, str)
         assert isinstance(manuscript, dict)
+        assert flds.ID in manuscript
         assert flds.TITLE in manuscript
         assert flds.AUTHOR in manuscript
         assert flds.AUTHOR_EMAIL in manuscript 
         assert flds.REFEREES in manuscript
         assert flds.STATE in manuscript
-        assert flds.ACTION in manuscript
     
     assert temp_manu in manuscripts
 
