@@ -93,10 +93,15 @@ def test_delete(temp_person):
     assert not ppl.exists(temp_person)
 
 
-def test_create():
-    ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
-    assert ppl.exists(ADD_EMAIL)
-    ppl.delete(ADD_EMAIL)
+def test_create(temp_person):
+    # ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
+    assert ppl.exists(temp_person)
+    assert isinstance(ppl.read_one(temp_person), dict)
+    assert isinstance(ppl.read_one(temp_person)[ppl.ROLES], list)
+    assert isinstance(ppl.read_one(temp_person)[ppl.AFFILIATION], str)
+    assert isinstance(ppl.read_one(temp_person)[ppl.NAME], str)
+    assert isinstance(ppl.read_one(temp_person)[ppl.EMAIL], str)
+    # ppl.delete(ADD_EMAIL)
 
 
 def test_create_duplicate(temp_person):
