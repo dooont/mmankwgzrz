@@ -128,9 +128,11 @@ def create(name: str, affiliation: str, email: str, role: str) \
     """
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
-
     if is_valid_person(name, affiliation, email, role):
         roles = [role] if role else []
+        for role in roles:
+            if not rls.is_valid(role):
+                raise ValueError(f'Invalid role: {role=}')
         person = {NAME: name, ROLES: roles,
                   AFFILIATION: affiliation, EMAIL: email}
         print(person)
