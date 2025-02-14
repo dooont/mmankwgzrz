@@ -47,21 +47,21 @@ TITLE_RESP = 'Title'
 
 
 QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
+    flds.ID: fields.String,
     flds.TITLE: fields.String,
     flds.AUTHOR: fields.String,
     flds.AUTHOR_EMAIL: fields.String,
     flds.REFEREES: fields.List(fields.String),
     flds.STATE: fields.String,
-    flds.ACTION: fields.String
 })
 
 QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
+    flds.ID: fields.String,
     flds.TITLE: fields.String,
     flds.AUTHOR: fields.String,
     flds.AUTHOR_EMAIL: fields.String,
     flds.REFEREES: fields.List(fields.String),
     flds.STATE: fields.String,
-    flds.ACTION: fields.String
 })
 
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
@@ -331,42 +331,43 @@ class Query(Resource):
         return qry.get_manuscripts()
 
 
-@api.route(f'{QUERY_EP}/<title>')
+@api.route(f'{QUERY_EP}/<id>')
 class QueryEntry(Resource):
     """
     This class handles read, update, and delete for a single
     manuscript in the manuscript db collection.
     """
-    def get(self, title):
+    def get(self, id):
         """
         Retrieve a single manuscript.
         """
-        manuscript = qry.get_one_manu(title)
+        manuscript = qry.get_one_manu(id)
         if manuscript:
             return manuscript
         else:
-            raise wz.NotFound(f'No such manuscript: {title}')
+            raise wz.NotFound(f'No such manuscript: {id}')
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
     @api.expect(QUERY_UPDATE_FLDS)
-    def put(self, title):
+    def put(self, id):
         """
         Update a manuscript.
         """
         try:
-            if not qry.exists(title):
-                raise wz.NotFound(f'No such manuscript: {title}')
+            if not qry.exists(id):
+                raise wz.NotFound(f'No such manuscript: {id}')
 
+            id = request.json.get(flds.ID)
+            title = request.json.get(flds.TITLE)
             author = request.json.get(flds.AUTHOR)
             author_email = request.json.get(flds.AUTHOR_EMAIL)
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
-            action = request.json.get(flds.ACTION)
 
-            ret = qry.update(title, author, author_email, referees,
-                             state, action)
+            ret = qry.update(id, title, author, author_email, referees,
+                             state)
 
             return {
                 MESSAGE: 'Manuscript updated successfully',
@@ -379,13 +380,13 @@ class QueryEntry(Resource):
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
-    def delete(self, title):
+    def delete(self, id):
         """
         Delete a manuscript.
         """
-        deleted_count = qry.delete(title)
+        deleted_count = qry.delete(id)
         if deleted_count == 0:
-            raise wz.NotFound(f'No such manuscript: {title}')
+            raise wz.NotFound(f'No such manuscript: {id}')
         return {'Deleted': deleted_count}
 
 
@@ -403,18 +404,19 @@ class QueryCreate(Resource):
         Create a manuscript and add to the databse.
         """
         try:
+            id = request.json.get(flds.ID)
             title = request.json.get(flds.TITLE)
             author = request.json.get(flds.AUTHOR)
             author_email = request.json.get(flds.AUTHOR_EMAIL)
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
-            action = request.json.get(flds.ACTION)
 
-            if qry.exists(title):
-                raise wz.NotAcceptable(f'Title {title} is already in use.')
+            if qry.exists(id):
+                raise wz.NotAcceptable(f'Title {id} is already in use.')
 
-            new_manuscript = qry.create_manuscript(title, author, author_email,
-                                                   referees, state, action)
+            new_manuscript = qry.create_manuscript(id, title, author,
+                                                   author_email, referees,
+                                                   state)
             return {
                 MESSAGE: 'Manuscript added!',
                 RETURN: new_manuscript
@@ -437,17 +439,17 @@ class HandleAction(Resource):
         Handle query action and receive the next state for a manuscript.
         """
         try:
-            title = request.json.get(flds.TITLE)
-            manu = qry.get_one_manu(title)
+            id = request.json.get(flds.ID)
+            manu = qry.get_one_manu(id)
             ref = request.json.get(flds.REFEREES)
             curr_state = request.json.get(flds.CURR_STATE)
             action = request.json.get(flds.ACTION)
             new_state = qry.handle_action(curr_state, action,
                                           manu=manu, ref=ref)
 
-            qry.update(manu[flds.TITLE], manu[flds.AUTHOR],
+            qry.update(manu[flds.ID], manu[flds.TITLE], manu[flds.AUTHOR],
                        manu[flds.AUTHOR_EMAIL],
-                       manu[flds.REFEREES], new_state, manu[flds.ACTION])
+                       manu[flds.REFEREES], new_state)
 
         except Exception as err:
             raise wz.NotAcceptable(f'Bad input: {err=}')
