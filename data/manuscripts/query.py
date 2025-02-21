@@ -76,7 +76,7 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
-def create_manuscript(id : str, title : str, author : str, author_email : str, referee : str, state : str) -> str:
+def create_manuscript(id: str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
     if exists(id):
         raise ValueError('ID already exists use another one')
 
@@ -85,9 +85,6 @@ def create_manuscript(id : str, title : str, author : str, author_email : str, r
 
     if not is_valid_state(state):
         raise ValueError(f'Invalid state: {state}')
-    
-    # if not is_valid_action(action):
-    #     raise ValueError(f'Invalid action: {action}')
     
     referees = [referee] if referee else []
     manuscript = {
@@ -99,7 +96,7 @@ def create_manuscript(id : str, title : str, author : str, author_email : str, r
                     flds.STATE: state,
                 }
     
-    print(manuscript)
+    # print(manuscript)
     dbc.create(MANU_COLLECT, manuscript)
     return id
     
@@ -125,8 +122,16 @@ def update(id : str, title: str, author: str, author_email: str, referee: str, s
     # if not is_valid_action(action):          
     #     raise ValueError(f'Invalid action: {action=}')
     
-    manuscript = {flds.ID: id, flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, flds.REFEREES: referee, flds.STATE: state}
-    print(manuscript)
+    manuscript = { 
+            flds.ID: id,
+            flds.TITLE: title,
+            flds.AUTHOR: author,
+            flds.AUTHOR_EMAIL: author_email,
+            flds.REFEREES: referee,
+            flds.STATE: state
+        }
+    
+    # print(manuscript)
     dbc.update(MANU_COLLECT, {flds.ID: id}, manuscript)
     return id
 

@@ -324,12 +324,12 @@ def test_create_manuscript(mock_create, mock_exists):
     mock_create.return_value = '1'
     
     test_data = {
-        'id': '1',
-        'title': 'Test Manuscript',
-        'author': 'Test Author',
-        'author_email': 'test@nyu.com',
-        'referees': [],
-        'state': 'SUB'
+        flds.ID: '1',
+        flds.TITLE: 'Test Manuscript',
+        flds.AUTHOR: 'Test Author',
+        flds.AUTHOR_EMAIL: 'test@nyu.com',
+        flds.REFEREES: [],
+        flds.STATE: 'SUB'
     }
     
     resp = TEST_CLIENT.put(f'{ep.QUERY_EP}/create', json=test_data)
@@ -346,12 +346,12 @@ def test_update_manuscript(mock_update, mock_exists):
     mock_update.return_value = '1'  
 
     test_data = {
-        'id': '1',
-        'title': 'Updated Manuscript Title',
-        'author': 'Test Author',
-        'author_email': 'test@nyu.com',
-        'referees': ['Referee1', 'Referee2'],
-        'state': 'REV'
+        flds.ID: '1',
+        flds.TITLE: 'Updated Test Manuscript',
+        flds.AUTHOR: 'Test Author',
+        flds.AUTHOR_EMAIL: 'test@nyu.com',
+        flds.REFEREES: [],
+        flds.STATE: 'REV'
     }
 
     response = TEST_CLIENT.put(f'{ep.QUERY_EP}/1', json=test_data)
@@ -360,7 +360,37 @@ def test_update_manuscript(mock_update, mock_exists):
     assert ep.MESSAGE in response_json
     assert response_json[ep.MESSAGE] == 'Manuscript updated successfully'
     assert ep.RETURN in response_json
-    assert response_json[ep.RETURN] == '1'  
+    assert response_json[ep.RETURN] == '1'
+
+
+@patch('data.manuscripts.query.get_one_manu')
+def test_get_one_manuscript(mock_get_one):
+    mock_get_one.return_value = {
+        flds.ID: '1',
+        flds.TITLE: 'Test Manuscript',
+        flds.AUTHOR: 'Test Author',
+        flds.AUTHOR_EMAIL: 'test@nyu.com',
+        flds.REFEREES: [],
+        flds.STATE: 'SUB'
+    }
+
+    response = TEST_CLIENT.get(f'{ep.QUERY_EP}/1')
+    response_json = response.get_json()
+
+    assert response_json[flds.ID] == '1'
+    assert response_json[flds.TITLE] == 'Test Manuscript'
+    assert response_json[flds.AUTHOR] == 'Test Author'
+    assert response_json[flds.AUTHOR_EMAIL] == 'test@nyu.com'
+
+
+@patch('data.manuscripts.query.delete')
+def test_delete_manuscript(mock_delete):
+    mock_delete.return_value = 1  
+
+    response = TEST_CLIENT.delete(f'{ep.QUERY_EP}/1')
+    response_json = response.get_json()
+
+    assert response_json['Deleted'] == 1
 
         
 def test_get_form():
