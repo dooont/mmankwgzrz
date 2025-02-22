@@ -324,7 +324,6 @@ def test_create_manuscript(mock_create, mock_exists):
     mock_create.return_value = '1'
     
     test_data = {
-        flds.ID: '1',
         flds.TITLE: 'Test Manuscript',
         flds.AUTHOR: 'Test Author',
         flds.AUTHOR_EMAIL: 'test@nyu.com',
@@ -337,6 +336,7 @@ def test_create_manuscript(mock_create, mock_exists):
 
     assert ep.MESSAGE in resp_json
     assert ep.RETURN in resp_json
+    assert resp_json[ep.RETURN] == '1'
 
 
 @patch('data.manuscripts.query.exists')
@@ -351,7 +351,7 @@ def test_update_manuscript(mock_update, mock_exists):
         flds.AUTHOR: 'Test Author',
         flds.AUTHOR_EMAIL: 'test@nyu.com',
         flds.REFEREES: [],
-        flds.STATE: 'REV'
+        flds.STATE: 'SUB'
     }
 
     response = TEST_CLIENT.put(f'{ep.QUERY_EP}/1', json=test_data)

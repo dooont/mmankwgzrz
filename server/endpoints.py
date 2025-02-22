@@ -47,7 +47,6 @@ TITLE_RESP = 'Title'
 
 
 QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
-    flds.ID: fields.String,
     flds.TITLE: fields.String,
     flds.AUTHOR: fields.String,
     flds.AUTHOR_EMAIL: fields.String,
@@ -341,11 +340,15 @@ class QueryEntry(Resource):
         """
         Retrieve a single manuscript.
         """
-        manuscript = qry.get_one_manu(id)
-        if manuscript:
-            return manuscript
+        try:
+            manuscript = qry.get_one_manu(id)
+        except ValueError:
+            raise wz.BadRequest(f"Invalid ObjectId: {id}")
         else:
-            raise wz.NotFound(f'No such manuscript: {id}')
+            if manuscript:
+                return manuscript
+            else:
+                raise wz.NotFound(f'No such manuscript: {id}')
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
@@ -355,28 +358,25 @@ class QueryEntry(Resource):
         """
         Update a manuscript.
         """
-        try:
-            if not qry.exists(id):
-                raise wz.NotFound(f'No such manuscript: {id}')
+        title = request.json.get(flds.TITLE)
+        author = request.json.get(flds.AUTHOR)
+        author_email = request.json.get(flds.AUTHOR_EMAIL)
+        referees = request.json.get(flds.REFEREES)
+        state = request.json.get(flds.STATE)
 
-            id = request.json.get(flds.ID)
-            title = request.json.get(flds.TITLE)
-            author = request.json.get(flds.AUTHOR)
-            author_email = request.json.get(flds.AUTHOR_EMAIL)
-            referees = request.json.get(flds.REFEREES)
-            state = request.json.get(flds.STATE)
+        if not qry.exists(id):
+            raise wz.NotFound(f'No such manuscript with id: {id}')
 
-            ret = qry.update(id, title, author, author_email, referees,
-                             state)
+        if not qry.is_valid_state(state):
+            raise wz.BadRequest(f'Invalid manuscript state: {state}')
 
-            return {
-                MESSAGE: 'Manuscript updated successfully',
-                RETURN: ret
-            }
-        except ValueError as ve:
-            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
-        except Exception as exp:
-            raise wz.NotAcceptable(f'Could not update manuscript: {str(exp)}')
+        updated_manu = qry.update(
+            id, title, author, author_email, referees, state)
+
+        return {
+            MESSAGE: 'Manuscript updated successfully',
+            RETURN: updated_manu
+        }
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
@@ -384,10 +384,14 @@ class QueryEntry(Resource):
         """
         Delete a manuscript.
         """
-        deleted_count = qry.delete(id)
-        if deleted_count == 0:
-            raise wz.NotFound(f'No such manuscript: {id}')
-        return {'Deleted': deleted_count}
+        try:
+            deleted_count = qry.delete(id)
+        except ValueError:
+            raise wz.BadRequest(f"Invalid ObjectId: {id}")
+        else:
+            if deleted_count == 0:
+                raise wz.NotFound(f'No such manuscript: {id}')
+            return {'Deleted': deleted_count}
 
 
 @api.route(f'{QUERY_EP}/create')
@@ -404,17 +408,13 @@ class QueryCreate(Resource):
         Create a manuscript and add to the databse.
         """
         try:
-            id = request.json.get(flds.ID)
             title = request.json.get(flds.TITLE)
             author = request.json.get(flds.AUTHOR)
             author_email = request.json.get(flds.AUTHOR_EMAIL)
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
 
-            if qry.exists(id):
-                raise wz.NotAcceptable(f'Title {id} is already in use.')
-
-            new_manuscript = qry.create_manuscript(id, title, author,
+            new_manuscript = qry.create_manuscript(title, author,
                                                    author_email, referees,
                                                    state)
             return {

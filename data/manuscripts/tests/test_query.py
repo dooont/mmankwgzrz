@@ -4,9 +4,12 @@ import pytest
 
 import data.manuscripts.query as mqry
 import data.manuscripts.fields as flds
-from data.tests.test_people import temp_person  # Import the fixture from test_people.py
 
-TEST_ID = '1'
+# Import the fixture from test_people.py
+from data.tests.test_people import temp_person
+
+from bson import ObjectId
+
 TEST_TITLE = "Three Little Bears"
 TEST_AUTHOR_NAME = 'Joe Smith'
 TEST_REFEREE = 'bob@nyu.edu'
@@ -16,7 +19,6 @@ TEST_NEW_REFEREE = 'alice@nyu.edu'
 @pytest.fixture(scope='function')
 def temp_manu(temp_person):
     id = mqry.create_manuscript( 
-        TEST_ID,
         TEST_TITLE,
         TEST_AUTHOR_NAME,
         temp_person,
@@ -87,9 +89,29 @@ def test_create_manuscript(temp_person):
     """
     Test creating a manuscript.
     """
-    mqry.create_manuscript(TEST_ID, TEST_TITLE, TEST_AUTHOR_NAME, temp_person, TEST_REFEREE, mqry.SUBMITTED)
-    assert mqry.exists(TEST_ID)
-    mqry.delete(TEST_ID)
+    title = TEST_TITLE
+    author = TEST_AUTHOR_NAME
+    author_email = temp_person
+    referee = TEST_REFEREE
+    state = mqry.SUBMITTED
+
+    manu_id = mqry.create_manuscript(title, author, author_email, referee, state)
+    object_id = ObjectId(manu_id)
+    manuscript = mqry.dbc.read_one(mqry.MANU_COLLECT, {flds.ID: object_id})
+    
+    assert manuscript is not None
+    assert manuscript[flds.TITLE] == title
+    assert manuscript[flds.AUTHOR] == author
+    assert manuscript[flds.AUTHOR_EMAIL] == author_email
+    assert manuscript[flds.REFEREES] == [referee]
+    assert manuscript[flds.STATE] == state
+    assert isinstance(manuscript[flds.ID], str)
+
+    delete_count = mqry.delete(manu_id)
+    assert delete_count == 1
+
+    deleted_manuscript = mqry.dbc.read_one(mqry.MANU_COLLECT, {flds.ID: object_id})
+    assert deleted_manuscript is None
 
 
 def test_update(temp_manu, temp_person):

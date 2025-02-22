@@ -5,7 +5,7 @@ TEST_FLD_NM = 'title'
 
 DISP_NAME = 'disp_name'
 
-ID = 'id'
+ID = '_id'
 TITLE = 'title'
 AUTHOR = 'author'
 REFEREES = 'referees'
