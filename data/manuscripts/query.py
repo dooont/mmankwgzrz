@@ -69,7 +69,7 @@ def is_valid_state(state: str) -> bool:
     return state in VALID_STATES
 
 
-def get_actions() -> list:
+def get_actions() -> list[str]:
     return VALID_ACTIONS
 
 
@@ -98,7 +98,7 @@ def create_manuscript(title: str, author: str, author_email: str, referee: str, 
     return str(inserted_doc[flds.ID])
     
 
-def update(id : str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
+def update(id: str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
     """ 
     Updates an existing manuscripts information in the db. 
     If manuscript doesn't exist then a ValueError is raised.
@@ -142,7 +142,7 @@ def get_manuscripts() -> dict[str, dict]:
     return manuscripts
 
 
-def get_one_manu(id : str) -> dict:
+def get_one_manu(id: str) -> dict:
     """
     Retrieves a manuscript from the database, by taking in an email.
     """
@@ -155,7 +155,7 @@ def get_one_manu(id : str) -> dict:
     return manuscript
 
 
-def delete(id : str) -> int:
+def delete(id: str) -> int:
     """ 
     Deletes a selected manusciprt from the database.
     """
@@ -178,7 +178,7 @@ def exists(id: str) -> bool:
         return False
 
 
-def assign_ref(manu: dict, ref: str, extra=None) -> str:
+def assign_ref(manu: dict, ref: str) -> str:
     if ref in manu[flds.REFEREES]:
         raise ValueError(f'Referee already in manuscript: {ref}')
     manu[flds.REFEREES].append(ref)
@@ -288,7 +288,7 @@ def handle_action(curr_state, action, **kwargs) -> str:
     
    
 def main():
-    print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU))
+    print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))
 
 
 if __name__ == '__main__':
