@@ -573,7 +573,7 @@ class Texts(Resource):
         """
         try:
             texts = txt.read()
-            return {'texts': texts}
+            return texts
         except Exception as err:
             raise wz.NotFound(f'Could not retrieve text entries: {str(err)}')
 
