@@ -81,12 +81,11 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
-    ppl.ROLES: fields.String,
+    ppl.ROLES: fields.List(fields.String)
 })
 
 PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.NAME: fields.String,
-    ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.List(fields.String)
 })
@@ -234,7 +233,7 @@ class Person(Resource):
         try:
             person = ppl.read_one(email)
             if not person:
-                raise wz.NotFound(f'Person with email {email} not found.')
+                raise wz.NotFound(f'Person email not found: {email}')
 
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
@@ -246,12 +245,8 @@ class Person(Resource):
                 MESSAGE: 'Person updated successfully',
                 RETURN: ret
             }
-        except ValueError as ve:
-            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
-        except wz.NotFound:  # Let NotFound exceptions pass through
-            raise
-        except Exception as err:
-            raise wz.NotAcceptable(f'Could not update person: {str(err)}')
+        except ValueError as err:
+            raise wz.NotAcceptable(f'Could not update person: {err}')
 
 
 @api.route(f'{PEOPLE_EP}/create')
@@ -270,17 +265,17 @@ class PeopleCreate(Resource):
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
-            role = request.json.get(ppl.ROLES)
+            roles = request.json.get(ppl.ROLES, [])
 
             if ppl.exists(email):
-                raise wz.NotAcceptable(f'Email {email} is already in use.')
+                raise wz.NotAcceptable(f'Email is already in use: {email}')
 
-            ret = ppl.create(name, affiliation, email, role)
+            ret = ppl.create(name, affiliation, email, roles)
             return {
                 MESSAGE: 'Person added!',
                 RETURN: ret,
             }
-        except Exception as err:
+        except ValueError as err:
             raise wz.NotAcceptable(f'Could not add person: {err=}')
 
 
