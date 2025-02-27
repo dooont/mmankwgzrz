@@ -10,7 +10,6 @@ import data.db_connect as dbc
 
 # Fields for person data
 NAME = 'name'
-ROLE = 'role'
 ROLES = 'roles'
 AFFILIATION = 'affiliation'
 EMAIL = 'email'
