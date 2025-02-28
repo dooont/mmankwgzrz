@@ -2,7 +2,7 @@
 This module interfaces to our user data.
 """
 import re   # Module for regular expressions, used for validating email format.
-from typing import Union
+from typing import Optional
 
 import data.roles as rls
 import data.db_connect as dbc
@@ -33,37 +33,41 @@ EMAIL_FORMAT = (
         )
 
 
-def is_valid_email(email: str) -> Union[bool, ValueError]:
+def is_valid_email(email: str) -> bool:
     """
     Validates if the provided email matches the expected format.
     Raises ValueError if the email is invalid.
     """
-    if isinstance(email, str):
-        if re.fullmatch(EMAIL_FORMAT, email):
-            return True
-        else:
-            raise ValueError(f'Email does not follow correct format: {email}')
-    else:
+    if not isinstance(email, str):
         raise ValueError(f'Email is not a string: {email}')
 
+    if re.fullmatch(EMAIL_FORMAT, email):
+        return True
 
-def is_valid_person(name: str, affiliation: str, email: str, role: str = None,
-                    roles: list = None) -> Union[bool, Exception]:
+    raise ValueError(f'Email does not follow correct format: {email}')
+
+
+def is_valid_person(name: str, affiliation: str, email: str,
+                    roles: Optional[list[str]] = None) -> bool:
     """
     Validates person attributes.
+        - The name and affiliation are non-empty.
         - The email is valid.
         - The role(s) are valid if provided.
     """
-    if not is_valid_email(email):
-        raise Exception(f'Invalid email: {email}')
+    if not name or not name.strip():
+        raise ValueError('Missing or empty name')
 
-    if role:
-        if not rls.is_valid(role):
-            raise Exception(f'Invalid role: {role}')
-    elif roles:
+    if not affiliation or not affiliation.strip():
+        raise ValueError('Missing or empty affiliation')
+
+    if not is_valid_email(email):
+        raise ValueError(f'Invalid email: {email}')
+
+    if roles:
         for role in roles:
             if not rls.is_valid(role):
-                raise Exception(f'Invalid role: {role}')
+                raise ValueError(f'Invalid role: {role}')
 
     return True
 
@@ -76,7 +80,6 @@ def read() -> dict[str, dict]:
         of person data.
     """
     people = dbc.read_dict(PEOPLE_COLLECT, EMAIL)
-    print(f'{people=}')
     return people
 
 
@@ -100,8 +103,6 @@ def delete(email: str) -> int:
     """
     Deletes a person by email from the database.
     """
-    print(f'{EMAIL=}, {email=}')
-    # returns an integer indicating the delected count
     return dbc.delete(PEOPLE_COLLECT, {EMAIL: email})
 
 
@@ -120,28 +121,25 @@ def delete_role(email: str, role: str) -> None:
         print('Person not found!')
 
 
-def create(name: str, affiliation: str, email: str, role: str) \
-                                        -> Union[str, ValueError]:
+def create(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     """
     Creates a new person in the database.
-    Raises ValueError if the email already exists.
+    Raises ValueError if missing/empty fields or the email already exists.
+    People can have no roles
     """
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
-    if is_valid_person(name, affiliation, email, role):
-        roles = [role] if role else []
-        for role in roles:
-            if not rls.is_valid(role):
-                raise ValueError(f'Invalid role: {role=}')
-        person = {NAME: name,
-                  AFFILIATION: affiliation, EMAIL: email, ROLES: roles}
-        print(person)
+
+    if is_valid_person(name, affiliation, email, roles):
+
+        person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
+                EMAIL: email.strip(), ROLES: roles}
         dbc.create(PEOPLE_COLLECT, person)
         return email
+    return None
 
 
-def update(name: str, affiliation: str, email: str, roles: list) \
-                                        -> Union[str, ValueError]:
+def update(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     """
     Updates an existing person's details in the database.
     Raises ValueError if the person does not exist.
@@ -149,21 +147,19 @@ def update(name: str, affiliation: str, email: str, roles: list) \
     if not exists(email):
         raise ValueError(f'Updating non-existent person: {email=}')
 
-    if is_valid_person(name, affiliation, email, roles=roles):
-        person = {NAME: name, AFFILIATION: affiliation,
-                  EMAIL: email, ROLES: roles}
-        print(person)
-        dbc.update(PEOPLE_COLLECT, {EMAIL: email}, person)
-        return email
+    is_valid_person(name, affiliation, email, roles)
+
+    person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
+              EMAIL: email.strip(), ROLES: roles}
+    dbc.update(PEOPLE_COLLECT, {EMAIL: email}, person)
+    return email
 
 
 def has_role(person: dict, role: str) -> bool:
     """
     Checks if a person has a specific role.
     """
-    if role in person[ROLES]:
-        return True
-    return False
+    return role in person.get(ROLES, [])
 
 
 def get_mh_fields() -> list[str]:

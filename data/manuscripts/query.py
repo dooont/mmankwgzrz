@@ -2,6 +2,8 @@ import data.manuscripts.fields as flds
 import data.people as ppl
 import data.db_connect as dbc
 
+from bson import ObjectId, errors
+
 
 MANU_COLLECT = 'manuscripts'
 
@@ -48,7 +50,6 @@ VALID_ACTIONS = list(ACTIONS.values())
 TEST_ACTION = ACTIONS['ACCEPT']
 
 SAMPLE_MANU = {
-    flds.ID : '1',
     flds.TITLE: 'Sample Manuscript',
     flds.AUTHOR: 'Andy Ng',
     flds.AUTHOR_EMAIL: 'an3299@Nyu.edu',
@@ -68,7 +69,7 @@ def is_valid_state(state: str) -> bool:
     return state in VALID_STATES
 
 
-def get_actions() -> list:
+def get_actions() -> list[str]:
     return VALID_ACTIONS
 
 
@@ -76,22 +77,15 @@ def is_valid_action(action: str) -> bool:
     return action in VALID_ACTIONS
 
 
-def create_manuscript(id : str, title : str, author : str, author_email : str, referee : str, state : str) -> str:
-    if exists(id):
-        raise ValueError('ID already exists use another one')
-
+def create_manuscript(title: str, author: str, author_email: str, referee: str, state: str) -> str:
     if not ppl.exists(author_email):
         raise ValueError('Author does not exist')
 
     if not is_valid_state(state):
         raise ValueError(f'Invalid state: {state}')
     
-    # if not is_valid_action(action):
-    #     raise ValueError(f'Invalid action: {action}')
-    
     referees = [referee] if referee else []
     manuscript = {
-                    flds.ID: id,
                     flds.TITLE: title,
                     flds.AUTHOR: author,
                     flds.AUTHOR_EMAIL: author_email, 
@@ -99,12 +93,12 @@ def create_manuscript(id : str, title : str, author : str, author_email : str, r
                     flds.STATE: state,
                 }
     
-    print(manuscript)
-    dbc.create(MANU_COLLECT, manuscript)
-    return id
+    result = dbc.create(MANU_COLLECT, manuscript)
+    inserted_doc = dbc.read_one(MANU_COLLECT, {flds.ID: result.inserted_id})
+    return str(inserted_doc[flds.ID])
     
 
-def update(id : str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
+def update(id: str, title: str, author: str, author_email: str, referee: str, state: str) -> str:
     """ 
     Updates an existing manuscripts information in the db. 
     If manuscript doesn't exist then a ValueError is raised.
@@ -122,12 +116,20 @@ def update(id : str, title: str, author: str, author_email: str, referee: str, s
     if not is_valid_state(state):
         raise ValueError(f'Invalid state: {state=}')
     
-    # if not is_valid_action(action):          
-    #     raise ValueError(f'Invalid action: {action=}')
+    manuscript = { 
+            flds.TITLE: title,
+            flds.AUTHOR: author,
+            flds.AUTHOR_EMAIL: author_email,
+            flds.REFEREES: referee,
+            flds.STATE: state
+        }
     
-    manuscript = {flds.ID: id, flds.TITLE: title, flds.AUTHOR: author, flds.AUTHOR_EMAIL: author_email, flds.REFEREES: referee, flds.STATE: state}
-    print(manuscript)
-    dbc.update(MANU_COLLECT, {flds.ID: id}, manuscript)
+    try:
+        object_id = ObjectId(id)
+    except errors.InvalidId:
+        raise ValueError(f"Invalid ObjectId: {id}")
+
+    dbc.update(MANU_COLLECT, {flds.ID: object_id}, manuscript)
     return id
 
 
@@ -136,35 +138,47 @@ def get_manuscripts() -> dict[str, dict]:
     Retrieves all manuscripts from the database.
     Returns a dictionary of {title, each manuscript represented by a dictionary}
     """
-    manuscripts = dbc.read_dict(MANU_COLLECT, flds.ID)
-    print(f'Manuscripts retrieved: {manuscripts}')
+    manuscripts = dbc.read_dict(MANU_COLLECT, flds.ID, no_id=False)
     return manuscripts
 
 
-def get_one_manu(id : str) -> dict:
+def get_one_manu(id: str) -> dict:
     """
     Retrieves a manuscript from the database, by taking in an email.
     """
-    manuscript = dbc.read_one(MANU_COLLECT, {flds.ID: id})
-    print(f'Manuscript retrieved: {manuscript}')
+    try:
+        object_id = ObjectId(id)
+    except errors.InvalidId:
+        raise ValueError(f"Invalid ObjectId: {id}")
+    
+    manuscript = dbc.read_one(MANU_COLLECT, {flds.ID: object_id})
     return manuscript
 
 
-def delete(id : str) -> int:
+def delete(id: str) -> int:
     """ 
     Deletes a selected manusciprt from the database.
     """
-    print(f'{flds.ID=}: {id=}')
-    return dbc.delete(MANU_COLLECT, {flds.ID: id})
+    try:
+        object_id = ObjectId(id)
+    except errors.InvalidId:
+        raise ValueError(f"Invalid ObjectId: {id}")
+    
+    return dbc.delete(MANU_COLLECT, {flds.ID: object_id})
+
 
 def exists(id: str) -> bool:
     """
     Checks if a manuscript with the given title exists in the database.
     """
-    return get_one_manu(id) is not None
+    try:
+        manuscript = get_one_manu(id)
+        return manuscript is not None
+    except ValueError:
+        return False
 
 
-def assign_ref(manu: dict, ref: str, extra=None) -> str:
+def assign_ref(manu: dict, ref: str) -> str:
     if ref in manu[flds.REFEREES]:
         raise ValueError(f'Referee already in manuscript: {ref}')
     manu[flds.REFEREES].append(ref)
@@ -274,7 +288,7 @@ def handle_action(curr_state, action, **kwargs) -> str:
     
    
 def main():
-    print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU))
+    print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))
 
 
 if __name__ == '__main__':

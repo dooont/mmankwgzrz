@@ -65,7 +65,7 @@ def read_one(collection: str, filt: dict, db=JOURNAL_DB) -> Union[dict, None]:
     doc = client[db][collection].find_one(filt)
     if doc:
         convert_mongo_id(doc)
-    print(f"Document found: {doc}")
+    print(f"Document found (read_one): {doc}")
     return doc
 
 
@@ -74,7 +74,8 @@ def delete(collection: str, filt: dict, db=JOURNAL_DB) -> int:
     Deletes the first document matching the filter.
     Returns the count of deleted documents.
     """
-    print(f'{filt=}')
+    print(f'{read_one(collection, filt)=}')
+    print(f'Deleting doc with {filt=}')
     del_result = client[db][collection].delete_one(filt)
     return del_result.deleted_count
 
@@ -83,9 +84,9 @@ def delete_role(collection: str, filt: dict, role: str, db=JOURNAL_DB) -> bool:
     """
     Removes a specific role from a list in a document based on the filter.
     """
-    print(f'{filt=}')
+    print(f'Deleting role with {filt=}')
     result = client[db][collection].update_one(filt, {'$pull': role})
-    return result.modified_count > 0  # True if a role was removed
+    return result.modified_count > 0
 
 
 def update(collection: str, filt: dict, update_dict: dict, db=JOURNAL_DB):
@@ -98,18 +99,13 @@ def update(collection: str, filt: dict, update_dict: dict, db=JOURNAL_DB):
 def read(collection, db=JOURNAL_DB, no_id=True) -> list[dict]:
     """
     Retrieves all documents from the specified collection.
+    no_id parameter removes the default mongo id from document
     """
     ret = []
-    # for each document in the database collection (ex: people, manuscripts)
-    # returns a cursor that iterates over each document
     for doc in client[db][collection].find():
-        # each doc is a dictioanry representing a document in the collection
-        # if no_id is passed in an argument or value, then no_id will no longer
-        # hold a value of true so below if statement does not execute
         if no_id:
             del doc[MONGO_ID]
         else:
-            # converts the id to a string to be appended into ret
             convert_mongo_id(doc)
         ret.append(doc)
     return ret
@@ -121,10 +117,8 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     dictionary key.
     """
     recs = read(collection, db=db, no_id=no_id)
-    # list of dicts
     recs_as_dict = {}
     for rec in recs:
-        # creates a dictionary of dictionaries with the specified key
         recs_as_dict[rec[key]] = rec
     return recs_as_dict
 

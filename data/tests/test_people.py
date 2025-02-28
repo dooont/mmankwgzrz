@@ -45,12 +45,12 @@ def test_is_valid_email_domain_too_short():
 def test_create_bad_email():
     with pytest.raises(ValueError):
         ppl.create('Do not care about name',
-                   'Or affiliation', 'bademail', TEST_ROLE_CODE)
+                   'Or affiliation', 'bademail', [TEST_ROLE_CODE])
 
 
 @pytest.fixture(scope='function')
 def temp_person():
-    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, TEST_ROLE_CODE)
+    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, [TEST_ROLE_CODE])
     # yields return email as a sample or instance for testing 
     yield email 
     try:
@@ -94,7 +94,7 @@ def test_delete(temp_person):
 
 
 def test_create(temp_person):
-    # ppl.create('Joe Smith', 'NYU', ADD_EMAIL, TEST_ROLE_CODE)
+    # ppl.create('Joe Smith', 'NYU', ADD_EMAIL, [TEST_ROLE_CODE])
     assert ppl.exists(temp_person)
     assert isinstance(ppl.read_one(temp_person), dict)
     assert isinstance(ppl.read_one(temp_person)[ppl.ROLES], list)
@@ -107,7 +107,7 @@ def test_create(temp_person):
 def test_create_duplicate(temp_person):
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', temp_person, TEST_ROLE_CODE)
+                   'Neither Does School', temp_person, [TEST_ROLE_CODE])
 
 
 def test_update(temp_person):
@@ -167,25 +167,25 @@ def test_delete_role(temp_person):
 
 def test_is_valid_person():
     assert ppl.is_valid_person(
-        "Test Name",
-        "Test Affiliation",
-        "test@example.com",
-        role=TEST_ROLE_CODE
+        'test name',
+        'test affiliation',
+        'test@example.com',
+        [TEST_ROLE_CODE]
     )
 
 
 def test_not_is_valid_person():
     with pytest.raises(ValueError):
         ppl.is_valid_person(
-            "Test Name",
-            "Test Affiliation",
+            'test name',
+            'test affiliation',
             "bad email",
-            role = TEST_ROLE_CODE
+            [TEST_ROLE_CODE]
         )
     with pytest.raises(Exception):
         ppl.is_valid_person(
-            "Test Name",
-            "Test Affiliation",
-            "test@example.com",
-            role = 'BAD CODE'
+            'test name',
+            'test affiliation',
+            'test@example.com',
+            ['BAD CODE']
         )

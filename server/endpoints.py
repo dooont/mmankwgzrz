@@ -15,6 +15,7 @@ import data.manuscripts.form as form
 import data.text as txt
 import data.manuscripts.query as qry
 import data.manuscripts.fields as flds
+import data.roles as rls
 
 app = Flask(__name__)
 CORS(app)
@@ -40,6 +41,7 @@ REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
 RETURN = 'return'
+ROLES_EP = '/roles'
 TEXT_EP = '/text'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
@@ -47,7 +49,6 @@ TITLE_RESP = 'Title'
 
 
 QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
-    flds.ID: fields.String,
     flds.TITLE: fields.String,
     flds.AUTHOR: fields.String,
     flds.AUTHOR_EMAIL: fields.String,
@@ -82,12 +83,11 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.NAME: fields.String,
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
-    ppl.ROLES: fields.String,
+    ppl.ROLES: fields.List(fields.String)
 })
 
 PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.NAME: fields.String,
-    ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.List(fields.String)
 })
@@ -235,7 +235,7 @@ class Person(Resource):
         try:
             person = ppl.read_one(email)
             if not person:
-                raise wz.NotFound(f'Person with email {email} not found.')
+                raise wz.NotFound(f'Person email not found: {email}')
 
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
@@ -247,11 +247,7 @@ class Person(Resource):
                 MESSAGE: 'Person updated successfully',
                 RETURN: ret
             }
-        except ValueError as ve:
-            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
-        except wz.NotFound:  # Let NotFound exceptions pass through
-            raise
-        except Exception as err:
+        except ValueError as err:
             raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
 
@@ -271,18 +267,18 @@ class PeopleCreate(Resource):
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
-            role = request.json.get(ppl.ROLES)
+            roles = request.json.get(ppl.ROLES, [])
 
             if ppl.exists(email):
-                raise wz.NotAcceptable(f'Email {email} is already in use.')
+                raise wz.NotAcceptable(f'Email is already in use: {email}')
 
-            ret = ppl.create(name, affiliation, email, role)
+            ret = ppl.create(name, affiliation, email, roles)
             return {
                 MESSAGE: 'Person added!',
                 RETURN: ret,
             }
-        except Exception as err:
-            raise wz.NotAcceptable(f'Could not add person: {err=}')
+        except ValueError as err:
+            raise wz.NotAcceptable(f'Could not add person: {str(err)}')
 
 
 @api.route(f'{PEOPLE_EP}/role/<role>')
@@ -319,6 +315,18 @@ class Masthead(Resource):
         return {MASTHEAD: ppl.get_masthead()}
 
 
+@api.route(ROLES_EP)
+class Role(Resource):
+    """
+    This class handles reading journal people roles.
+    """
+    def get(self):
+        """
+        Retrieve the journal people roles.
+        """
+        return rls.get_roles()
+
+
 @api.route(QUERY_EP)
 class Query(Resource):
     """
@@ -341,11 +349,15 @@ class QueryEntry(Resource):
         """
         Retrieve a single manuscript.
         """
-        manuscript = qry.get_one_manu(id)
-        if manuscript:
-            return manuscript
+        try:
+            manuscript = qry.get_one_manu(id)
+        except ValueError:
+            raise wz.BadRequest(f"Invalid ObjectId: {id}")
         else:
-            raise wz.NotFound(f'No such manuscript: {id}')
+            if manuscript:
+                return manuscript
+            else:
+                raise wz.NotFound(f'No such manuscript: {id}')
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
@@ -355,28 +367,25 @@ class QueryEntry(Resource):
         """
         Update a manuscript.
         """
-        try:
-            if not qry.exists(id):
-                raise wz.NotFound(f'No such manuscript: {id}')
+        title = request.json.get(flds.TITLE)
+        author = request.json.get(flds.AUTHOR)
+        author_email = request.json.get(flds.AUTHOR_EMAIL)
+        referees = request.json.get(flds.REFEREES)
+        state = request.json.get(flds.STATE)
 
-            id = request.json.get(flds.ID)
-            title = request.json.get(flds.TITLE)
-            author = request.json.get(flds.AUTHOR)
-            author_email = request.json.get(flds.AUTHOR_EMAIL)
-            referees = request.json.get(flds.REFEREES)
-            state = request.json.get(flds.STATE)
+        if not qry.exists(id):
+            raise wz.NotFound(f'No such manuscript with id: {id}')
 
-            ret = qry.update(id, title, author, author_email, referees,
-                             state)
+        if not qry.is_valid_state(state):
+            raise wz.BadRequest(f'Invalid manuscript state: {state}')
 
-            return {
-                MESSAGE: 'Manuscript updated successfully',
-                RETURN: ret
-            }
-        except ValueError as ve:
-            raise wz.NotFound(f'Invalid data provided: {str(ve)}')
-        except Exception as exp:
-            raise wz.NotAcceptable(f'Could not update manuscript: {str(exp)}')
+        updated_manu = qry.update(
+            id, title, author, author_email, referees, state)
+
+        return {
+            MESSAGE: 'Manuscript updated successfully',
+            RETURN: updated_manu
+        }
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such manuscript.')
@@ -384,10 +393,14 @@ class QueryEntry(Resource):
         """
         Delete a manuscript.
         """
-        deleted_count = qry.delete(id)
-        if deleted_count == 0:
-            raise wz.NotFound(f'No such manuscript: {id}')
-        return {'Deleted': deleted_count}
+        try:
+            deleted_count = qry.delete(id)
+        except ValueError:
+            raise wz.BadRequest(f"Invalid ObjectId: {id}")
+        else:
+            if deleted_count == 0:
+                raise wz.NotFound(f'No such manuscript: {id}')
+            return {'Deleted': deleted_count}
 
 
 @api.route(f'{QUERY_EP}/create')
@@ -404,17 +417,13 @@ class QueryCreate(Resource):
         Create a manuscript and add to the databse.
         """
         try:
-            id = request.json.get(flds.ID)
             title = request.json.get(flds.TITLE)
             author = request.json.get(flds.AUTHOR)
             author_email = request.json.get(flds.AUTHOR_EMAIL)
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
 
-            if qry.exists(id):
-                raise wz.NotAcceptable(f'Title {id} is already in use.')
-
-            new_manuscript = qry.create_manuscript(id, title, author,
+            new_manuscript = qry.create_manuscript(title, author,
                                                    author_email, referees,
                                                    state)
             return {
@@ -573,7 +582,7 @@ class Texts(Resource):
         """
         try:
             texts = txt.read()
-            return {'texts': texts}
+            return texts
         except Exception as err:
             raise wz.NotFound(f'Could not retrieve text entries: {str(err)}')
 
