@@ -133,7 +133,7 @@ def create(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     if is_valid_person(name, affiliation, email, roles):
 
         person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
-                EMAIL: email.strip(), ROLES: roles}
+                  EMAIL: email.strip(), ROLES: roles}
         dbc.create(PEOPLE_COLLECT, person)
         return email
     return None
