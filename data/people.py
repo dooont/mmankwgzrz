@@ -133,8 +133,8 @@ def create(name: str, affiliation: str, email: str, role: str) \
         for role in roles:
             if not rls.is_valid(role):
                 raise ValueError(f'Invalid role: {role=}')
-        person = {NAME: name, ROLES: roles,
-                  AFFILIATION: affiliation, EMAIL: email}
+        person = {NAME: name,
+                  AFFILIATION: affiliation, EMAIL: email, ROLES: roles}
         print(person)
         dbc.create(PEOPLE_COLLECT, person)
         return email
