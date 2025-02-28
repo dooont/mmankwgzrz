@@ -15,6 +15,7 @@ import data.manuscripts.form as form
 import data.text as txt
 import data.manuscripts.query as qry
 import data.manuscripts.fields as flds
+import data.roles as rls
 
 app = Flask(__name__)
 CORS(app)
@@ -40,6 +41,7 @@ REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
 RETURN = 'return'
+ROLES_EP = '/roles'
 TEXT_EP = '/text'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
@@ -246,7 +248,7 @@ class Person(Resource):
                 RETURN: ret
             }
         except ValueError as err:
-            raise wz.NotAcceptable(f'Could not update person: {err}')
+            raise wz.NotAcceptable(f'Could not update person: {str(err)}')
 
 
 @api.route(f'{PEOPLE_EP}/create')
@@ -276,7 +278,7 @@ class PeopleCreate(Resource):
                 RETURN: ret,
             }
         except ValueError as err:
-            raise wz.NotAcceptable(f'Could not add person: {err=}')
+            raise wz.NotAcceptable(f'Could not add person: {str(err)}')
 
 
 @api.route(f'{PEOPLE_EP}/role/<role>')
@@ -311,6 +313,18 @@ class Masthead(Resource):
     """
     def get(self):
         return {MASTHEAD: ppl.get_masthead()}
+
+
+@api.route(ROLES_EP)
+class Role(Resource):
+    """
+    This class handles reading journal people roles.
+    """
+    def get(self):
+        """
+        Retrieve the journal people roles.
+        """
+        return rls.get_roles()
 
 
 @api.route(QUERY_EP)

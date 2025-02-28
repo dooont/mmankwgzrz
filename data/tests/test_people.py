@@ -167,7 +167,9 @@ def test_delete_role(temp_person):
 
 def test_is_valid_person():
     assert ppl.is_valid_person(
-        "test@example.com",
+        'test name',
+        'test affiliation',
+        'test@example.com',
         [TEST_ROLE_CODE]
     )
 
@@ -175,11 +177,15 @@ def test_is_valid_person():
 def test_not_is_valid_person():
     with pytest.raises(ValueError):
         ppl.is_valid_person(
+            'test name',
+            'test affiliation',
             "bad email",
             [TEST_ROLE_CODE]
         )
     with pytest.raises(Exception):
         ppl.is_valid_person(
-            "test@example.com",
+            'test name',
+            'test affiliation',
+            'test@example.com',
             ['BAD CODE']
         )

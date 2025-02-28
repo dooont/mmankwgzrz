@@ -47,12 +47,20 @@ def is_valid_email(email: str) -> bool:
     raise ValueError(f'Email does not follow correct format: {email}')
 
 
-def is_valid_person(email: str, roles: Optional[list[str]] = None) -> bool:
+def is_valid_person(name: str, affiliation: str, email: str,
+                    roles: Optional[list[str]] = None) -> bool:
     """
     Validates person attributes.
+        - The name and affiliation are non-empty.
         - The email is valid.
         - The role(s) are valid if provided.
     """
+    if not name or not name.strip():
+        raise ValueError('Missing or empty name')
+
+    if not affiliation or not affiliation.strip():
+        raise ValueError('Missing or empty affiliation')
+
     if not is_valid_email(email):
         raise ValueError(f'Invalid email: {email}')
 
@@ -119,17 +127,10 @@ def create(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     Raises ValueError if missing/empty fields or the email already exists.
     People can have no roles
     """
-    if not name or not name.strip():
-        raise ValueError('Missing or empty name')
-    if not affiliation or not affiliation.strip():
-        raise ValueError('Missing or empty affiliation')
-    if not email or not email.strip():
-        raise ValueError('Missing or empty email')
-
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
 
-    is_valid_person(email, roles)
+    is_valid_person(name, affiliation, email, roles)
 
     person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
               EMAIL: email.strip(), ROLES: roles}
@@ -142,17 +143,10 @@ def update(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     Updates an existing person's details in the database.
     Raises ValueError if the person does not exist.
     """
-    if not name or not name.strip():
-        raise ValueError('Missing or empty name')
-    if not affiliation or not affiliation.strip():
-        raise ValueError('Missing or empty affiliation')
-    if not email or not email.strip():
-        raise ValueError('Missing or empty email')
-
     if not exists(email):
         raise ValueError(f'Updating non-existent person: {email=}')
 
-    is_valid_person(email, roles)
+    is_valid_person(name, affiliation, email, roles)
 
     person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
               EMAIL: email.strip(), ROLES: roles}
