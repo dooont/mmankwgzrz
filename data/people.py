@@ -2,7 +2,6 @@
 This module interfaces to our user data.
 """
 import re   # Module for regular expressions, used for validating email format.
-from typing import Optional
 
 import data.roles as rls
 import data.db_connect as dbc
@@ -49,7 +48,7 @@ def is_valid_email(email: str) -> bool:
 
 
 def is_valid_person(name: str, affiliation: str, email: str,
-                    roles: Optional[list[str]], password: str) -> bool:
+                    roles: list[str], password: str) -> bool:
     """
     Validates person attributes.
         - The name and affiliation are non-empty.
@@ -62,8 +61,10 @@ def is_valid_person(name: str, affiliation: str, email: str,
     if not affiliation or not affiliation.strip():
         raise ValueError('Missing or empty affiliation')
 
-    if not password or not password.strip():
-        raise ValueError('Missing or empty password')
+    # Commented out for now so adding people in the frontend doesn't produce
+    # an error and until register logic is implemented?
+    # if not password or not password.strip():
+    #     raise ValueError('Missing or empty password')
 
     if not is_valid_email(email):
         raise ValueError(f'Invalid email: {email}')
