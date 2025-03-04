@@ -101,8 +101,8 @@ def test_update_person():
     }
 
     # Success case
-    with patch('data.people.read_one') as mock_read_one, \
-         patch('data.people.update', return_value=update_data) as mock_update:
+    with patch('data.people.read_one', autospec=True) as mock_read_one, \
+         patch('data.people.update', autospec=True, return_value=update_data) as mock_update:
         # Mock that person exists
         mock_read_one.return_value = {'email': test_email}  
         
