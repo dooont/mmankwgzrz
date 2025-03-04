@@ -106,7 +106,7 @@ TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
 })
 
 MANU_ACTION_FLDS = api.model('ManuscriptAction', {
-    flds.TITLE: fields.String,
+    flds.ID: fields.String,
     flds.REFEREES: fields.String,
     flds.CURR_STATE: fields.String,
     flds.ACTION: fields.String,
