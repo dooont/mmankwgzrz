@@ -45,12 +45,12 @@ def test_is_valid_email_domain_too_short():
 def test_create_bad_email():
     with pytest.raises(ValueError):
         ppl.create('Do not care about name',
-                   'Or affiliation', 'bademail', [TEST_ROLE_CODE])
+                   'Or affiliation', 'bademail', [TEST_ROLE_CODE], '12345anbt')
 
 
 @pytest.fixture(scope='function')
 def temp_person():
-    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, [TEST_ROLE_CODE])
+    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, [TEST_ROLE_CODE], '12345anbt')
     # yields return email as a sample or instance for testing 
     yield email 
     try:
@@ -101,33 +101,36 @@ def test_create(temp_person):
     assert isinstance(ppl.read_one(temp_person)[ppl.AFFILIATION], str)
     assert isinstance(ppl.read_one(temp_person)[ppl.NAME], str)
     assert isinstance(ppl.read_one(temp_person)[ppl.EMAIL], str)
+    assert isinstance(ppl.read_one(temp_person)[ppl.PASSWORD], str)
     # ppl.delete(ADD_EMAIL)
 
 
 def test_create_duplicate(temp_person):
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', temp_person, [TEST_ROLE_CODE])
+                   'Neither Does School', temp_person, [TEST_ROLE_CODE],'12345anbt')
 
 
 def test_update(temp_person):
     new_name = 'Buffalo Bill'
     new_affiliation = 'UBuffalo'
     new_roles = VALID_ROLES
+    new_password = 'abcdef'
 
-    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
+    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles, new_password)
     assert updated_email == temp_person
 
     updated_person = ppl.read_one(temp_person)
     assert updated_person[ppl.NAME] == new_name
     assert updated_person[ppl.AFFILIATION] == new_affiliation
     assert updated_person[ppl.ROLES] == new_roles
+    assert updated_person[ppl.PASSWORD] == new_password
 
 
 def test_update_not_there():
     with pytest.raises(ValueError):
         ppl.update('Will Fail', 'University of the Void',
-                   'Non-existent email', VALID_ROLES)
+                   'Non-existent email', VALID_ROLES, 'nonexistentpw')
 
 
 def test_get_masthead():
@@ -170,7 +173,8 @@ def test_is_valid_person():
         'test name',
         'test affiliation',
         'test@example.com',
-        [TEST_ROLE_CODE]
+        [TEST_ROLE_CODE],
+        'testpw'
     )
 
 
@@ -180,12 +184,14 @@ def test_not_is_valid_person():
             'test name',
             'test affiliation',
             "bad email",
-            [TEST_ROLE_CODE]
+            [TEST_ROLE_CODE],
+            'testpw'
         )
     with pytest.raises(Exception):
         ppl.is_valid_person(
             'test name',
             'test affiliation',
             'test@example.com',
-            ['BAD CODE']
+            ['BAD CODE'],
+            'testpw'
         )
