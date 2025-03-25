@@ -553,3 +553,8 @@ def test_delete_text_not_found(mock_delete):
     assert resp.status_code == NOT_FOUND
     mock_delete.assert_called_once_with(text_id)
 
+
+def test_get_states():
+    resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/states')
+    resp_json = resp.get_json()
+    assert query.AUTHOR_REVIEW in resp_json

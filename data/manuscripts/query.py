@@ -19,18 +19,18 @@ REJECTED = 'REJ'
 SUBMITTED = 'SUB'
 WITHDRAWN = 'WDN'
 
-VALID_STATES = [
-    AUTHOR_REVIEW,
-    AUTHOR_REVISION,
-    COPY_EDIT,
-    EDITOR_REVIEW,
-    FORMATTING,
-    PUBLISHED,
-    REFEREE_REVIEW,
-    REJECTED,
-    SUBMITTED,
-    WITHDRAWN,
-]
+VALID_STATES = {
+    AUTHOR_REVIEW: 'Author Review',
+    AUTHOR_REVISION: 'Author Revision',
+    COPY_EDIT: 'Copy Edit',
+    EDITOR_REVIEW: 'Editor Review',
+    FORMATTING: 'Formatting',
+    PUBLISHED: 'Published',
+    REFEREE_REVIEW: 'Referee Review',
+    REJECTED: 'Rejected',
+    SUBMITTED: 'Submitted',
+    WITHDRAWN: 'Withdrawn',
+}
 
 TEST_STATE = SUBMITTED
 
@@ -61,7 +61,7 @@ SAMPLE_MANU = {
 FUNC = 'f'
 
 
-def get_states() -> list[str]:
+def get_states() -> dict:
     return VALID_STATES
 
 
