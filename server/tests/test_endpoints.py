@@ -83,12 +83,10 @@ def test_people_create_form():
     assert ep.ppl.EMAIL in form_data
     assert ep.ppl.AFFILIATION in form_data
     assert ep.ppl.ROLES in form_data
-    assert ep.ppl.PASSWORD in form_data
     assert form_data[ep.ppl.NAME] == 'string'
     assert form_data[ep.ppl.EMAIL] == 'string'
     assert form_data[ep.ppl.AFFILIATION] == 'string'
     assert form_data[ep.ppl.ROLES] == 'list of strings'
-    assert form_data[ep.ppl.PASSWORD] == 'string'
 
 
 def test_update_person():
@@ -97,7 +95,6 @@ def test_update_person():
         ep.ppl.NAME: 'Updated Name',
         ep.ppl.AFFILIATION: 'New Affiliation',
         ep.ppl.ROLES: ['AU', 'CE'],
-        ep.ppl.PASSWORD: 'new_password'
     }
 
     # Success case
@@ -134,7 +131,6 @@ def test_update_person():
             ep.ppl.NAME: '',  # invalid empty name
             ep.ppl.AFFILIATION: '',
             ep.ppl.ROLES: ['nonexistent_role'],  # invalid role
-            ep.ppl.PASSWORD: ''
         }
         resp = TEST_CLIENT.put(
             f'{ep.PEOPLE_EP}/{test_email}',
@@ -153,7 +149,6 @@ def test_create_person(mock_create, mock_exists):
         ep.ppl.EMAIL: 'test@nyu.edu',
         ep.ppl.AFFILIATION: 'NYU',
         ep.ppl.ROLES: 'AU',
-        ep.ppl.PASSWORD: '1234567'
     }
     
     resp = TEST_CLIENT.put(f'{ep.PEOPLE_EP}/create', json=test_data)
@@ -177,7 +172,6 @@ def test_create_person_exists(mock_create, mock_exists):
         ep.ppl.EMAIL: 'test@nyu.edu',
         ep.ppl.AFFILIATION: 'NYU',
         ep.ppl.ROLES: 'AU',
-        ep.ppl.PASSWORD: '1234567'
     }
     # UP TO HERE !!!
     resp = TEST_CLIENT.put(f'{ep.PEOPLE_EP}/create', json=test_data)
