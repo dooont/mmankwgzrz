@@ -20,7 +20,7 @@ def temp_account():
     email = acc.register(TEMP_EMAIL, TEST_PASSWORD)
     yield email
     try:
-        acc.delete(email, TEST_PASSWORD)
+        acc.delete(email)
     except:
         print(f'Account already deleted.')
 
@@ -33,7 +33,7 @@ def test_register_account():
     assert account_data is not None
     assert account_data[EMAIL] == TEST_EMAIL
 
-    acc.delete(TEST_EMAIL, TEST_PASSWORD)
+    acc.delete(TEST_EMAIL)
 
 
 def test_register_account_invalid_email():
@@ -52,7 +52,7 @@ def test_register_duplicate_account():
     with pytest.raises(ValueError):
         acc.register(TEST_EMAIL, TEST_PASSWORD)
 
-    acc.delete(TEST_EMAIL, TEST_PASSWORD)
+    acc.delete(TEST_EMAIL)
 
 
 def test_login_successful(temp_account):
@@ -71,7 +71,7 @@ def test_login_account_not_found():
 
 
 def test_delete_account(temp_account):
-    result = acc.delete(temp_account, TEST_PASSWORD)
+    result = acc.delete(temp_account)
     assert result is True
 
     account_data = dbc.read_one(ACCOUNT_COLLECT, {EMAIL: temp_account})
@@ -80,7 +80,7 @@ def test_delete_account(temp_account):
 
 def test_delete_account_failed():
     with pytest.raises(ValueError):
-        acc.delete('nonexistent@example.com', TEST_PASSWORD)
+        acc.delete('nonexistent@example.com')
 
 
 def test_is_valid_password():

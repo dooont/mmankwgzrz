@@ -83,7 +83,7 @@ def login(email: str, password: str) -> bool:
     return True
 
 
-def delete(email: str, password: str) -> bool:
+def delete(email: str) -> bool:
     """
     Deletes a user's account.
     """
@@ -91,8 +91,5 @@ def delete(email: str, password: str) -> bool:
 
     if not account:
         raise ValueError('Account does not exist')
-
-    if not check_password(password, account[PASSWORD]):
-        raise ValueError('Incorrect password')
 
     return dbc.delete(ACCOUNT_COLLECT, {EMAIL: email}) > 0

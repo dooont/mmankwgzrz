@@ -16,11 +16,13 @@ import data.text as txt
 import data.manuscripts.query as qry
 import data.manuscripts.fields as flds
 import data.roles as rls
+import data.account as acc
 
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
 
+ACCOUNT_EP = '/account'
 DATE = '2024-09-24'
 DATE_RESP = 'Date'
 EDITOR = 'ejc369@nyu.edu'
@@ -30,6 +32,7 @@ ENDPOINT_RESP = 'Available endpoints'
 FORM_EP = '/form'
 HELLO_EP = '/hello'
 HELLO_RESP = 'hello'
+LOGIN_EP = '/login'
 MASTHEAD = 'Masthead'
 MESSAGE = 'Message'
 PEOPLE_CREATE_FORM = 'People Add Form'
@@ -37,6 +40,7 @@ PEOPLE_EP = '/people'
 PUBLISHER = 'Palgave'
 PUBLISHER_RESP = 'Publisher'
 QUERY_EP = '/query'
+REGISTER_EP = '/register'
 REPO_NAME = 'mmankwgzrz'
 REPO_NAME_EP = '/authors'
 REPO_NAME_RESP = 'Repository Name'
@@ -110,6 +114,16 @@ MANU_ACTION_FLDS = api.model('ManuscriptAction', {
     flds.ACTION: fields.String,
 })
 
+LOGIN_FLDS = api.model('Login', {
+    acc.EMAIL: fields.String,
+    acc.PASSWORD: fields.String,
+})
+
+REGISTER_FLDS = api.model('Register', {
+    acc.EMAIL: fields.String,
+    acc.PASSWORD: fields.String,
+})
+
 
 @api.route(HELLO_EP)
 class HelloWorld(Resource):
@@ -169,6 +183,80 @@ class GetRepoName(Resource):
         return {
             REPO_NAME_RESP: REPO_NAME
         }
+
+
+@api.route(f'{LOGIN_EP}')
+class Login(Resource):
+    """
+    Logs a user given email and password.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Invalid request')
+    @api.expect(LOGIN_FLDS)
+    def post(self):
+        """
+        Logs user in with email and password.
+        """
+        email = request.json.get(acc.EMAIL)
+        password = request.json.get(acc.PASSWORD)
+
+        if not email or not password:
+            raise wz.BadRequest('Both email and password are required.')
+
+        try:
+            acc.login(email, password)
+            return {
+                MESSAGE: 'Login success!',
+            }, HTTPStatus.OK
+        except ValueError as err:
+            raise wz.BadRequest(f'Could not log into account: {str(err)}')
+
+
+@api.route(f'{REGISTER_EP}')
+class Register(Resource):
+    """
+    Register a user given email and password.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Invalid request')
+    @api.expect(REGISTER_FLDS)
+    def post(self):
+        """
+        Register user with email and password.
+        """
+        email = request.json.get(acc.EMAIL)
+        password = request.json.get(acc.PASSWORD)
+
+        if not email or not password:
+            raise wz.BadRequest('Both email and password are required.')
+
+        try:
+            acc.register(email, password)
+            return {
+                MESSAGE: 'Sign up success!',
+            }, HTTPStatus.OK
+        except ValueError as err:
+            raise wz.BadRequest(f'Could not sign up account: {str(err)}')
+
+
+@api.route(f'{ACCOUNT_EP}/<email>')
+class Account(Resource):
+    """
+    Delete user account given email.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such account.')
+    def delete(self, email):
+        """
+        Deletes the user account.
+        """
+        try:
+            acc.delete(email)
+            return {
+                MESSAGE: f'Successfully deleted account: {email}',
+            }, HTTPStatus.OK
+        except ValueError as err:
+            raise wz.BadRequest(f'Could not delete account: {str(err)}')
 
 
 @api.route(f'{PEOPLE_EP}/create/form')
