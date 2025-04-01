@@ -552,3 +552,10 @@ def test_get_states():
     resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/states')
     resp_json = resp.get_json()
     assert query.AUTHOR_REVIEW in resp_json
+
+
+def test_get_actions():
+    resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/actions')
+    resp_json = resp.get_json()
+    assert 'ACCEPT' in resp_json
+    assert 'WITHDRAW' in resp_json

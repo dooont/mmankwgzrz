@@ -568,6 +568,18 @@ class State(Resource):
         return qry.get_states()
 
 
+@api.route(f'{QUERY_EP}/actions')
+class Action(Resource):
+    """
+    This class handles reading manuscript actions.
+    """
+    def get(self):
+        """
+        Retrieve the manuscript actions.
+        """
+        return qry.get_actions()
+
+
 @api.route(FORM_EP)
 class Form(Resource):
     """

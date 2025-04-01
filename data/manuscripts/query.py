@@ -45,8 +45,6 @@ ACTIONS = {
     'WITHDRAW': 'WDN',
 }
 
-VALID_ACTIONS = list(ACTIONS.values())
-
 TEST_ACTION = ACTIONS['ACCEPT']
 
 SAMPLE_MANU = {
@@ -69,12 +67,12 @@ def is_valid_state(state: str) -> bool:
     return state in VALID_STATES
 
 
-def get_actions() -> list[str]:
-    return VALID_ACTIONS
+def get_actions() -> dict:
+    return ACTIONS
 
 
 def is_valid_action(action: str) -> bool:
-    return action in VALID_ACTIONS
+    return action in ACTIONS
 
 
 def create_manuscript(title: str, author: str, author_email: str, referee: str, state: str) -> str:

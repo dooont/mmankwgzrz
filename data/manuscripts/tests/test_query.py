@@ -65,15 +65,16 @@ def test_get_actions():
     Test the retrieval of all predefined actions.
     """
     actions = mqry.get_actions()
-    assert isinstance(actions, list)
-    assert set(actions) == set(mqry.VALID_ACTIONS)
+    assert isinstance(actions, dict)
+    assert len(actions) > 0
 
 
 def test_is_valid_action():
     """
     Test the validity of all predefined actions.
     """
-    for action in mqry.get_actions():
+    actions = list(mqry.get_actions().keys())
+    for action in actions:
         assert mqry.is_valid_action(action)
 
 
