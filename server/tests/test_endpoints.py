@@ -557,5 +557,12 @@ def test_get_states():
 def test_get_actions():
     resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/actions')
     resp_json = resp.get_json()
-    assert 'ACCEPT' in resp_json
-    assert 'WITHDRAW' in resp_json
+    assert 'ACC' in resp_json
+    assert 'WDN' in resp_json
+
+
+def test_get_valid_actions():
+    resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/actions/{query.REFEREE_REVIEW}')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert len(resp_json) == 6

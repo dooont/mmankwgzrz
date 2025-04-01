@@ -580,6 +580,18 @@ class Action(Resource):
         return qry.get_actions()
 
 
+@api.route(f'{QUERY_EP}/actions/<state>')
+class ValidAction(Resource):
+    """
+    This class retrieves the valid actions of a manuscript
+    """
+    def get(self, state):
+        """
+        Retrieve the valid manuscript actions.
+        """
+        return qry.get_valid_actions_by_state(state)
+
+
 @api.route(FORM_EP)
 class Form(Resource):
     """
