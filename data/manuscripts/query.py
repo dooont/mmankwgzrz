@@ -34,6 +34,16 @@ VALID_STATES = {
 
 TEST_STATE = SUBMITTED
 
+ACTION_NAMES = {
+    'ACC': 'Accept',
+    'AWR': 'Accept with Review',
+    'ARF': 'Assign Referee',
+    'DRF': 'Delete Referee',
+    'DON': 'Done',
+    'REJ': 'Reject',
+    'WDN': 'Withdraw',
+}
+
 # Actions
 ACTIONS = {
     'ACCEPT': 'ACC',
@@ -68,11 +78,11 @@ def is_valid_state(state: str) -> bool:
 
 
 def get_actions() -> dict:
-    return ACTIONS
+    return ACTION_NAMES
 
 
 def is_valid_action(action: str) -> bool:
-    return action in ACTIONS
+    return action in ACTION_NAMES
 
 
 def create_manuscript(title: str, author: str, author_email: str, referee: str, state: str) -> str:
