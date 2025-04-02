@@ -12,6 +12,7 @@ NAME = 'name'
 ROLES = 'roles'
 AFFILIATION = 'affiliation'
 EMAIL = 'email'
+PASSWORD = 'pw'
 MH_FIELDS = [NAME, AFFILIATION]  # Fields for masthead records
 
 TEST_EMAIL = 'ejc369@nyu.edu'
@@ -47,7 +48,7 @@ def is_valid_email(email: str) -> bool:
 
 
 def is_valid_person(name: str, affiliation: str, email: str,
-                    roles: list[str]) -> bool:
+                    roles: list[str], pw: str) -> bool:
     """
     Validates person attributes.
         - The name and affiliation are non-empty.
@@ -62,6 +63,9 @@ def is_valid_person(name: str, affiliation: str, email: str,
 
     if not is_valid_email(email):
         raise ValueError(f'Invalid email: {email}')
+
+    if not pw or not pw.strip():
+        raise ValueError('Missing or empty password')
 
     if roles:
         for role in roles:
@@ -120,7 +124,8 @@ def delete_role(email: str, role: str) -> None:
         print('Person not found!')
 
 
-def create(name: str, affiliation: str, email: str, roles: list[str]) -> str:
+def create(name: str, affiliation: str, email: str, roles: list[str],
+           pw: str) -> str:
     """
     Creates a new person in the database.
     Raises ValueError if missing/empty fields or the email already exists.
@@ -129,16 +134,17 @@ def create(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     if exists(email):
         raise ValueError(f'Adding duplicate email: {email=}')
 
-    if is_valid_person(name, affiliation, email, roles):
+    if is_valid_person(name, affiliation, email, roles, pw):
 
         person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
-                  EMAIL: email.strip(), ROLES: roles}
+                  EMAIL: email.strip(), ROLES: roles, PASSWORD: pw}
         dbc.create(PEOPLE_COLLECT, person)
         return email
     return None
 
 
-def update(name: str, affiliation: str, email: str, roles: list[str]) -> str:
+def update(name: str, affiliation: str, email: str, roles: list[str],
+           pw: str) -> str:
     """
     Updates an existing person's details in the database.
     Raises ValueError if the person does not exist.
@@ -146,10 +152,10 @@ def update(name: str, affiliation: str, email: str, roles: list[str]) -> str:
     if not exists(email):
         raise ValueError(f'Updating non-existent person: {email=}')
 
-    is_valid_person(name, affiliation, email, roles)
+    is_valid_person(name, affiliation, email, roles, pw)
 
     person = {NAME: name.strip(), AFFILIATION: affiliation.strip(),
-              EMAIL: email.strip(), ROLES: roles}
+              EMAIL: email.strip(), ROLES: roles, PASSWORD: pw}
     dbc.update(PEOPLE_COLLECT, {EMAIL: email}, person)
     return email
 
