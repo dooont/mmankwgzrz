@@ -572,13 +572,51 @@ def test_get_valid_actions():
     resp_json = resp.get_json()
     assert len(resp_json) == 6
 
-
-def test_login_fail():
+@patch('data.account.login', side_effect=ValueError("Invalid credentials"))
+def test_login_fail(mock_login):
     invalid_data = {ep.acc.EMAIL: '', ep.acc.PASSWORD: ''}
     resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=invalid_data)
     assert resp.status_code == BAD_REQUEST
 
-    # email is valid but password is still empty
+    # email is nonempty but password is still empty
     invalid_data[ep.acc.EMAIL] = 'email@nyu.edu'
     resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=invalid_data)
     assert resp.status_code == BAD_REQUEST
+
+    # both are nonempty, but some error was thrown
+    invalid_data[ep.acc.PASSWORD] = 'password'
+    resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST
+
+
+@patch('data.account.login', return_value=True)
+def test_login_success(mock_login):
+    valid_data = {ep.acc.EMAIL: 'email@nyu.edu', ep.acc.PASSWORD: 'password'}
+    resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=valid_data)
+    assert resp.status_code == OK
+
+
+@patch('data.account.register', side_effect=ValueError("Invalid credentials"))
+def test_register_fail(mock_register):
+    invalid_data = {ep.acc.EMAIL: '', ep.acc.PASSWORD: ''}
+    resp = TEST_CLIENT.post(f'{ep.REGISTER_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST
+
+    # email is valid but password is still empty
+    invalid_data[ep.acc.EMAIL] = 'email@nyu.edu'
+    resp = TEST_CLIENT.post(f'{ep.REGISTER_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST
+
+    # both are nonempty, but some error was thrown
+    invalid_data[ep.acc.PASSWORD] = 'password'
+    resp = TEST_CLIENT.post(f'{ep.REGISTER_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST
+
+
+@patch('data.account.register', return_value='email@nyu.edu')
+def test_register_success(mock_register):
+    valid_data = {ep.acc.EMAIL: 'email@nyu.edu', ep.acc.PASSWORD: 'password'}
+    resp = TEST_CLIENT.post(f'{ep.REGISTER_EP}', json=valid_data)
+    assert resp.status_code == OK
+
+# TODO: test account delete
