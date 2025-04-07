@@ -571,3 +571,14 @@ def test_get_valid_actions():
     assert resp.status_code == OK
     resp_json = resp.get_json()
     assert len(resp_json) == 6
+
+
+def test_login_fail():
+    invalid_data = {ep.acc.EMAIL: '', ep.acc.PASSWORD: ''}
+    resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST
+
+    # email is valid but password is still empty
+    invalid_data[ep.acc.EMAIL] = 'email@nyu.edu'
+    resp = TEST_CLIENT.post(f'{ep.LOGIN_EP}', json=invalid_data)
+    assert resp.status_code == BAD_REQUEST

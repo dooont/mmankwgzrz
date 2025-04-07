@@ -233,9 +233,9 @@ class Register(Resource):
             raise wz.BadRequest('Both email and password are required.')
 
         try:
-            acc.register(email, password)
+            email = acc.register(email, password)
             return {
-                MESSAGE: 'Sign up success!',
+                MESSAGE: f'Sign up success for {email}!',
             }, HTTPStatus.OK
         except ValueError as err:
             raise wz.BadRequest(f'Could not sign up account: {str(err)}')
@@ -711,6 +711,7 @@ class Texts(Resource):
         """
         try:
             texts = txt.read()
+            print(texts)
             return texts
         except Exception as err:
             raise wz.NotFound(f'Could not retrieve text entries: {str(err)}')

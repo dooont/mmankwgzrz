@@ -60,7 +60,8 @@ def register(email: str, password: str):
     if dbc.read_one(ACCOUNT_COLLECT, {EMAIL: email}):
         raise ValueError(f'Account already exists for: {email}')
 
-    is_valid_password(password)
+    if not is_valid_password(password):
+        raise ValueError('Password is not valid')
 
     hashed_pw = hash_password(password)
     account = {EMAIL: email, PASSWORD: hashed_pw}
