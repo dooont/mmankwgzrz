@@ -149,7 +149,7 @@ def test_create_person(mock_create, mock_exists):
     
     test_data = {
         ep.ppl.NAME: 'Test Person',
-        ep.ppl.EMAIL: 'test@nyu.edu',
+        ep.ppl.EMAIL: mock_create.return_value,
         ep.ppl.AFFILIATION: 'NYU',
         ep.ppl.ROLES: 'AU',
         ep.ppl.PASSWORD: '123NYU',
@@ -161,6 +161,8 @@ def test_create_person(mock_create, mock_exists):
     assert ep.MESSAGE in resp_json
     assert ep.RETURN in resp_json
     assert resp_json[ep.RETURN] == 'test@nyu.edu'
+    assert resp_json[ep.MESSAGE] == 'Person added!'
+    assert resp_json[ep.RETURN] == mock_create.return_value
     
     mock_exists.assert_called_once_with('test@nyu.edu')
     mock_create.assert_called_once()
