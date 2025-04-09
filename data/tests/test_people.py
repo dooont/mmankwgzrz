@@ -10,7 +10,6 @@ NO_SUB_DOMAIN = 'example@com'
 DOMAIN_TOO_SHORT = 'example@nyu.e'
 TEMP_EMAIL = 'temp_person@temp.org'
 ADD_EMAIL = 'joe@nyu.edu'
-TEMP_PW = '123nyu'
 VALID_ROLES = ['ED', 'AU']
 
 
@@ -46,12 +45,12 @@ def test_is_valid_email_domain_too_short():
 def test_create_bad_email():
     with pytest.raises(ValueError):
         ppl.create('Do not care about name',
-                   'Or affiliation', 'bademail', [TEST_ROLE_CODE], 'whatever')
+                   'Or affiliation', 'bademail', [TEST_ROLE_CODE])
 
 
 @pytest.fixture(scope='function')
 def temp_person():
-    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, [TEST_ROLE_CODE], TEMP_PW) 
+    email = ppl.create('Joe Smith', 'NYU', TEMP_EMAIL, [TEST_ROLE_CODE]) 
     # yields return email as a sample or instance for testing 
     yield email 
     try:
@@ -102,36 +101,33 @@ def test_create(temp_person):
     assert isinstance(ppl.read_one(temp_person)[ppl.AFFILIATION], str)
     assert isinstance(ppl.read_one(temp_person)[ppl.NAME], str)
     assert isinstance(ppl.read_one(temp_person)[ppl.EMAIL], str)
-    assert isinstance(ppl.read_one(temp_person)[ppl.PASSWORD], str)
     # ppl.delete(ADD_EMAIL)
 
 
 def test_create_duplicate(temp_person):
     with pytest.raises(ValueError):
         ppl.create('Name Does Not matter',
-                   'Neither Does School', temp_person, [TEST_ROLE_CODE], 'whatever')
+                   'Neither Does School', temp_person, [TEST_ROLE_CODE])
 
 
 def test_update(temp_person):
     new_name = 'Buffalo Bill'
     new_affiliation = 'UBuffalo'
     new_roles = VALID_ROLES
-    new_pw = 'newpw'
 
-    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles, new_pw)
+    updated_email = ppl.update(new_name, new_affiliation, temp_person, new_roles)
     assert updated_email == temp_person
 
     updated_person = ppl.read_one(temp_person)
     assert updated_person[ppl.NAME] == new_name
     assert updated_person[ppl.AFFILIATION] == new_affiliation
     assert updated_person[ppl.ROLES] == new_roles
-    assert updated_person[ppl.PASSWORD] == new_pw
 
 
 def test_update_not_there():
     with pytest.raises(ValueError):
         ppl.update('Will Fail', 'University of the Void',
-                   'Non-existent email', VALID_ROLES, 'pw')
+                   'Non-existent email', VALID_ROLES)
 
 
 def test_get_masthead():
@@ -175,7 +171,6 @@ def test_is_valid_person():
         'test affiliation',
         'test@example.com',
         [TEST_ROLE_CODE],
-        'password',
     )
 
 
@@ -186,7 +181,6 @@ def test_not_is_valid_person():
             'test affiliation',
             "bad email",
             [TEST_ROLE_CODE],
-            'password',
         )
     with pytest.raises(Exception):
         ppl.is_valid_person(
@@ -194,5 +188,4 @@ def test_not_is_valid_person():
             'test affiliation',
             'test@example.com',
             ['BAD CODE'],
-            'password',
         )

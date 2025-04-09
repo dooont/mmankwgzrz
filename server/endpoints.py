@@ -88,14 +88,12 @@ PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
     ppl.EMAIL: fields.String,
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.List(fields.String),
-    ppl.PASSWORD: fields.String,
 })
 
 PEOPLE_UPDATE_FLDS = api.model('UpdatePeopleEntry', {
     ppl.NAME: fields.String,
     ppl.AFFILIATION: fields.String,
     ppl.ROLES: fields.List(fields.String),
-    ppl.PASSWORD: fields.String,
 })
 
 TEXT_CREATE_FLDS = api.model('CreateTextEntry', {
@@ -273,7 +271,6 @@ class CreatePeopleForm(Resource):
                 ppl.EMAIL: "string",
                 ppl.AFFILIATION: "string",
                 ppl.ROLES: "list of strings",
-                ppl.PASSWORD: "string"
             }
         }
 
@@ -331,9 +328,8 @@ class Person(Resource):
             name = request.json.get(ppl.NAME)
             affiliation = request.json.get(ppl.AFFILIATION)
             roles = request.json.get(ppl.ROLES, [])
-            pw = request.json.get(ppl.PASSWORD)
 
-            ret = ppl.update(name, affiliation, email, roles, pw)
+            ret = ppl.update(name, affiliation, email, roles)
 
             return {
                 MESSAGE: 'Person updated successfully',
@@ -360,12 +356,11 @@ class PeopleCreate(Resource):
             affiliation = request.json.get(ppl.AFFILIATION)
             email = request.json.get(ppl.EMAIL)
             roles = request.json.get(ppl.ROLES, [])
-            pw = request.json.get(ppl.PASSWORD)
 
             if ppl.exists(email):
                 raise wz.NotAcceptable(f'Email is already in use: {email}')
 
-            ret = ppl.create(name, affiliation, email, roles, pw)
+            ret = ppl.create(name, affiliation, email, roles)
             return {
                 MESSAGE: 'Person added!',
                 RETURN: ret,
