@@ -17,6 +17,7 @@ ABSTRACT = 'abstract'
 HISTORY = 'history'
 EDITOR = 'editor'
 CURR_STATE = 'curr_state'
+TESTING = 'testing'
 
 
 FIELDS = {
