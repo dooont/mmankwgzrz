@@ -621,4 +621,16 @@ def test_register_success(mock_register):
     resp = TEST_CLIENT.post(f'{ep.REGISTER_EP}', json=valid_data)
     assert resp.status_code == OK
 
-# TODO: test account delete
+
+@patch('data.account.delete', return_value=True)
+def test_account_delete_success(mock_delete):
+    email = 'email@nyu.edu'
+    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}')
+    assert resp.status_code == OK
+
+
+@patch('data.account.delete', side_effect=ValueError("Account does not exist"))
+def test_account_delete_fail(mock_delete):
+    email = 'nonexistent@nyu.edu'
+    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}')
+    assert resp.status_code == BAD_REQUEST
