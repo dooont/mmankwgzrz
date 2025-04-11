@@ -236,7 +236,7 @@ class Register(Resource):
                 MESSAGE: f'Sign up success for {email}!',
             }, HTTPStatus.OK
         except ValueError as err:
-            raise wz.BadRequest(f'Could not sign up account: {str(err)}')
+            raise wz.BadRequest(f'{str(err)}')
 
 
 @api.route(f'{ACCOUNT_EP}/<email>')
