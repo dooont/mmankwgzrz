@@ -75,11 +75,10 @@ def login(email: str, password: str) -> bool:
     """
     account = dbc.read_one(ACCOUNT_COLLECT, {EMAIL: email})
 
-    if not account:
-        raise ValueError('Account does not exist')
+    invalid_login_msg = "Invalid email or password"
 
-    if not check_password(password, account[PASSWORD]):
-        raise ValueError('Incorrect password')
+    if not account or not check_password(password, account[PASSWORD]):
+        raise ValueError(invalid_login_msg)
 
     return True
 

@@ -209,7 +209,7 @@ class Login(Resource):
                 MESSAGE: 'Login success!',
             }, HTTPStatus.OK
         except ValueError as err:
-            raise wz.BadRequest(f'Could not log into account: {str(err)}')
+            raise wz.BadRequest(f'{str(err)}')
 
 
 @api.route(f'{REGISTER_EP}')
