@@ -7,6 +7,7 @@ import data.db_connect as dbc
 EMAIL = 'email'
 PASSWORD = 'password'
 ACCOUNT_COLLECT = 'account'
+PEOPLE_COLLECT = 'people'
 
 client = dbc.connect_db()
 print(f'{client=}')
@@ -59,6 +60,9 @@ def register(email: str, password: str):
 
     if dbc.read_one(ACCOUNT_COLLECT, {EMAIL: email}):
         raise ValueError(f'Account already exists for: {email}')
+
+    if dbc.read_one(PEOPLE_COLLECT, {EMAIL: email}):
+        raise ValueError(f'Person already exists for: {email}')
 
     if not is_valid_password(password):
         raise ValueError('Password is not valid')
