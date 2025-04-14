@@ -14,16 +14,19 @@ TEST_TITLE = "Three Little Bears"
 TEST_AUTHOR_NAME = 'Joe Smith'
 TEST_REFEREE = 'bob@nyu.edu'
 TEST_NEW_REFEREE = 'alice@nyu.edu'
+TEST_TEXT = "Hi my name is Andy"
 
 
 @pytest.fixture(scope='function')
+# used for each test function 
 def temp_manu(temp_person):
     id = mqry.create_manuscript( 
         TEST_TITLE,
         TEST_AUTHOR_NAME,
         temp_person,
         TEST_REFEREE,
-        mqry.SUBMITTED
+        mqry.SUBMITTED,
+        TEST_TEXT
 )
     yield id
     try: 
@@ -95,10 +98,14 @@ def test_create_manuscript(temp_person):
     author_email = temp_person
     referee = TEST_REFEREE
     state = mqry.SUBMITTED
+    text = TEST_TEXT
 
-    manu_id = mqry.create_manuscript(title, author, author_email, referee, state)
+    manu_id = mqry.create_manuscript(title, author, author_email, referee, state, text)
+    #returns str version of ID
     object_id = ObjectId(manu_id)
+    #cast it back into ObjectID type
     manuscript = mqry.dbc.read_one(mqry.MANU_COLLECT, {flds.ID: object_id})
+    #then pass it into the filter becasue 'flds.ID' has a value of type ObjectId
     
     assert manuscript is not None
     assert manuscript[flds.TITLE] == title
@@ -106,7 +113,10 @@ def test_create_manuscript(temp_person):
     assert manuscript[flds.AUTHOR_EMAIL] == author_email
     assert manuscript[flds.REFEREES] == [referee]
     assert manuscript[flds.STATE] == state
+    assert manuscript[flds.TEXT] == text
     assert isinstance(manuscript[flds.ID], str)
+    #assertion checks that the id of manuscript gets casted to a string 
+    #from the 'dbc.read_one' function
 
     delete_count = mqry.delete(manu_id)
     assert delete_count == 1
@@ -122,10 +132,11 @@ def test_update(temp_manu, temp_person):
     new_title = "History of CS"
     new_author = 'Andy Ng'
     new_author_email = temp_person
-    new_state = mqry.REFEREE_REVIEW
     new_referee = 'some ref'
+    new_state = mqry.REFEREE_REVIEW
+    new_text = "new text"
 
-    updated_manu = mqry.update(temp_manu, new_title, new_author, temp_person, new_referee, new_state)
+    updated_manu = mqry.update(temp_manu, new_title, new_author, temp_person, new_referee, new_state, new_text)
 
     assert updated_manu == temp_manu
 
@@ -136,6 +147,7 @@ def test_update(temp_manu, temp_person):
     assert updated_manu[flds.AUTHOR_EMAIL] == new_author_email
     assert updated_manu[flds.STATE] == new_state
     assert new_referee in updated_manu[flds.REFEREES]
+    assert new_text in updated_manu[flds.TEXT]
 
 
 def test_delete(temp_manu):
@@ -163,6 +175,7 @@ def test_get_manuscripts(temp_manu):
         assert flds.AUTHOR_EMAIL in manuscript 
         assert flds.REFEREES in manuscript
         assert flds.STATE in manuscript
+        assert flds.TEXT in manuscript
     
     assert temp_manu in manuscripts
 
