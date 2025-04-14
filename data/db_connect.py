@@ -115,6 +115,8 @@ def read_dict(collection, key, db=JOURNAL_DB, no_id=True) -> dict:
     """
     Retrieves all documents as a dictionary with the specified key as the
     dictionary key.
+    dictionary with each value as a dictionary
+    {{id: document (object dictionary)}}
     """
     recs = read(collection, db=db, no_id=no_id)
     recs_as_dict = {}
