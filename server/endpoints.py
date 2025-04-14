@@ -305,7 +305,28 @@ class Person(Resource):
 
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
+    @api.response(HTTPStatus.UNAUTHORIZED, 'Authorization header missing')
     def delete(self, email):
+        # extract Bearer email
+        print("ASDIOASDASD, ", request.headers)
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise wz.NotFound('Missing or invalid Authorization header')
+        bearer_email = auth_header.split(' ')[1].strip()
+        if not bearer_email:
+            raise wz.Unauthorized('No email found in Bearer token.')
+
+        # check if Bearer email matches the email in the route
+        if bearer_email != email:
+            # if not, check if Bearer email belongs to an editor
+            requester = ppl.read_one(bearer_email)
+            if not requester:
+                raise wz.Unauthorized(f"""Requester email not found:
+                                      {bearer_email}""")
+            roles = requester.get('roles', [])
+            if 'ED' not in roles:
+                raise wz.Unauthorized("""You are unauthorized to modify
+                                      another user""")
         ret = ppl.delete(email)
         if ret > 0:
             return {'Deleted': ret}
@@ -315,11 +336,31 @@ class Person(Resource):
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'Person not found')
     @api.response(HTTPStatus.NOT_ACCEPTABLE, 'Invalid data')
+    @api.response(HTTPStatus.UNAUTHORIZED, 'Authorization header missing')
     @api.expect(PEOPLE_UPDATE_FLDS)
     def put(self, email):
         """
         Update a person's details.
         """
+        # extract Bearer email
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise wz.Unauthorized('Missing or invalid Authorization header')
+        bearer_email = auth_header.split(' ')[1].strip()
+        if not bearer_email:
+            raise wz.Unauthorized('No email found in Bearer token.')
+        # check if Bearer email matches the email in the route
+        if bearer_email != email:
+            # if not, check if Bearer email belongs to an editor
+            requester = ppl.read_one(bearer_email)
+            if not requester:
+                raise wz.Unauthorized(f"""Requester email not found:
+                                      {bearer_email}""")
+            roles = requester.get('roles', [])
+            if 'ED' not in roles:
+                raise wz.Unauthorized("""You are unauthorized to modify
+                                      another user""")
+
         try:
             person = ppl.read_one(email)
             if not person:
