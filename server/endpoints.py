@@ -62,7 +62,6 @@ QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
 })
 
 QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
-    flds.ID: fields.String,
     flds.TITLE: fields.String,
     flds.AUTHOR: fields.String,
     flds.AUTHOR_EMAIL: fields.String,
