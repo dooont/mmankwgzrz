@@ -58,6 +58,7 @@ QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
     flds.AUTHOR_EMAIL: fields.String,
     flds.REFEREES: fields.List(fields.String),
     flds.STATE: fields.String,
+    flds.TEXT: fields.String,
 })
 
 QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
@@ -551,10 +552,11 @@ class QueryCreate(Resource):
             author_email = request.json.get(flds.AUTHOR_EMAIL)
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
+            text = request.json.get(flds.TEXT)
 
             new_manuscript = qry.create_manuscript(title, author,
                                                    author_email, referees,
-                                                   state)
+                                                   state, text)
             return {
                 MESSAGE: 'Manuscript added!',
                 RETURN: new_manuscript
