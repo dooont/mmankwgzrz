@@ -113,6 +113,7 @@ MANU_ACTION_FLDS = api.model('ManuscriptAction', {
     flds.REFEREES: fields.String,
     flds.CURR_STATE: fields.String,
     flds.ACTION: fields.String,
+    flds.TEXT: fields.String,
 })
 
 LOGIN_FLDS = api.model('Login', {
@@ -587,10 +588,11 @@ class HandleAction(Resource):
             action = request.json.get(flds.ACTION)
             new_state = qry.handle_action(curr_state, action,
                                           manu=manu, ref=ref)
+            text = request.json.get(flds.TEXT)
 
             qry.update(manu[flds.ID], manu[flds.TITLE], manu[flds.AUTHOR],
                        manu[flds.AUTHOR_EMAIL],
-                       manu[flds.REFEREES], new_state)
+                       manu[flds.REFEREES], new_state, text)
 
         except Exception as err:
             raise wz.NotAcceptable(f'Bad input: {err=}')
