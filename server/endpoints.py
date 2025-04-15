@@ -68,6 +68,7 @@ QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
     flds.AUTHOR_EMAIL: fields.String,
     flds.REFEREES: fields.List(fields.String),
     flds.STATE: fields.String,
+    flds.TEXT: fields.String,
 })
 
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
@@ -502,6 +503,7 @@ class QueryEntry(Resource):
         author_email = request.json.get(flds.AUTHOR_EMAIL)
         referees = request.json.get(flds.REFEREES)
         state = request.json.get(flds.STATE)
+        text = request.json.get(flds.TEXT)
 
         if not qry.exists(id):
             raise wz.NotFound(f'No such manuscript with id: {id}')
@@ -510,7 +512,7 @@ class QueryEntry(Resource):
             raise wz.BadRequest(f'Invalid manuscript state: {state}')
 
         updated_manu = qry.update(
-            id, title, author, author_email, referees, state)
+            id, title, author, author_email, referees, state, text)
 
         return {
             MESSAGE: 'Manuscript updated successfully',
