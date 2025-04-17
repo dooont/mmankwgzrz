@@ -18,9 +18,18 @@ import data.manuscripts.fields as flds
 import data.roles as rls
 import data.account as acc
 
+import subprocess
+
+from dotenv import load_dotenv
+import os
+
+
 app = Flask(__name__)
 CORS(app)
 api = Api(app)
+
+load_dotenv()
+ERROR_FILE = os.getenv("ERROR_FILE")
 
 ACCOUNT_EP = '/account'
 DATE = '2024-09-24'
@@ -51,6 +60,7 @@ TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
 TITLE_RESP = 'Title'
 
+LOG_DIR = '/var/log'
 
 QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
     flds.TITLE: fields.String,
@@ -125,6 +135,18 @@ REGISTER_FLDS = api.model('Register', {
     acc.EMAIL: fields.String,
     acc.PASSWORD: fields.String,
 })
+
+
+@api.route('/log/error')
+class ErrorLog(Resource):
+    """
+    Returns the last few lines of the server error log.
+    """
+    def get(self):
+        filepath = f'{LOG_DIR}/{ERROR_FILE}'
+        result = subprocess.run(f'tail {filepath}', shell=True,
+                                stdout=subprocess.PIPE, text=True)
+        return {'error_log': result.stdout.strip()}
 
 
 @api.route(HELLO_EP)
