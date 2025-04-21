@@ -240,12 +240,7 @@ STATE_TABLE = {
         },
         **COMMON_ACTIONS,
     },
-    PUBLISHED: {
-        ACTIONS['DONE']: {
-            FUNC: lambda **kwargs: PUBLISHED,
-        },
-        **COMMON_ACTIONS,
-    },
+    PUBLISHED: {},
     REFEREE_REVIEW: {
         ACTIONS['ACCEPT']: {
             FUNC: lambda **kwargs: COPY_EDIT,
@@ -264,12 +259,7 @@ STATE_TABLE = {
         },
         **COMMON_ACTIONS,
     }, 
-    REJECTED: {
-        ACTIONS['DONE']: {
-            FUNC: lambda **kwargs: REJECTED,
-        },
-        **COMMON_ACTIONS,
-    },
+    REJECTED: {},
     SUBMITTED: {
         ACTIONS['ASSIGN_REF']: {
             FUNC: assign_ref,
@@ -279,9 +269,7 @@ STATE_TABLE = {
         },
         **COMMON_ACTIONS,
     },
-    WITHDRAWN: {
-        **COMMON_ACTIONS,
-    },
+    WITHDRAWN: {},
 }
 
 

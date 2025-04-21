@@ -278,15 +278,6 @@ def test_handle_action():
     assert mqry.handle_action(mqry.FORMATTING, 
                               mqry.ACTIONS['DONE'], 
                               manu=manu) == mqry.PUBLISHED
-    assert mqry.handle_action(mqry.PUBLISHED, 
-                              mqry.ACTIONS['DONE'], 
-                              manu=manu) == mqry.PUBLISHED
-    assert mqry.handle_action(mqry.REJECTED, 
-                              mqry.ACTIONS['DONE'], 
-                              manu=manu) == mqry.REJECTED
-    assert mqry.handle_action(mqry.WITHDRAWN, 
-                              mqry.ACTIONS['WITHDRAW'], 
-                              manu=manu) == mqry.WITHDRAWN
     
 
 def test_assign_ref(temp_manu):
