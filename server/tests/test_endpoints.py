@@ -90,57 +90,6 @@ def test_people_create_form():
     assert form_data[ep.ppl.ROLES] == 'list of strings'
 
 
-# TODO: fix test. add bearer field
-# def test_update_person():
-#     test_email = 'ejc369@nyu.edu'
-#     update_data = {
-#         ep.ppl.NAME: 'Updated Name',
-#         ep.ppl.AFFILIATION: 'New Affiliation',
-#         ep.ppl.ROLES: ['AU', 'CE'],
-#     }
-
-#     # Success case
-#     with patch('data.people.read_one', autospec=True) as mock_read_one, \
-#          patch('data.people.update', autospec=True, return_value=update_data) as mock_update:
-#         # Mock that person exists
-#         mock_read_one.return_value = {'email': test_email}  
-        
-#         resp = TEST_CLIENT.put(
-#             f'{ep.PEOPLE_EP}/{test_email}',
-#             json=update_data
-#         )
-
-#         assert resp.status_code == OK
-#         resp_json = resp.get_json()
-#         assert ep.MESSAGE in resp_json
-#         assert ep.RETURN in resp_json
-#         assert resp_json[ep.RETURN] == update_data 
-#         mock_read_one.assert_called_once_with(test_email)
-#         mock_update.assert_called_once()
-
-#     # Nonexistent email case
-#     with patch('data.people.read_one', return_value=None):
-#         resp = TEST_CLIENT.put(
-#             f'{ep.PEOPLE_EP}/nonexistent@nyu.edu',
-#             json=update_data
-#         )
-#         assert resp.status_code == NOT_FOUND
-
-#     # Invalid data case
-#     with patch('data.people.read_one') as mock_read_one:
-#         mock_read_one.return_value = {'email': test_email}  
-#         invalid_data = {
-#             ep.ppl.NAME: '',  # invalid empty name
-#             ep.ppl.AFFILIATION: '',
-#             ep.ppl.ROLES: ['nonexistent_role'],  # invalid role
-#         }
-#         resp = TEST_CLIENT.put(
-#             f'{ep.PEOPLE_EP}/{test_email}',
-#             json=invalid_data
-#         )
-#         assert resp.status_code == NOT_ACCEPTABLE
-
-
 @patch('data.people.exists', autospec=True)
 @patch('data.people.create', autospec=True, return_value='test@nyu.edu')
 def test_create_person(mock_create, mock_exists):
@@ -636,6 +585,65 @@ def test_person_delete_unauthorized(mock_delete, mock_read_one):
     resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/{target_email}', headers=headers)
 
     assert resp.status_code == UNAUTHORIZED
+
+
+# TODO: fix test. add bearer field
+def test_update_person():
+    test_email = 'ejc369@nyu.edu'
+    bearer_email = 'ejc369@nyu.edu'
+    update_data = {
+        ep.ppl.NAME: 'Updated Name',
+        ep.ppl.AFFILIATION: 'New Affiliation',
+        ep.ppl.ROLES: ['AU', 'CE'],
+    }
+    headers = {
+        'Authorization': f'Bearer {bearer_email}'
+        }
+
+    # Success case
+    with patch('data.people.read_one', autospec=True) as mock_read_one, \
+         patch('data.people.update', autospec=True, return_value=update_data) as mock_update:
+        # Mock that person exists
+        mock_read_one.return_value = {'email': test_email}  
+        
+        
+        resp = TEST_CLIENT.put(
+            f'{ep.PEOPLE_EP}/{test_email}',
+            json=update_data,
+            headers=headers
+        )
+
+        assert resp.status_code == OK
+        resp_json = resp.get_json()
+        assert ep.MESSAGE in resp_json
+        assert ep.RETURN in resp_json
+        assert resp_json[ep.RETURN] == update_data 
+        mock_read_one.assert_called_once_with(test_email)
+        mock_update.assert_called_once()
+
+    # Nonexistent email case
+    with patch('data.people.read_one', return_value=None):
+        resp = TEST_CLIENT.put(
+            f'{ep.PEOPLE_EP}/nonexistent@nyu.edu',
+            json=update_data,
+            headers=headers
+        )
+        assert resp.status_code == NOT_FOUND
+
+    # # Invalid data case
+    with patch('data.people.read_one') as mock_read_one:
+        mock_read_one.return_value = {'email': test_email}  
+        invalid_data = {
+            ep.ppl.NAME: '',  # invalid empty name
+            ep.ppl.AFFILIATION: '',
+            ep.ppl.ROLES: ['nonexistent_role'],  # invalid role
+        }
+        resp = TEST_CLIENT.put(
+            f'{ep.PEOPLE_EP}/{test_email}',
+            json=invalid_data,
+            headers=headers
+        )
+        assert resp.status_code == NOT_ACCEPTABLE
 
 
 @patch('data.people.read_one', return_value={'roles': []})

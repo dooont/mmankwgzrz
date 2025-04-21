@@ -332,7 +332,6 @@ class Person(Resource):
     @api.response(HTTPStatus.UNAUTHORIZED, 'Authorization header missing')
     def delete(self, email):
         # extract Bearer email
-        print("ASDIOASDASD, ", request.headers)
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
             raise wz.NotFound('Missing or invalid Authorization header')
@@ -369,16 +368,16 @@ class Person(Resource):
         # extract Bearer email
         auth_header = request.headers.get('Authorization')
         if not auth_header or not auth_header.startswith('Bearer '):
-            raise wz.Unauthorized('Missing or invalid Authorization header')
+            raise wz.Unauthorized('You must log in to perform this action.')
         bearer_email = auth_header.split(' ')[1].strip()
         if not bearer_email:
-            raise wz.Unauthorized('No email found in Bearer token.')
+            raise wz.Unauthorized('You must log in to perform this action.')
         # check if Bearer email matches the email in the route
         if bearer_email != email:
             # if not, check if Bearer email belongs to an editor
             requester = ppl.read_one(bearer_email)
             if not requester:
-                raise wz.Unauthorized(f"""Requester email not found:
+                raise wz.NotFound(f"""Requester email not found:
                                       {bearer_email}""")
             roles = requester.get('roles', [])
             if 'ED' not in roles:
