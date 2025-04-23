@@ -18,6 +18,8 @@ import data.manuscripts.fields as flds
 import data.roles as rls
 import data.account as acc
 
+import security.security as sec
+
 import subprocess
 
 from dotenv import load_dotenv
@@ -281,6 +283,35 @@ class Account(Resource):
             }, HTTPStatus.OK
         except ValueError as err:
             raise wz.BadRequest(f'Could not delete account: {str(err)}')
+
+
+@api.route('/permissions')
+class Permissions(Resource):
+    """
+    Check if a user has permission to perform a specific action on a feature.
+    """
+    @api.doc(params={
+        'feature': 'The feature to access (e.g. "text")',
+        'action': 'The action to perform (e.g. "update")',
+        'user_email': 'The email of the user'
+    })
+    @api.response(HTTPStatus.OK, 'Permission check result')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid parameters')
+    def get(self):
+        """
+        Check if the user has permission to perform an action on a feature.
+        """
+        feature = request.args.get(sec.FEATURE)
+        action = request.args.get(sec.ACTION)
+        user_email = request.args.get(sec.USER_EMAIL)
+
+        if not feature or not action or not user_email:
+            raise wz.BadRequest("Missing required query parameters: " +
+                                "feature, action, user email")
+
+        allowed = sec.is_permitted(feature, action, user_email)
+
+        return {"permitted": allowed}
 
 
 @api.route(f'{PEOPLE_EP}/create/form')

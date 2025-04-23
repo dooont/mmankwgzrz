@@ -17,6 +17,8 @@ from data.manuscripts import form
 from data.manuscripts import query 
 from data.manuscripts import fields as flds
 
+import security.security as sec
+
 import server.endpoints as ep
 
 TEST_CLIENT = ep.app.test_client()
@@ -46,6 +48,31 @@ def test_get_repo_name():
     assert ep.REPO_NAME_RESP in resp_json
     assert isinstance(resp_json[ep.REPO_NAME_RESP], str)
     assert len(resp_json[ep.REPO_NAME_RESP]) > 0
+
+
+@patch('security.security.is_permitted', return_value=True)
+def test_permissions_granted(mock_permitted):
+    resp = TEST_CLIENT.get('/permissions?feature=text&action=update&user_email=editor@nyu.edu')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert "permitted" in resp_json
+    assert resp_json["permitted"] is True
+    mock_permitted.assert_called_once_with("text", "update", "editor@nyu.edu")
+
+
+@patch('security.security.is_permitted', return_value=False)
+def test_permissions_denied(mock_permitted):
+    resp = TEST_CLIENT.get('/permissions?feature=text&action=update&user_email=author@nyu.edu')
+    assert resp.status_code == OK
+    resp_json = resp.get_json()
+    assert "permitted" in resp_json
+    assert resp_json["permitted"] is False
+    mock_permitted.assert_called_once_with("text", "update", "author@nyu.edu")
+
+
+def test_permissions_missing_params():
+    resp = TEST_CLIENT.get('/permissions')
+    assert resp.status_code == BAD_REQUEST
 
 
 @patch('data.people.read', autospec=True,

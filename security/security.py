@@ -14,12 +14,19 @@ DELETE = 'delete'
 TEXT = 'text'
 
 # Role Constants
+CONSULTING_EDITOR = 'CE'
 EDITOR = 'ED'
+MANAGING_EDITOR = 'ME'
+
+# Field Constants
+FEATURE = 'feature'
+ACTION = 'action'
+USER_EMAIL = 'user_email'
 
 # Permission rules: define which roles can do what on which feature
 PERMISSION_RULES = {
     TEXT: {
-        UPDATE: [EDITOR],
+        UPDATE: [CONSULTING_EDITOR, EDITOR, MANAGING_EDITOR],
     },
 }
 
