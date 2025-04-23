@@ -1,102 +1,46 @@
-from functools import wraps
-
-# import data.db_connect as dbc
-
 """
-Our record format to meet our requirements (see security.md) will be:
-
-{
-    feature_name1: {
-        create: {
-            user_list: [],
-            checks: {
-                login: True,
-                ip_address: False,
-                dual_factor: False,
-                # etc.
-            },
-        },
-        read: {
-            user_list: [],
-            checks: {
-                login: True,
-                ip_address: False,
-                dual_factor: False,
-                # etc.
-            },
-        },
-        update: {
-            user_list: [],
-            checks: {
-                login: True,
-                ip_address: False,
-                dual_factor: False,
-                # etc.
-            },
-        },
-        delete: {
-            user_list: [],
-            checks: {
-                login: True,
-                ip_address: False,
-                dual_factor: False,
-                # etc.
-            },
-        },
-    },
-    feature_name2: # etc.
-}
+This module is for security access control based on roles.
 """
 
-COLLECT_NAME = 'security'
+import data.people as ppl
+
+# Action Constants
 CREATE = 'create'
 READ = 'read'
 UPDATE = 'update'
 DELETE = 'delete'
-USER_LIST = 'user_list'
-CHECKS = 'checks'
-LOGIN = 'login'
 
-# Features:
-PEOPLE = 'people'
+# Feature Constants
+TEXT = 'text'
 
-security_recs = None
-# These will come from the DB soon:
-temp_recs = {
-    PEOPLE: {
-        CREATE: {
-            USER_LIST: ['ejc369@nyu.edu'],
-            CHECKS: {
-                LOGIN: True,
-            },
-        },
+# Role Constants
+EDITOR = 'ED'
+
+# Permission rules: define which roles can do what on which feature
+PERMISSION_RULES = {
+    TEXT: {
+        UPDATE: [EDITOR],
     },
 }
 
 
-def read() -> dict:
-    global security_recs
-    # dbc.read()
-    security_recs = temp_recs
-    return security_recs
-
-
-def needs_recs(fn):
+def is_permitted(feature: str, action: str, user_email: str) -> bool:
     """
-    Should be used to decorate any function that directly accesses sec recs.
+    Checks if a user is allowed to perform the specified action on a feature.
+    Looks up the required roles and checks if the user has any of them.
     """
-    @wraps(fn)
-    def wrapper(*args, **kwargs):
-        global security_recs
-        if not security_recs:
-            security_recs = read()
-        return fn(*args, **kwargs)
-    return wrapper
+    # If the feature/action is not protected, disallow by default
+    if feature not in PERMISSION_RULES:
+        return False
+    if action not in PERMISSION_RULES[feature]:
+        return False
 
+    required_roles = PERMISSION_RULES[feature][action]
+    user = ppl.read_one(user_email)
+    if not user:
+        return False
 
-@needs_recs
-def read_feature(feature_name: str) -> dict:
-    if feature_name in security_recs:
-        return security_recs[feature_name]
-    else:
-        return None
+    for role in required_roles:
+        if ppl.has_role(user, role):
+            return True
+    return False
