@@ -525,6 +525,7 @@ class QueryEntry(Resource):
         referees = request.json.get(flds.REFEREES)
         state = request.json.get(flds.STATE)
         text = request.json.get(flds.TEXT)
+        abstract = request.json.get(flds.ABSTRACT)
 
         if not qry.exists(id):
             raise wz.NotFound(f'No such manuscript with id: {id}')
@@ -533,7 +534,8 @@ class QueryEntry(Resource):
             raise wz.BadRequest(f'Invalid manuscript state: {state}')
 
         updated_manu = qry.update(
-            id, title, author, author_email, referees, state, text)
+            id, title, author, author_email, referees, state, text,
+            abstract)
 
         return {
             MESSAGE: 'Manuscript updated successfully',
@@ -576,10 +578,11 @@ class QueryCreate(Resource):
             referees = request.json.get(flds.REFEREES)
             state = request.json.get(flds.STATE)
             text = request.json.get(flds.TEXT)
+            abstract = request.json.get(flds.TEXT)
 
             new_manuscript = qry.create_manuscript(title, author,
                                                    author_email, referees,
-                                                   state, text)
+                                                   state, text, abstract)
             return {
                 MESSAGE: 'Manuscript added!',
                 RETURN: new_manuscript
@@ -610,10 +613,11 @@ class HandleAction(Resource):
             new_state = qry.handle_action(curr_state, action,
                                           manu=manu, ref=ref)
             text = request.json.get(flds.TEXT)
+            abstract = request.json.get(flds.ABSTRACT)
 
             qry.update(manu[flds.ID], manu[flds.TITLE], manu[flds.AUTHOR],
                        manu[flds.AUTHOR_EMAIL],
-                       manu[flds.REFEREES], new_state, text)
+                       manu[flds.REFEREES], new_state, text, abstract)
 
         except Exception as err:
             raise wz.NotAcceptable(f'Bad input: {err=}')

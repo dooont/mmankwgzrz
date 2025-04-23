@@ -237,9 +237,9 @@ def test_get_masthead(mock_masthead):
 
 
 @patch('data.manuscripts.query.get_manuscripts', return_value={'id': {flds.TITLE: 'Three Bears', 
-                                                    flds.AUTHOR: 'Andy Ng', flds.AUTHOR_EMAIL: 'an3299@nyu.edu', 
-                                                    flds.REFEREES: ['bob898@nyu.edu'], flds.STATE: 'Submitted', 
-                                                    flds.ACTION: 'Assign Ref'}})
+                                                    flds.AUTHOR: 'Andy Ng', flds.AUTHOR_EMAIL: 'an3299@nyu.edu',
+                                                    flds.REFEREES: ['bob898@nyu.edu'], flds.STATE: 'Submitted',
+                                                    flds.TEXT: 'Text', flds.ABSTRACT: 'Abstract'}})
 def test_get_manuscripts(mock_read):
         resp = TEST_CLIENT.get(f'{ep.QUERY_EP}')
         assert resp.status_code == OK
@@ -253,7 +253,9 @@ def test_get_manuscripts(mock_read):
             assert flds.AUTHOR_EMAIL in manuscript
             assert flds.REFEREES in manuscript
             assert flds.STATE in manuscript
-            assert flds.ACTION in manuscript
+            assert flds.TEXT in manuscript
+            assert flds.ABSTRACT in manuscript
+            # assert flds.ACTION in manuscript
 
 
 @patch('data.manuscripts.query.exists')
@@ -267,7 +269,9 @@ def test_create_manuscript(mock_create, mock_exists):
         flds.AUTHOR: 'Test Author',
         flds.AUTHOR_EMAIL: 'test@nyu.com',
         flds.REFEREES: [],
-        flds.STATE: 'SUB'
+        flds.STATE: 'SUB',
+        flds.TEXT: 'Text',
+        flds.ABSTRACT: 'Abstract',
     }
     
     resp = TEST_CLIENT.put(f'{ep.QUERY_EP}/create', json=test_data)
@@ -290,7 +294,9 @@ def test_update_manuscript(mock_update, mock_exists):
         flds.AUTHOR: 'Test Author',
         flds.AUTHOR_EMAIL: 'test@nyu.com',
         flds.REFEREES: [],
-        flds.STATE: 'SUB'
+        flds.STATE: 'SUB',
+        flds.TEXT: 'Text',
+        flds.ABSTRACT: 'Abstract',
     }
 
     response = TEST_CLIENT.put(f'{ep.QUERY_EP}/1', json=test_data)
@@ -310,7 +316,9 @@ def test_get_one_manuscript(mock_get_one):
         flds.AUTHOR: 'Test Author',
         flds.AUTHOR_EMAIL: 'test@nyu.com',
         flds.REFEREES: [],
-        flds.STATE: 'SUB'
+        flds.STATE: 'SUB',
+        flds.TEXT: 'Text',
+        flds.ABSTRACT: 'Abstract',
     }
 
     response = TEST_CLIENT.get(f'{ep.QUERY_EP}/1')
@@ -320,6 +328,9 @@ def test_get_one_manuscript(mock_get_one):
     assert response_json[flds.TITLE] == 'Test Manuscript'
     assert response_json[flds.AUTHOR] == 'Test Author'
     assert response_json[flds.AUTHOR_EMAIL] == 'test@nyu.com'
+    assert response_json[flds.STATE] == 'SUB'
+    assert response_json[flds.TEXT] =='Text'
+    assert response_json[flds.ABSTRACT] == 'Abstract'
 
 
 @patch('data.manuscripts.query.delete')

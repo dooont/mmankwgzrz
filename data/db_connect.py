@@ -59,7 +59,7 @@ def create(collection: str, doc: dict, db=JOURNAL_DB):
 
 def read_one(collection: str, filt: dict, db=JOURNAL_DB) -> Union[dict, None]:
     """
-    Find with a filter and return on the first doc found.
+    Find with a filter and return on the first doc/dict found.
     Return None if not found.
     """
     doc = client[db][collection].find_one(filt)
