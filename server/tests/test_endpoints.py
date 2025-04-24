@@ -686,24 +686,32 @@ def test_update_person():
 
 @patch('data.people.read_one', return_value={'roles': []})
 @patch('data.people.delete', return_value=0)
-def test_account_delete_fail(mock_delete, mock_read_one):
-    email = 'nonexistent@nyu.edu'
+def test_account_delete_unauthorized(mock_delete, mock_read_one):
+    email = 'email@nyu.edu'
     headers = {
-        'Authorization': f'Bearer {email}'
+        'Authorization': f'Bearer unauthorized@nyu.edu'
     }
-    resp = TEST_CLIENT.delete(f'{ep.PEOPLE_EP}/{email}', headers=headers)
-    assert resp.status_code == NOT_FOUND
+    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}', headers=headers)
+    assert resp.status_code == UNAUTHORIZED
 
 
 @patch('data.account.delete', return_value=True)
-def test_account_delete_success(mock_delete):
+@patch('data.people.delete', return_value=1)
+def test_account_delete_success(mock_account_delete, mock_people_delete):
     email = 'email@nyu.edu'
-    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}')
+    headers = {
+        'Authorization': f'Bearer {email}'
+    }
+    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}', headers=headers)
     assert resp.status_code == OK
 
 
 @patch('data.account.delete', side_effect=ValueError("Account does not exist"))
-def test_account_delete_fail(mock_delete):
+@patch('data.people.delete', return_value=0)
+def test_account_delete_fail(mock_account_delete, mock_people_delete):
     email = 'nonexistent@nyu.edu'
-    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}')
+    headers = {
+        'Authorization': f'Bearer {email}'
+    }
+    resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}', headers=headers)
     assert resp.status_code == BAD_REQUEST

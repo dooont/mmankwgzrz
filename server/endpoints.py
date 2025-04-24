@@ -277,13 +277,36 @@ class Account(Resource):
     """
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such account.')
-    # TODO: protect endpoint
+    @api.response(HTTPStatus.UNAUTHORIZED, 'Missing or invalid '
+                  'Authorization header. Please log back in.')
     def delete(self, email):
         """
         Deletes the user account.
         """
+        # extract Bearer email
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise wz.Unauthorized('Missing or invalid Authorization header. '
+                                  'Please log back in.')
+        bearer_email = auth_header.split(' ')[1].strip()
+        if not bearer_email:
+            raise wz.Unauthorized('Missing email in Authorization header. '
+                                  'Please log back in.')
+        # check if Bearer email matches the email in the route
+        if bearer_email != email:
+            # if not, check if Bearer email belongs to an editor
+            requester = ppl.read_one(bearer_email)
+            if not requester:
+                raise wz.NotFound(f"""Email not found:
+                                      {bearer_email}""")
+            roles = requester.get('roles', [])
+            if 'ED' not in roles:
+                raise wz.Unauthorized("""You are unauthorized to modify
+                                      another user.""")
         try:
             acc.delete(email)
+            # delete from people collection too
+            ppl.delete(email)
             return {
                 MESSAGE: f'Successfully deleted account: {email}',
             }, HTTPStatus.OK
@@ -423,7 +446,7 @@ class Person(Resource):
             # if not, check if Bearer email belongs to an editor
             requester = ppl.read_one(bearer_email)
             if not requester:
-                raise wz.Unauthorized(f"""Requester email not found:
+                raise wz.NotFound(f"""Requester email not found:
                                       {bearer_email}""")
             roles = requester.get('roles', [])
             if 'ED' not in roles:
