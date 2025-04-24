@@ -707,7 +707,7 @@ class HandleAction(Resource):
         try:
             id = request.json.get(flds.ID)
             manu = qry.get_one_manu(id)
-            curr_state = manu.get(flds.CURR_STATE)
+            curr_state = manu[flds.CURR_STATE]
             action = request.json.get(flds.ACTION)
             ref = request.json.get(flds.REFEREES)
             new_state = qry.handle_action(curr_state, action,
