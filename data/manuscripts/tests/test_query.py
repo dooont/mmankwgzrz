@@ -184,7 +184,7 @@ def test_get_manuscripts(temp_manu):
         assert flds.REFEREES in manuscript
         assert flds.STATE in manuscript
         assert flds.TEXT in manuscript
-        # assert flds.ABSTRACT in manuscript
+        assert flds.ABSTRACT in manuscript
 
     
     assert temp_manu in manuscripts

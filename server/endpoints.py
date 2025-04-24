@@ -138,6 +138,11 @@ REGISTER_FLDS = api.model('Register', {
     acc.PASSWORD: fields.String,
 })
 
+CHANGE_ACC_PW_FLDS = api.model('ChangeAccountPW', {
+    'oldPassword': fields.String,
+    'newPassword': fields.String,
+})
+
 
 @api.route('/log/error')
 class ErrorLog(Resource):
@@ -272,6 +277,7 @@ class Account(Resource):
     """
     @api.response(HTTPStatus.OK, 'Success')
     @api.response(HTTPStatus.NOT_FOUND, 'No such account.')
+    # TODO: protect endpoint
     def delete(self, email):
         """
         Deletes the user account.
@@ -283,6 +289,48 @@ class Account(Resource):
             }, HTTPStatus.OK
         except ValueError as err:
             raise wz.BadRequest(f'Could not delete account: {str(err)}')
+
+
+@api.route(f'{ACCOUNT_EP}/password')
+class AccountPassword(Resource):
+    """
+    Changes the user's password
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Invalid request')
+    @api.response(HTTPStatus.NOT_FOUND, 'No such person.')
+    @api.response(HTTPStatus.UNAUTHORIZED, 'Missing or invalid '
+                  'Authorization header. Please log back in.')
+    @api.expect(CHANGE_ACC_PW_FLDS)
+    def post(self):
+        """
+        Updates the user's password.
+        """
+        # extract Bearer email
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            raise wz.Unauthorized('Missing or invalid Authorization header. '
+                                  'Please log back in.')
+        bearer_email = auth_header.split(' ')[1].strip()
+        if not bearer_email:
+            raise wz.Unauthorized('Missing email in Authorization header. '
+                                  'Please log back in.')
+
+        # first confirm the old password is correct
+        if not acc.check_password(request.json.get("oldPassword"),
+                                  acc.get_password(bearer_email)):
+            raise wz.Unauthorized('Your old password is incorrect.')
+        try:
+            # check that new password is valid
+            acc.is_valid_password(request.json.get("newPassword"))
+            # change the password
+            if acc.change_password(request.json.get("newPassword"),
+                                   bearer_email):
+                return {"message": "Successfully updated password."}
+            raise wz.NotFound("Email not found.")
+        except ValueError as e:
+            # rethrow the error
+            raise wz.BadRequest(str(e))
 
 
 @api.route('/permissions')

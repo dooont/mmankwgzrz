@@ -28,6 +28,17 @@ def check_password(password: str, hashed_password: str) -> bool:
     return bcrypt.checkpw(password.encode(), hashed_password.encode())
 
 
+def change_password(new_password: str, email: str) -> bool:
+    """
+    Change password from old to new.
+    """
+    result = dbc.update(ACCOUNT_COLLECT, {EMAIL: email},
+                        {PASSWORD: hash_password(new_password)})
+    if result.matched_count > 0:
+        return True
+    return False
+
+
 def is_valid_password(password: str) -> bool:
     """
     Validates password requirements:
@@ -87,7 +98,12 @@ def login(email: str, password: str) -> bool:
     return True
 
 
-def delete(email: str) -> bool:
+def get_password(email: str):
+    account = dbc.read_one(ACCOUNT_COLLECT, {EMAIL: email})
+    return account[PASSWORD]
+
+
+def delete(email: str) -> int:
     """
     Deletes a user's account.
     """
