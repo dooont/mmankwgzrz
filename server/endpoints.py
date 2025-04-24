@@ -122,10 +122,8 @@ TEXT_UPDATE_FLDS = api.model('UpdateTextEntry', {
 
 MANU_ACTION_FLDS = api.model('ManuscriptAction', {
     flds.ID: fields.String,
-    flds.REFEREES: fields.String,
-    flds.CURR_STATE: fields.String,
     flds.ACTION: fields.String,
-    flds.TEXT: fields.String,
+    flds.REFEREES: fields.String,
 })
 
 LOGIN_FLDS = api.model('Login', {
@@ -709,17 +707,16 @@ class HandleAction(Resource):
         try:
             id = request.json.get(flds.ID)
             manu = qry.get_one_manu(id)
-            ref = request.json.get(flds.REFEREES)
-            curr_state = request.json.get(flds.CURR_STATE)
+            curr_state = manu.get(flds.CURR_STATE)
             action = request.json.get(flds.ACTION)
+            ref = request.json.get(flds.REFEREES)
             new_state = qry.handle_action(curr_state, action,
                                           manu=manu, ref=ref)
-            text = request.json.get(flds.TEXT)
-            abstract = request.json.get(flds.ABSTRACT)
 
             qry.update(manu[flds.ID], manu[flds.TITLE], manu[flds.AUTHOR],
                        manu[flds.AUTHOR_EMAIL],
-                       manu[flds.REFEREES], new_state, text, abstract)
+                       manu[flds.REFEREES], new_state, manu[flds.TEXT],
+                       manu[flds.ABSTRACT])
 
         except Exception as err:
             raise wz.NotAcceptable(f'Bad input: {err=}')
