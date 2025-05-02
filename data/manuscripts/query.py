@@ -1,5 +1,6 @@
 import data.manuscripts.fields as flds
 import data.people as ppl
+import data.roles as rls
 import data.db_connect as dbc
 
 from bson import ObjectId, errors
@@ -204,6 +205,26 @@ def delete_ref(manu: dict, ref: str) -> str:
         raise ValueError(f'Referee not in manuscript: {ref}')
     manu[flds.REFEREES].remove(ref)
     return REFEREE_REVIEW
+
+
+def get_active_manuscripts(user_email):
+    active_manuscripts = []
+    manuscripts = get_manuscripts()
+    user_roles = ppl.read_one(user_email)[ppl.ROLES]
+
+    for manu in manuscripts.values():
+        manu_state = manu[flds.STATE]
+
+        if rls.ED_CODE in user_roles:
+            if manu_state not in (WITHDRAWN, PUBLISHED, REJECTED):
+                active_manuscripts.append(manu)
+        else:
+            is_author = user_email == manu[flds.AUTHOR_EMAIL]
+            is_referee = user_email in manu[flds.REFEREES]
+            if is_author or is_referee:
+                active_manuscripts.append(manu)
+
+    return active_manuscripts
 
 
 COMMON_ACTIONS = {
