@@ -263,6 +263,29 @@ def test_get_masthead(mock_masthead):
     assert isinstance(resp_json[ep.MASTHEAD], dict)
 
 
+@patch('data.manuscripts.query.get_active_manuscripts')
+@patch('data.people.exists')
+def test_get_active_manuscripts_endpoint(mock_exists, mock_get_active):
+    test_email = 'user@example.com'
+    dummy_response = [{
+        flds.ID: '123',
+        flds.TITLE: 'Sample Manuscript',
+        flds.AUTHOR: 'Author Name',
+        flds.AUTHOR_EMAIL: test_email,
+        flds.REFEREES: [],
+        flds.STATE: 'SUB',
+        flds.TEXT: 'Some text',
+        flds.ABSTRACT: 'Some abstract'
+    }]
+    
+    mock_exists.return_value = True
+    mock_get_active.return_value = dummy_response
+
+    response = TEST_CLIENT.get(f'{ep.QUERY_EP}/active/{test_email}')
+    assert response.status_code == 200
+    assert response.get_json() == dummy_response
+
+
 @patch('data.manuscripts.query.get_manuscripts', return_value={'id': {flds.TITLE: 'Three Bears', 
                                                     flds.AUTHOR: 'Andy Ng', flds.AUTHOR_EMAIL: 'an3299@nyu.edu',
                                                     flds.REFEREES: ['bob898@nyu.edu'], flds.STATE: 'Submitted',

@@ -726,6 +726,30 @@ class HandleAction(Resource):
         }
 
 
+@api.route(f'{QUERY_EP}/active/<email>')
+class QueryActive(Resource):
+    """
+    Retrieve active manuscripts for a user.
+    """
+    @api.response(HTTPStatus.OK, 'Success')
+    @api.response(HTTPStatus.NOT_FOUND, 'User not found.')
+    def get(self, email):
+        """
+        Returns manuscripts based on user role and relation.
+        """
+        if not ppl.exists(email):
+            raise wz.NotFound(f"No such user: {email}")
+
+        try:
+            active_manuscripts = qry.get_active_manuscripts(email)
+        except Exception as err:
+            raise wz.NotAcceptable(
+                f"Error retrieving active manuscripts: {err}"
+                )
+
+        return active_manuscripts
+
+
 @api.route(f'{QUERY_EP}/states')
 class State(Resource):
     """
