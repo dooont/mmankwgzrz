@@ -447,7 +447,8 @@ class Person(Resource):
                 raise wz.NotFound(f"""Requester email not found:
                                       {bearer_email}""")
             roles = requester.get('roles', [])
-            if 'ED' not in roles:
+            if not any(role in roles for role in (
+                    rls.ED_CODE, rls.ME_CODE, rls.CE_CODE)):
                 raise wz.Unauthorized("""You are unauthorized to modify
                                       another user""")
         ret = ppl.delete(email)
@@ -480,7 +481,8 @@ class Person(Resource):
                 raise wz.NotFound(f"""Requester email not found:
                                       {bearer_email}""")
             roles = requester.get('roles', [])
-            if 'ED' not in roles:
+            if not any(role in roles for role in (
+                    rls.ED_CODE, rls.ME_CODE, rls.CE_CODE)):
                 raise wz.Unauthorized("""You are unauthorized to modify
                                       another user""")
 
