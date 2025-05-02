@@ -166,6 +166,21 @@ def test_delete(temp_manu):
 def test_get_manuscripts(temp_manu):
     manuscripts = mqry.get_manuscripts()
     assert isinstance(manuscripts, dict)
+    assert len(manuscripts) > 0
+
+    for _id, manuscript in manuscripts.items():
+        assert isinstance(_id, str)
+        assert isinstance(manuscript, dict)
+        assert flds.ID in manuscript
+        assert flds.TITLE in manuscript
+        assert flds.AUTHOR in manuscript
+        assert flds.AUTHOR_EMAIL in manuscript 
+        assert flds.REFEREES in manuscript
+        assert flds.STATE in manuscript
+        assert flds.TEXT in manuscript
+        if flds.ABSTRACT in manuscript:
+         assert isinstance(manuscript[flds.ABSTRACT], str)
+        # error outputs because some manuscripts extracted don't have abstract section from before
     assert temp_manu in manuscripts
 
 

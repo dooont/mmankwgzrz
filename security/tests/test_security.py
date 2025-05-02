@@ -1,6 +1,6 @@
 import pytest
 
-import security.security as sec
+import security as sec
 import data.people as ppl
 
 EDITOR_EMAIL = 'temp_editor@nyu.edu'
