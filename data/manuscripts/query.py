@@ -221,7 +221,7 @@ def get_active_manuscripts(user_email):
         else:
             is_author = user_email == manu[flds.AUTHOR_EMAIL]
             is_referee = user_email in manu[flds.REFEREES]
-            if is_author or is_referee:
+            if manu_state not in (WITHDRAWN, PUBLISHED, REJECTED) and (is_author or is_referee):
                 active_manuscripts.append(manu)
 
     return active_manuscripts
