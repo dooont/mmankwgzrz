@@ -254,6 +254,13 @@ def get_active_manuscripts(user_email):
         is_referee = user_email in manu[flds.REFEREES]
         if is_author or is_referee:
             active_manuscripts.append(manu)
+    
+    # Sort manuscripts by state
+    state_order = [
+        SUBMITTED, AUTHOR_REVISION, EDITOR_REVIEW, COPY_EDIT, AUTHOR_REVIEW, FORMATTING 
+    ]
+
+    active_manuscripts.sort(key=lambda m: state_order.index(m[flds.STATE]))
 
     return active_manuscripts
 
