@@ -262,3 +262,103 @@ def test_get_active_manuscripts_author(temp_person, temp_manu):
 def test_get_active_manuscripts_referee(temp_referee, temp_ref_manu):
     results = mqry.get_active_manuscripts(temp_referee)
     assert temp_ref_manu in [m[flds.ID] for m in results]
+
+
+def test_can_choose_action_author(temp_person, temp_manu):
+    manu = mqry.get_one_manu(temp_manu)
+    manu[flds.STATE] = mqry.SUBMITTED
+
+    person = ppl.read_one(temp_person)
+    ppl.update(person[ppl.NAME], person[ppl.AFFILIATION], temp_person, [rls.AUTHOR_CODE])
+    
+    assert mqry.can_choose_action(temp_manu, temp_person) is True
+
+
+def test_can_choose_action_referee(temp_person, temp_referee):
+    manu_id = mqry.create_manuscript(
+        "Test Ref Manu",
+        "Author",
+        temp_person,
+        temp_referee,
+        mqry.REFEREE_REVIEW,
+        "Text",
+        "Abstract"
+    )
+    try:
+        assert mqry.can_choose_action(manu_id, temp_referee)
+    finally:
+        mqry.delete(manu_id)
+
+
+def test_can_choose_action_editor(temp_person, temp_manu):
+    person = ppl.read_one(temp_person)
+    ppl.update(person[ppl.NAME], person[ppl.AFFILIATION], temp_person, [rls.ED_CODE])
+    
+    assert mqry.can_choose_action(temp_manu, temp_person) is True
+
+
+def test_valid_actions_author_withdraw(temp_person):
+    ppl.update("Author", "NYU", temp_person, [rls.AUTHOR_CODE])
+
+    manu_id = mqry.create_manuscript(
+        "Withdraw Test",
+        "Author",
+        temp_person,
+        "",
+        mqry.SUBMITTED,
+        "Text",
+        "Abstract"
+    )
+
+    try:
+        actions = mqry.get_valid_actions(manu_id, temp_person)
+        assert mqry.ACTIONS['WITHDRAW'] in actions
+    finally:
+        mqry.delete(manu_id)
+
+
+def test_valid_actions_referee_submit_review(temp_person, temp_referee):
+    ppl.update("Referee", "NYU", temp_referee, [rls.RE_CODE])
+
+    manu_id = mqry.create_manuscript(
+        "Ref Test",
+        "Author X",
+        temp_person,
+        temp_referee,
+        mqry.REFEREE_REVIEW,
+        "Ref text",
+        "Ref abstract"
+    )
+
+    try:
+        actions = mqry.get_valid_actions(manu_id, temp_referee)
+        assert mqry.ACTIONS['SUBMIT_REW'] in actions
+    finally:
+        mqry.delete(manu_id)
+
+
+def test_valid_actions_editor_assign_ref(temp_person):
+    author_email = "author1234@nyu.com"
+    if not ppl.exists(author_email):
+        ppl.create("Author Test", "NYU", author_email, [rls.AUTHOR_CODE])
+
+    ppl.update("Editor", "NYU", temp_person, [rls.ED_CODE])
+
+    manu_id = mqry.create_manuscript(
+        "Editor Test",
+        "Author Test",
+        author_email,
+        "",
+        mqry.SUBMITTED,
+        "Manu Text",
+        "Abstract"
+    )
+
+    try:
+        actions = mqry.get_valid_actions(manu_id, temp_person)
+        assert mqry.ACTIONS['ASSIGN_REF'] in actions
+    finally:
+        mqry.delete(manu_id)
+        ppl.delete(author_email)
+
+

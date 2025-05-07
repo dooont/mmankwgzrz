@@ -816,7 +816,7 @@ class ValidActions(Resource):
             raise wz.BadRequest("Missing user_email or manu_id")
 
         try:
-            actions = qry.get_valid_actions_by_state(manu_id, user_email)
+            actions = qry.get_valid_actions(manu_id, user_email)
             return actions
         except ValueError as e:
             raise wz.BadRequest(str(e))

@@ -388,7 +388,7 @@ ROLE_STATE_ACTIONS = {
 }
 
 
-def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
+def get_valid_actions(manu_id: str, user_email: str) -> list[str]:
     """
     Returns the list of valid actions the user can perform on the manuscript.
     """
