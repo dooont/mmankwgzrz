@@ -344,15 +344,17 @@ def can_choose_action(manu_id: str, user_email: str) -> bool:
     manu_state = manu[flds.STATE]
     user_info = ppl.read_one(user_email)
 
-    # Author trying to choose action
+    # Author logic
     if manu_author == user_email:
+        if ACTIONS['WITHDRAW'] in STATE_TABLE.get(manu_state, {}):
+            return True
         return manu_state in ROLE_CHOOSE_ACTION[rls.AUTHOR_CODE]
 
-    # Referee trying to choose action
+    # Referee logic
     if user_email in manu_referees:
         return manu_state in ROLE_CHOOSE_ACTION[rls.RE_CODE]
 
-    # Editor trying to choose action, but is not the author of manu
+    # Editor logic
     for editor_role in rls.MH_ROLES:
         if editor_role in user_info[ppl.ROLES]:
             if manu_author == user_email:
@@ -382,19 +384,21 @@ def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
 
     result = []
 
+    is_author = user_email == manu[flds.AUTHOR_EMAIL]
+
     for user_role in user_roles:
         role_actions = ROLE_ACTIONS.get(user_role, [])
+
+        if is_author and user_role in rls.MH_ROLES:
+            continue
+
         for action in next_actions:
             if action == ACTIONS['WITHDRAW']:
                 continue
             if action in role_actions and action not in result:
                 result.append(action)
 
-    if (
-        user_email == manu[flds.AUTHOR_EMAIL] and
-        ACTIONS['WITHDRAW'] in next_actions and
-        ACTIONS['WITHDRAW'] not in result
-    ):
+    if is_author and ACTIONS['WITHDRAW'] in next_actions and ACTIONS['WITHDRAW'] not in result:
         result.append(ACTIONS['WITHDRAW'])
 
     return result
