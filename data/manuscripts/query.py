@@ -47,11 +47,12 @@ TEST_STATE = SUBMITTED
 
 ACTION_NAMES = {
     'ACC': 'Accept',
-    'AWR': 'Accept with Review',
+    'AWR': 'Accept with Revisions',
     'ARF': 'Assign Referee',
     'DRF': 'Delete Referee',
     'DON': 'Done',
     'REJ': 'Reject',
+    'SBR': 'Submit Review',
     'WDN': 'Withdraw',
 }
 
@@ -63,6 +64,7 @@ ACTIONS = {
     'DELETE_REF': 'DRF',
     'DONE': 'DON',
     'REJECT': 'REJ',
+    'SUBMIT_REW': 'SBR',
     'WITHDRAW': 'WDN',
 }
 
@@ -214,7 +216,9 @@ def delete_ref(manu: dict, ref: str) -> str:
     if ref not in manu[flds.REFEREES]:
         raise ValueError(f'Referee not in manuscript: {ref}')
     manu[flds.REFEREES].remove(ref)
-    return REFEREE_REVIEW
+    if manu[flds.REFEREES]:
+        return REFEREE_REVIEW
+    return SUBMITTED
 
 
 def get_active_manuscripts(user_email):
@@ -290,6 +294,9 @@ STATE_TABLE = {
         },
         ACTIONS['DELETE_REF']: {
             FUNC: delete_ref,
+        },
+        ACTIONS['SUBMIT_REW']: {
+            FUNC: lambda **kwargs: REFEREE_REVIEW,
         },
         **COMMON_ACTIONS,
     }, 
