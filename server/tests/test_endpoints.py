@@ -563,7 +563,7 @@ def test_get_valid_actions():
     resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/actions/{query.REFEREE_REVIEW}')
     assert resp.status_code == OK
     resp_json = resp.get_json()
-    assert len(resp_json) == 6
+    assert len(resp_json) == 7
 
 @patch('data.account.login', side_effect=ValueError("Invalid credentials"))
 def test_login_fail(mock_login):
