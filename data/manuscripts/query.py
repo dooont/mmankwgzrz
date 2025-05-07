@@ -68,20 +68,6 @@ ACTIONS = {
     'WITHDRAW': 'WDN',
 }
 
-EDITOR_ACTIONS = [ ACTIONS['ACCEPT'],
-                   ACTIONS['ASSIGN_REF'],
-                   ACTIONS['DELETE_REF'], 
-                   ACTIONS['DONE'],
-                   ACTIONS['REJECT'] ]
-
-ROLE_ACTIONS = {
-    rls.ED_CODE: EDITOR_ACTIONS,
-    rls.CE_CODE: EDITOR_ACTIONS,
-    rls.ME_CODE: EDITOR_ACTIONS,
-    rls.AUTHOR_CODE: [ACTIONS['DONE'], ACTIONS['WITHDRAW']],
-    rls.RE_CODE: [ACTIONS['SUBMIT_REW']]
-}
-
 TEST_ACTION = ACTIONS['ACCEPT']
 
 SAMPLE_MANU = {
@@ -236,21 +222,31 @@ def delete_ref(manu: dict, ref: str) -> str:
 
 
 def get_active_manuscripts(user_email):
+    """
+    Returns active manuscripts visible to the given user.
+    """
     active_manuscripts = []
     manuscripts = get_manuscripts()
-    user_roles = ppl.read_one(user_email)[ppl.ROLES]
+    user_info = ppl.read_one(user_email)
+    user_roles = user_info.get(ppl.ROLES, [])
 
     for manu in manuscripts.values():
         manu_state = manu[flds.STATE]
 
-        if rls.ED_CODE in user_roles:
-            if manu_state not in (WITHDRAWN, PUBLISHED, REJECTED):
-                active_manuscripts.append(manu)
-        else:
-            is_author = user_email == manu[flds.AUTHOR_EMAIL]
-            is_referee = user_email in manu[flds.REFEREES]
-            if manu_state not in (WITHDRAWN, PUBLISHED, REJECTED) and (is_author or is_referee):
-                active_manuscripts.append(manu)
+        # Skip withdrawn/published/rejected
+        if manu_state in (WITHDRAWN, PUBLISHED, REJECTED):
+            continue
+
+        # Editors see all active manuscripts
+        if any(role in rls.MH_ROLES for role in user_roles):
+            active_manuscripts.append(manu)
+            continue
+
+        # Authors or referees see only their own
+        is_author = user_email == manu[flds.AUTHOR_EMAIL]
+        is_referee = user_email in manu[flds.REFEREES]
+        if is_author or is_referee:
+            active_manuscripts.append(manu)
 
     return active_manuscripts
 
@@ -364,6 +360,34 @@ def can_choose_action(manu_id: str, user_email: str) -> bool:
     return False
 
 
+EDITOR_ROLE_ACTIONS = {
+    SUBMITTED: [ACTIONS['ASSIGN_REF'], ACTIONS['REJECT']],
+    REFEREE_REVIEW: [
+        ACTIONS['ASSIGN_REF'],
+        ACTIONS['DELETE_REF'],
+        ACTIONS['ACCEPT'],
+        ACTIONS['ACCEPT_WITH_REV'],
+        ACTIONS['REJECT'],
+    ],
+    EDITOR_REVIEW: [ACTIONS['ACCEPT']],
+    COPY_EDIT: [ACTIONS['DONE']],
+    FORMATTING: [ACTIONS['DONE']],
+}
+
+ROLE_STATE_ACTIONS = {
+    rls.AUTHOR_CODE: {
+        AUTHOR_REVIEW: [ACTIONS['DONE']],
+        AUTHOR_REVISION: [ACTIONS['DONE']],
+    },
+    rls.RE_CODE: {
+        REFEREE_REVIEW: [ACTIONS['SUBMIT_REW']],
+    },
+    rls.ED_CODE: EDITOR_ROLE_ACTIONS,
+    rls.ME_CODE: EDITOR_ROLE_ACTIONS,
+    rls.CE_CODE: EDITOR_ROLE_ACTIONS,
+}
+
+
 def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
     """
     Returns the list of valid actions the user can perform on the manuscript.
@@ -379,25 +403,23 @@ def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
         raise ValueError(f"No such user: {user_email}")
     user_roles = user_info.get(ppl.ROLES, [])
 
-    state_actions = STATE_TABLE.get(manu_state, {})
-    next_actions = list(state_actions.keys())
-
     result = []
-
     is_author = user_email == manu[flds.AUTHOR_EMAIL]
+    next_actions = STATE_TABLE.get(manu_state, {}).keys()
 
-    for user_role in user_roles:
-        role_actions = ROLE_ACTIONS.get(user_role, [])
+    for role in user_roles:
+        state_actions = ROLE_STATE_ACTIONS.get(role, {})
+        allowed = state_actions.get(manu_state, [])
 
-        if is_author and user_role in rls.MH_ROLES:
+        # Skip editor actions on their own manuscript
+        if is_author and role in rls.MH_ROLES:
             continue
 
-        for action in next_actions:
-            if action == ACTIONS['WITHDRAW']:
-                continue
-            if action in role_actions and action not in result:
+        for action in allowed:
+            if action in next_actions and action not in result:
                 result.append(action)
 
+    # Author can always withdraw
     if is_author and ACTIONS['WITHDRAW'] in next_actions and ACTIONS['WITHDRAW'] not in result:
         result.append(ACTIONS['WITHDRAW'])
 
