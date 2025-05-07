@@ -559,11 +559,21 @@ def test_get_actions():
     assert 'WDN' in resp_json
 
 
-def test_get_valid_actions():
-    resp = TEST_CLIENT.get(f'{ep.QUERY_EP}/actions/{query.REFEREE_REVIEW}')
+@patch('data.people.read_one')
+def test_get_valid_actions_with_mock(mock_read_one):
+    mock_read_one.return_value = {
+        "email": "referee@nyu.com",
+        "roles": ["RE"]
+    }
+
+    resp = TEST_CLIENT.get(
+        f'{ep.QUERY_EP}/actions/{query.REFEREE_REVIEW}?user_email=referee@nyu.com'
+    )
     assert resp.status_code == OK
     resp_json = resp.get_json()
-    assert len(resp_json) == 7
+
+    assert "SBR" in resp_json
+
 
 @patch('data.account.login', side_effect=ValueError("Invalid credentials"))
 def test_login_fail(mock_login):

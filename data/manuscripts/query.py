@@ -68,6 +68,20 @@ ACTIONS = {
     'WITHDRAW': 'WDN',
 }
 
+EDITOR_ACTIONS = [ ACTIONS['ACCEPT'],
+                   ACTIONS['ASSIGN_REF'],
+                   ACTIONS['DELETE_REF'], 
+                   ACTIONS['DONE'],
+                   ACTIONS['REJECT'] ]
+
+ROLE_ACTIONS = {
+    rls.ED_CODE: EDITOR_ACTIONS,
+    rls.CE_CODE: EDITOR_ACTIONS,
+    rls.ME_CODE: EDITOR_ACTIONS,
+    rls.AUTHOR_CODE: [ACTIONS['DONE'], ACTIONS['WITHDRAW']],
+    rls.RE_CODE: [ACTIONS['SUBMIT_REW']]
+}
+
 TEST_ACTION = ACTIONS['ACCEPT']
 
 SAMPLE_MANU = {
@@ -314,10 +328,36 @@ STATE_TABLE = {
 }
 
 
-def get_valid_actions_by_state(state: str) -> list[str]:
-    return list(STATE_TABLE[state].keys())
-                
+def get_valid_actions_by_state(state: str, user_email: str) -> list[str]:
+    """
+    Returns the list of valid actions the user can perform at a given manuscript state.
+    """
+    if not is_valid_state(state):
+        raise ValueError(f"Invalid state: {state}")
 
+    user_info = ppl.read_one(user_email)
+    if not user_info:
+        raise ValueError(f"No such user: {user_email}")
+
+    user_roles = user_info.get(ppl.ROLES, [])
+    state_actions = STATE_TABLE.get(state, {})
+
+    permitted_actions = set()
+
+    for role in user_roles:
+        role_actions = ROLE_ACTIONS.get(role, [])
+
+        if state in ROLE_CHOOSE_ACTION.get(role, []):
+            for action in role_actions:
+                if action in state_actions:
+                    permitted_actions.add(action)
+
+        if ACTIONS['WITHDRAW'] in role_actions and ACTIONS['WITHDRAW'] in state_actions:
+            permitted_actions.add(ACTIONS['WITHDRAW'])
+
+    return list(permitted_actions)
+
+                
 def handle_action(curr_state, action, **kwargs) -> str:
     if curr_state not in STATE_TABLE:
         raise ValueError(f'Invalid state: {curr_state}')
