@@ -385,7 +385,9 @@ def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
     for user_role in user_roles:
         role_actions = ROLE_ACTIONS.get(user_role, [])
         for action in next_actions:
-            if action in role_actions:
+            if action == ACTIONS['WITHDRAW']:
+                continue
+            if action in role_actions and action not in result:
                 result.append(action)
 
     if (
