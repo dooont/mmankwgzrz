@@ -353,23 +353,26 @@ def can_choose_action(manu_id: str, user_email: str) -> bool:
     manu_referees = manu[flds.REFEREES]
     manu_state = manu[flds.STATE]
     user_info = ppl.read_one(user_email)
+    user_roles = user_info.get(ppl.ROLES, [])
 
     # Author logic
-    if manu_author == user_email:
+    if user_email == manu_author:
         if ACTIONS['WITHDRAW'] in STATE_TABLE.get(manu_state, {}):
             return True
-        return manu_state in ROLE_CHOOSE_ACTION[rls.AUTHOR_CODE]
+        if manu_state in ROLE_CHOOSE_ACTION.get(rls.AUTHOR_CODE, []):
+            return True
 
     # Referee logic
-    if user_email in manu_referees:
-        return manu_state in ROLE_CHOOSE_ACTION[rls.RE_CODE]
+    if rls.RE_CODE in user_roles and user_email in manu_referees:
+        if manu_state in ROLE_CHOOSE_ACTION.get(rls.RE_CODE, []):
+            return True
 
     # Editor logic
-    for editor_role in rls.MH_ROLES:
-        if editor_role in user_info[ppl.ROLES]:
-            if manu_author == user_email:
-                return False
-            return manu_state in ROLE_CHOOSE_ACTION[editor_role]
+    if user_email != manu_author:
+        for editor_role in rls.MH_ROLES:
+            if editor_role in user_roles:
+                if manu_state in ROLE_CHOOSE_ACTION.get(editor_role, []):
+                    return True
 
     return False
 
@@ -419,15 +422,20 @@ def get_valid_actions(manu_id: str, user_email: str) -> list[str]:
 
     result = []
     is_author = user_email == manu[flds.AUTHOR_EMAIL]
+    is_referee = user_email in manu[flds.REFEREES]
     next_actions = STATE_TABLE.get(manu_state, {}).keys()
 
     for role in user_roles:
-        state_actions = ROLE_STATE_ACTIONS.get(role, {})
-        allowed = state_actions.get(manu_state, [])
-
-        # Skip editor actions on their own manuscript
+        # Skip editor actions on your own manuscript
         if is_author and role in rls.MH_ROLES:
             continue
+
+        # Allow referee actions only if you're actually assigned
+        if role == rls.RE_CODE and not is_referee:
+            continue
+
+        state_actions = ROLE_STATE_ACTIONS.get(role, {})
+        allowed = state_actions.get(manu_state, [])
 
         for action in allowed:
             if action in next_actions and action not in result:
