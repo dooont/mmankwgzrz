@@ -383,6 +383,32 @@ class Permissions(Resource):
         return {"permitted": allowed}
 
 
+@api.route('/query/can_choose_action')
+class CanChooseAction(Resource):
+    """
+    Determine if the given user can choose an action for a manuscript.
+    """
+    @api.doc(params={
+        'manu_id': 'The ID of the manuscript',
+        'user_email': 'The email of the user'
+    })
+    @api.response(HTTPStatus.OK, 'Permission check result')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid parameters')
+    def get(self):
+        manu_id = request.args.get('manu_id')
+        user_email = request.args.get('user_email')
+
+        if not manu_id or not user_email:
+            raise wz.BadRequest(
+                "Missing required query parameters: manu_id, user_email")
+
+        try:
+            permitted = qry.can_choose_action(manu_id, user_email)
+            return permitted
+        except Exception as e:
+            raise wz.BadRequest(f"Error checking action permissions: {str(e)}")
+
+
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
     """

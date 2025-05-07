@@ -33,6 +33,16 @@ VALID_STATES = {
     WITHDRAWN: 'Withdrawn',
 }
 
+EDITOR_CHOOSE_ACTION = [SUBMITTED, REFEREE_REVIEW, EDITOR_REVIEW, COPY_EDIT, FORMATTING]
+
+ROLE_CHOOSE_ACTION = {
+    rls.ED_CODE: EDITOR_CHOOSE_ACTION,
+    rls.CE_CODE: EDITOR_CHOOSE_ACTION,
+    rls.ME_CODE: EDITOR_CHOOSE_ACTION,
+    rls.AUTHOR_CODE: [AUTHOR_REVISION, AUTHOR_REVIEW],
+    rls.RE_CODE: [REFEREE_REVIEW]
+}
+
 TEST_STATE = SUBMITTED
 
 ACTION_NAMES = {
@@ -308,6 +318,31 @@ def handle_action(curr_state, action, **kwargs) -> str:
         raise ValueError(f'Invalid action: {action}')
 
     return STATE_TABLE[curr_state][action][FUNC](**kwargs)
+
+
+def can_choose_action(manu_id, user_email):
+    manu = get_one_manu(manu_id)
+    manu_author = manu[flds.AUTHOR_EMAIL]
+    manu_referees = manu[flds.REFEREES]
+    manu_state = manu[flds.STATE]
+    user_info = ppl.read_one(user_email)
+
+    # Author trying to choose action
+    if manu_author == user_email:
+        return manu_state in ROLE_CHOOSE_ACTION[rls.AUTHOR_CODE]
+
+    # Referee trying to choose action
+    if user_email in manu_referees:
+        return manu_state in ROLE_CHOOSE_ACTION[rls.RE_CODE]
+
+    # Editor trying to choose action, but is not the author of manu
+    for editor_role in rls.MH_ROLES:
+        if editor_role in user_info[ppl.ROLES]:
+            if manu_author == user_email:
+                return False
+            return manu_state in ROLE_CHOOSE_ACTION[editor_role]
+
+    return False
     
    
 def main():
