@@ -755,3 +755,59 @@ def test_account_delete_fail(mock_account_delete, mock_people_delete):
     }
     resp = TEST_CLIENT.delete(f'{ep.ACCOUNT_EP}/{email}', headers=headers)
     assert resp.status_code == BAD_REQUEST
+
+
+@patch('data.manuscripts.query.can_choose_action', return_value=True)
+def test_can_choose_action_endpoint_true(mock_check):
+    resp = TEST_CLIENT.get('/query/can_choose_action', query_string={
+        'manu_id': 'mock123',
+        'user_email': 'editor@nyu.edu'
+    })
+    assert resp.status_code == OK
+    assert resp.get_json() is True
+    mock_check.assert_called_once_with('mock123', 'editor@nyu.edu')
+
+
+@patch('data.manuscripts.query.can_choose_action', side_effect=Exception("Boom"))
+def test_can_choose_action_endpoint_error(mock_check):
+    resp = TEST_CLIENT.get('/query/can_choose_action', query_string={
+        'manu_id': 'mock123',
+        'user_email': 'editor@nyu.edu'
+    })
+    assert resp.status_code == BAD_REQUEST
+    assert "Error checking action permissions" in resp.get_data(as_text=True)
+
+
+def test_can_choose_action_endpoint_missing_param():
+    resp = TEST_CLIENT.get('/query/can_choose_action', query_string={
+        'user_email': 'editor@nyu.edu'
+    })
+    assert resp.status_code == BAD_REQUEST
+
+
+@patch('data.manuscripts.query.get_valid_actions', return_value=['ACC', 'REJ'])
+def test_valid_actions_endpoint_success(mock_actions):
+    resp = TEST_CLIENT.get('/query/valid_actions', query_string={
+        'manu_id': 'mock321',
+        'user_email': 'ed@nyu.edu'
+    })
+    assert resp.status_code == OK
+    assert resp.get_json() == ['ACC', 'REJ']
+    mock_actions.assert_called_once_with('mock321', 'ed@nyu.edu')
+
+
+@patch('data.manuscripts.query.get_valid_actions', side_effect=ValueError("Invalid"))
+def test_valid_actions_endpoint_value_error(mock_actions):
+    resp = TEST_CLIENT.get('/query/valid_actions', query_string={
+        'manu_id': 'bad-id',
+        'user_email': 'user@nyu.edu'
+    })
+    assert resp.status_code == BAD_REQUEST
+    assert "Invalid" in resp.get_data(as_text=True)
+
+
+def test_valid_actions_endpoint_missing_param():
+    resp = TEST_CLIENT.get('/query/valid_actions', query_string={
+        'user_email': 'someone@nyu.edu'
+    })
+    assert resp.status_code == BAD_REQUEST
