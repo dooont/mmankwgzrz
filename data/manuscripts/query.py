@@ -257,7 +257,7 @@ def get_active_manuscripts(user_email):
     
     # Sort manuscripts by state
     state_order = [
-        SUBMITTED, AUTHOR_REVISION, EDITOR_REVIEW, COPY_EDIT, AUTHOR_REVIEW, FORMATTING 
+        SUBMITTED, REFEREE_REVIEW, AUTHOR_REVISION, EDITOR_REVIEW, COPY_EDIT, AUTHOR_REVIEW, FORMATTING 
     ]
 
     active_manuscripts.sort(key=lambda m: state_order.index(m[flds.STATE]))
