@@ -560,14 +560,21 @@ def test_get_actions():
 
 
 @patch('data.people.read_one')
-def test_get_valid_actions_with_mock(mock_read_one):
+@patch('data.manuscripts.query.get_one_manu')
+def test_get_valid_actions(mock_get_manu, mock_read_one):
     mock_read_one.return_value = {
         "email": "referee@nyu.com",
         "roles": ["RE"]
     }
 
+    mock_get_manu.return_value = {
+        "author_email": "test1234@nyu.com",
+        "state": query.REFEREE_REVIEW,
+        "referees": ["referee@nyu.com"]
+    }
+
     resp = TEST_CLIENT.get(
-        f'{ep.QUERY_EP}/actions/{query.REFEREE_REVIEW}?user_email=referee@nyu.com'
+        f"{ep.QUERY_EP}/actions?user_email=referee@nyu.com&manu_id=fake123"
     )
     assert resp.status_code == OK
     resp_json = resp.get_json()

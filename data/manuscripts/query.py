@@ -327,36 +327,6 @@ STATE_TABLE = {
     WITHDRAWN: {},
 }
 
-
-def get_valid_actions_by_state(state: str, user_email: str) -> list[str]:
-    """
-    Returns the list of valid actions the user can perform at a given manuscript state.
-    """
-    if not is_valid_state(state):
-        raise ValueError(f"Invalid state: {state}")
-
-    user_info = ppl.read_one(user_email)
-    if not user_info:
-        raise ValueError(f"No such user: {user_email}")
-
-    user_roles = user_info.get(ppl.ROLES, [])
-    state_actions = STATE_TABLE.get(state, {})
-
-    permitted_actions = set()
-
-    for role in user_roles:
-        role_actions = ROLE_ACTIONS.get(role, [])
-
-        if state in ROLE_CHOOSE_ACTION.get(role, []):
-            for action in role_actions:
-                if action in state_actions:
-                    permitted_actions.add(action)
-
-        if ACTIONS['WITHDRAW'] in role_actions and ACTIONS['WITHDRAW'] in state_actions:
-            permitted_actions.add(ACTIONS['WITHDRAW'])
-
-    return list(permitted_actions)
-
                 
 def handle_action(curr_state, action, **kwargs) -> str:
     if curr_state not in STATE_TABLE:
@@ -367,7 +337,7 @@ def handle_action(curr_state, action, **kwargs) -> str:
     return STATE_TABLE[curr_state][action][FUNC](**kwargs)
 
 
-def can_choose_action(manu_id, user_email):
+def can_choose_action(manu_id: str, user_email: str) -> bool:
     manu = get_one_manu(manu_id)
     manu_author = manu[flds.AUTHOR_EMAIL]
     manu_referees = manu[flds.REFEREES]
@@ -390,7 +360,43 @@ def can_choose_action(manu_id, user_email):
             return manu_state in ROLE_CHOOSE_ACTION[editor_role]
 
     return False
-    
+
+
+def get_valid_actions_by_state(manu_id: str, user_email: str) -> list[str]:
+    """
+    Returns the list of valid actions the user can perform on the manuscript.
+    """
+    if not can_choose_action(manu_id, user_email):
+        return []
+
+    manu = get_one_manu(manu_id)
+    manu_state = manu[flds.STATE]
+
+    user_info = ppl.read_one(user_email)
+    if not user_info:
+        raise ValueError(f"No such user: {user_email}")
+    user_roles = user_info.get(ppl.ROLES, [])
+
+    state_actions = STATE_TABLE.get(manu_state, {})
+    next_actions = list(state_actions.keys())
+
+    result = []
+
+    for user_role in user_roles:
+        role_actions = ROLE_ACTIONS.get(user_role, [])
+        for action in next_actions:
+            if action in role_actions:
+                result.append(action)
+
+    if (
+        user_email == manu[flds.AUTHOR_EMAIL] and
+        ACTIONS['WITHDRAW'] in next_actions and
+        ACTIONS['WITHDRAW'] not in result
+    ):
+        result.append(ACTIONS['WITHDRAW'])
+
+    return result
+
    
 def main():
     print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))

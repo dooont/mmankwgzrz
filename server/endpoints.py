@@ -802,26 +802,21 @@ class Action(Resource):
         return qry.get_actions()
 
 
-@api.route(f'{QUERY_EP}/actions/<state>')
-class ValidAction(Resource):
-    """
-    This class retrieves the valid actions of a manuscript for a specific user.
-    """
+@api.route(f'{QUERY_EP}/actions')
+class ValidActions(Resource):
     @api.doc(params={
-        'user_email': 'The email of the user requesting valid actions'
+        'user_email': 'The email of the user requesting actions',
+        'manu_id': 'The ID of the manuscript'
     })
-    @api.response(HTTPStatus.OK, 'Valid actions returned')
-    @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid parameters')
-    def get(self, state):
-        """
-        Retrieve the valid manuscript actions for the given state and user.
-        """
+    def get(self):
         user_email = request.args.get('user_email')
-        if not user_email:
-            raise wz.BadRequest("Missing required parameter: user_email")
+        manu_id = request.args.get('manu_id')
+
+        if not user_email or not manu_id:
+            raise wz.BadRequest("Missing user_email or manu_id")
 
         try:
-            actions = qry.get_valid_actions_by_state(state, user_email)
+            actions = qry.get_valid_actions_by_state(user_email, manu_id)
             return actions
         except ValueError as e:
             raise wz.BadRequest(str(e))
