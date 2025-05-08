@@ -290,11 +290,14 @@ def test_can_choose_action_referee(temp_person, temp_referee):
         mqry.delete(manu_id)
 
 
-def test_can_choose_action_editor(temp_person, temp_manu):
-    person = ppl.read_one(temp_person)
-    ppl.update(person[ppl.NAME], person[ppl.AFFILIATION], temp_person, [rls.ED_CODE])
-    
-    assert mqry.can_choose_action(temp_manu, temp_person) is True
+def test_can_choose_action_editor(temp_manu):
+    editor_email = "editor@example.com"
+    ppl.create("Editor", "NYU", editor_email, [rls.ED_CODE])
+
+    try:
+        assert mqry.can_choose_action(temp_manu, editor_email) is True
+    finally:
+        ppl.delete(editor_email)
 
 
 def test_valid_actions_author_withdraw(temp_person):
