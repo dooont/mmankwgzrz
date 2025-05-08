@@ -126,6 +126,11 @@ MANU_ACTION_FLDS = api.model('ManuscriptAction', {
     flds.REFEREES: fields.String,
 })
 
+MANU_STATE_FLDS = api.model('ManuscriptState', {
+    flds.ID: fields.String,
+    flds.STATE: fields.String,
+})
+
 LOGIN_FLDS = api.model('Login', {
     acc.EMAIL: fields.String,
     acc.PASSWORD: fields.String,
@@ -776,6 +781,33 @@ class HandleAction(Resource):
             raise wz.NotAcceptable(f'Bad input: {err=}')
         return {
             MESSAGE: 'Action received!',
+            RETURN: new_state,
+        }
+
+
+@api.route(f'{QUERY_EP}/handle_state')
+class HandleState(Resource):
+    """
+    Switch Manuscript state.
+    """
+    @api.response(HTTPStatus.OK, 'Sucess')
+    @api.response(HTTPStatus.NOT_ACCEPTABLE, "Couldn't switch state!")
+    @api.expect(MANU_STATE_FLDS)
+    def put(self):
+        """
+        Handle state switch for the editor's move ability.
+        """
+        try:
+            id = request.json.get(flds.ID)
+            new_state = request.json.get(flds.STATE)
+            manu = qry.get_one_manu(id)
+            qry.update(manu[flds.ID], manu[flds.TITLE], manu[flds.AUTHOR],
+                       manu[flds.AUTHOR_EMAIL], manu[flds.REFEREES], new_state,
+                       manu[flds.TEXT], manu[flds.ABSTRACT])
+        except Exception as e:
+            raise wz.NotAcceptable(f'Bad input: {e=}')
+        return {
+            MESSAGE: 'State updated!',
             RETURN: new_state,
         }
 
