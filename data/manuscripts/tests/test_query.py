@@ -40,6 +40,26 @@ def temp_manu(temp_person):
 
 
 @pytest.fixture(scope='function')
+def temp_editor():
+    email = "editor@example.com"
+    name = "Editor User"
+    affiliation = "NYU"
+    roles = [rls.ED_CODE]
+
+    if not ppl.exists(email):
+        ppl.create(name, affiliation, email, roles)
+    else:
+        person = ppl.read_one(email)
+        ppl.update(person[ppl.NAME], person[ppl.AFFILIATION], email, roles)
+
+    yield email
+    try: 
+        ppl.delete(email)
+    except Exception:
+        print("Editor already deleted.")
+
+
+@pytest.fixture(scope='function')
 def temp_referee():
     email = "referee@example.com"
     name = "Referee User"
@@ -298,6 +318,12 @@ def test_can_choose_action_editor(temp_manu):
         assert mqry.can_choose_action(temp_manu, editor_email) is True
     finally:
         ppl.delete(editor_email)
+
+def test_can_move_action(temp_editor, temp_manu):
+    person = ppl.read_one(temp_editor)
+    # ppl.update(person[ppl.NAME], person[ppl.AFFILIATION], temp_editor, [rls.ED_CODE])
+
+    assert mqry.can_move_action(temp_manu, temp_editor) == True
 
 
 def test_valid_actions_author_withdraw(temp_person):

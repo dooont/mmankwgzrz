@@ -377,6 +377,24 @@ def can_choose_action(manu_id: str, user_email: str) -> bool:
     return False
 
 
+def can_move_action(manu_id, user_email) -> bool:
+    manu = get_one_manu(manu_id)
+    manu_author = manu[flds.AUTHOR_EMAIL]
+    # manu_referees = manu[flds.REFEREES]
+    manu_state = manu[flds.STATE]
+    user_info = ppl.read_one(user_email)
+    user_roles = user_info.get(ppl.ROLES, [])
+
+    #Editor logic ONLY
+    if user_email != manu_author:
+        for editor_role in rls.MH_ROLES:
+            if editor_role in user_roles:
+                if manu_state in VALID_STATES:
+                    return True
+                
+    return False
+
+
 EDITOR_ROLE_ACTIONS = {
     SUBMITTED: [ACTIONS['ASSIGN_REF'], ACTIONS['REJECT']],
     REFEREE_REVIEW: [
@@ -389,6 +407,7 @@ EDITOR_ROLE_ACTIONS = {
     EDITOR_REVIEW: [ACTIONS['ACCEPT']],
     COPY_EDIT: [ACTIONS['DONE']],
     FORMATTING: [ACTIONS['DONE']],
+
 }
 
 ROLE_STATE_ACTIONS = {
