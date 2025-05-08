@@ -409,6 +409,32 @@ class CanChooseAction(Resource):
             raise wz.BadRequest(f"Error checking action permissions: {str(e)}")
 
 
+@api.route('/query/can_move_action')
+class CanMoveAction(Resource):
+    """
+    Determine if the given user can use the MOVE action for a manuscript
+    """
+    @api.doc(params={
+        'manu_id': 'The ID of the manuscript',
+        'user_email': 'Email of the user'
+    })
+    @api.response(HTTPStatus.OK, 'Permission granted')
+    @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid params')
+    def get(self):
+        manu_id = request.args.get('manu_id')
+        user_email = request.args.get('user_email')
+
+        if not manu_id or not user_email:
+            raise wz.NotFound(
+                "Missing manuscript or user"
+            )
+        try:
+            permitted = qry.can_move_action(manu_id, user_email)
+            return permitted
+        except Exception as e:
+            raise wz.BadRequest(f"Error checking move permission: {str(e)}")
+
+
 @api.route(f'{PEOPLE_EP}/create/form')
 class CreatePeopleForm(Resource):
     """

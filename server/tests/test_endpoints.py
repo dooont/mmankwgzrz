@@ -785,6 +785,16 @@ def test_can_choose_action_endpoint_missing_param():
     assert resp.status_code == BAD_REQUEST
 
 
+@patch('data.manuscripts.query.can_move_action', return_value = True)
+def test_can_move_action_endpoint_true(mock_check):
+    resp = TEST_CLIENT.get('/query/can_move_action', query_string={
+        'manu_id': 'mock123',
+        'user_email': 'editor@nyu.edu'
+    })
+    assert resp.status_code == OK
+    assert resp.get_json() is True
+
+
 @patch('data.manuscripts.query.get_valid_actions', return_value=['ACC', 'REJ'])
 def test_valid_actions_endpoint_success(mock_actions):
     resp = TEST_CLIENT.get('/query/valid_actions', query_string={
