@@ -466,6 +466,23 @@ def get_valid_actions(manu_id: str, user_email: str) -> list[str]:
 
     return result
 
+def get_valid_states(manu_id: str, user_emai: str) ->list[str]:
+    """
+    Returns list of approriate states the editor can move the manuscript to.
+    """
+    if not can_move_action(manu_id, user_emai):
+        return []
+    
+    manu = get_one_manu(manu_id)
+    manu_state = manu[flds.STATE]
+
+    states = []
+    for state in VALID_STATES:
+        if state != manu_state:
+            states.append(state)
+
+    return states
+    
    
 def main():
     print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))

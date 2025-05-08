@@ -346,6 +346,29 @@ def test_valid_actions_author_withdraw(temp_person):
         mqry.delete(manu_id)
 
 
+def test_get_valid_states(temp_editor, temp_person):
+    manu_id = mqry.create_manuscript(
+        "State test",
+        "Author",
+        temp_person,
+        "",
+        mqry.SUBMITTED,
+        "Text",
+        "Abstract"
+     )
+    try:
+        states = mqry.get_valid_states(manu_id, temp_editor)
+        manu = mqry.get_one_manu(manu_id)
+        
+        assert manu[flds.STATE] not in states
+
+        for state in mqry.VALID_STATES:
+            if state != manu[flds.STATE]:
+                assert state in states
+    finally:
+        mqry.delete(manu_id)
+
+
 def test_valid_actions_referee_submit_review(temp_person, temp_referee):
     ppl.update("Referee", "NYU", temp_referee, [rls.RE_CODE])
 
