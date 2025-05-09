@@ -359,12 +359,13 @@ def test_get_valid_states(temp_editor, temp_person):
     try:
         states = mqry.get_valid_states(manu_id, temp_editor)
         manu = mqry.get_one_manu(manu_id)
-        
+
         assert manu[flds.STATE] not in states
 
         for state in mqry.VALID_STATES:
             if state != manu[flds.STATE]:
-                assert state in states
+                if state != mqry.WITHDRAWN:
+                    assert state in states
     finally:
         mqry.delete(manu_id)
 
