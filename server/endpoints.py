@@ -880,6 +880,26 @@ class ValidActions(Resource):
             raise wz.BadRequest(str(e))
 
 
+@api.route(f'{QUERY_EP}/valid_states')
+class ValidStates(Resource):
+    @api.doc(params={
+        'user_email': 'The email of the user with move state ability',
+        'manu_id': 'The ID of manuscript'
+    })
+    def get(self):
+        user_email = request.args.get('user_email')
+        manu_id = request.args.get('manu_id')
+
+        if not user_email or not manu_id:
+            raise wz.BadRequest("Missing user_email or manu_id")
+
+        try:
+            states = qry.get_valid_states(manu_id, user_email)
+            return states
+        except ValueError as e:
+            raise wz.BadRequest(str(e))
+
+
 @api.route(FORM_EP)
 class Form(Resource):
     """

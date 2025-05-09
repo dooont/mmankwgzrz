@@ -821,3 +821,14 @@ def test_valid_actions_endpoint_missing_param():
         'user_email': 'someone@nyu.edu'
     })
     assert resp.status_code == BAD_REQUEST
+
+
+@patch('data.manuscripts.query.get_valid_states', return_value=['AU_RVW', 'SUB'])
+def test_valid_states_endpoint_success(mock_states):
+    resp = TEST_CLIENT.get('/query/valid_states', query_string={
+        'manu_id': 'test123',
+        'user_email': 'test@nyu.edu'
+    })
+    assert resp.status_code == OK
+    assert resp.get_json() == ['AU_RVW', 'SUB']
+    mock_states.assert_called_once_with('test123', 'test@nyu.edu')
