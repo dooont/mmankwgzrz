@@ -9,6 +9,7 @@ TEST_PASSWORD = 'password123'
 INVALID_EMAIL = 'invalid_email@'
 INVALID_PASSWORD = 'short'
 TEMP_EMAIL = 'temp_person@temp.org'
+NONEXISTENT_EMAIL = 'nonexistent@example.com'
 
 ACCOUNT = 'account'
 EMAIL = 'email'
@@ -67,7 +68,7 @@ def test_login_failed():
 
 def test_login_account_not_found():
     with pytest.raises(ValueError):
-        acc.login('nonexistent@example.com', TEST_PASSWORD)
+        acc.login(NONEXISTENT_EMAIL, TEST_PASSWORD)
 
 
 def test_delete_account(temp_account):
@@ -80,7 +81,7 @@ def test_delete_account(temp_account):
 
 def test_delete_account_failed():
     with pytest.raises(ValueError):
-        acc.delete('nonexistent@example.com')
+        acc.delete(NONEXISTENT_EMAIL)
 
 
 def test_is_valid_password():

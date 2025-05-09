@@ -12,6 +12,7 @@ from http import HTTPStatus
 
 import data.people as ppl
 import data.manuscripts.form as form
+import data.manuscripts.form_filler as ff
 import data.text as txt
 import data.manuscripts.query as qry
 import data.manuscripts.fields as flds
@@ -61,8 +62,9 @@ TEXT_EP = '/text'
 TITLE = 'The Journal of API Technology'
 TITLE_EP = '/title'
 TITLE_RESP = 'Title'
-
 LOG_DIR = '/var/log'
+DELETED = 'Deleted'
+PEOPLE = 'people'
 
 QUERY_CREATE_FLDS = api.model('CreateQueryEntry', {
     flds.TITLE: fields.String,
@@ -83,17 +85,17 @@ QUERY_UPDATE_FLDS = api.model('UpdateQueryEntry', {
 })
 
 FORM_CREATE_FLDS = api.model('CreateFormEntry', {
-    'field_name': fields.String,
-    'question': fields.String,
-    'param_type': fields.String,
-    'optional': fields.Boolean
+    ff.FLD_NM: fields.String,
+    ff.QSTN: fields.String,
+    ff.PARAM_TYPE: fields.String,
+    ff.OPT: fields.Boolean
 })
 
 FORM_UPDATE_FLDS = api.model('UpdateFormEntry', {
-    'field_name': fields.String,
-    'question': fields.String,
-    'param_type': fields.String,
-    'optional': fields.Boolean
+    ff.FLD_NM: fields.String,
+    ff.QSTN: fields.String,
+    ff.PARAM_TYPE: fields.String,
+    ff.OPT: fields.Boolean
 })
 
 PEOPLE_CREATE_FLDS = api.model('AddNewPeopleEntry', {
@@ -142,8 +144,8 @@ REGISTER_FLDS = api.model('Register', {
 })
 
 CHANGE_ACC_PW_FLDS = api.model('ChangeAccountPW', {
-    'oldPassword': fields.String,
-    'newPassword': fields.String,
+    flds.OLD_PASSWORD: fields.String,
+    flds.NEW_PASSWORD: fields.String,
 })
 
 
@@ -302,10 +304,11 @@ class Account(Resource):
             if not requester:
                 raise wz.NotFound(f"""Email not found:
                                       {bearer_email}""")
-            roles = requester.get('roles', [])
-            if 'ED' not in roles:
-                raise wz.Unauthorized("""You are unauthorized to modify
-                                      another user.""")
+            roles = requester.get(flds.ROLES, [])
+            if not any(role in rls.MH_ROLES for role in roles):
+                raise wz.Unauthorized(
+                    """You are unauthorized to modify another user.""")
+
         try:
             acc.delete(email)
             # delete from people collection too
@@ -343,16 +346,16 @@ class AccountPassword(Resource):
                                   'Please log back in.')
 
         # first confirm the old password is correct
-        if not acc.check_password(request.json.get("oldPassword"),
+        if not acc.check_password(request.json.get(flds.OLD_PASSWORD),
                                   acc.get_password(bearer_email)):
             raise wz.Unauthorized('Your old password is incorrect.')
         try:
             # check that new password is valid
-            acc.is_valid_password(request.json.get("newPassword"))
+            acc.is_valid_password(request.json.get(flds.NEW_PASSWORD))
             # change the password
-            if acc.change_password(request.json.get("newPassword"),
+            if acc.change_password(request.json.get(flds.NEW_PASSWORD),
                                    bearer_email):
-                return {"message": "Successfully updated password."}
+                return {MESSAGE: "Successfully updated password."}
             raise wz.NotFound("Email not found.")
         except ValueError as e:
             # rethrow the error
@@ -365,9 +368,9 @@ class Permissions(Resource):
     Check if a user has permission to perform a specific action on a feature.
     """
     @api.doc(params={
-        'feature': 'The feature to access (e.g. "text")',
-        'action': 'The action to perform (e.g. "update")',
-        'user_email': 'The email of the user'
+        sec.FEATURE: 'The feature to access (e.g. "text")',
+        sec.ACTION: 'The action to perform (e.g. "update")',
+        sec.USER_EMAIL: 'The email of the user'
     })
     @api.response(HTTPStatus.OK, 'Permission check result')
     @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid parameters')
@@ -394,14 +397,14 @@ class CanChooseAction(Resource):
     Determine if the given user can choose an action for a manuscript.
     """
     @api.doc(params={
-        'manu_id': 'The ID of the manuscript',
-        'user_email': 'The email of the user'
+        flds.MANU_ID: 'The ID of the manuscript',
+        flds.USER_EMAIL: 'The email of the user'
     })
     @api.response(HTTPStatus.OK, 'Permission check result')
     @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid parameters')
     def get(self):
-        manu_id = request.args.get('manu_id')
-        user_email = request.args.get('user_email')
+        manu_id = request.args.get(flds.MANU_ID)
+        user_email = request.args.get(flds.USER_EMAIL)
 
         if not manu_id or not user_email:
             raise wz.BadRequest(
@@ -420,14 +423,14 @@ class CanMoveAction(Resource):
     Determine if the given user can use the MOVE action for a manuscript
     """
     @api.doc(params={
-        'manu_id': 'The ID of the manuscript',
-        'user_email': 'Email of the user'
+        flds.MANU_ID: 'The ID of the manuscript',
+        flds.USER_EMAIL: 'Email of the user'
     })
     @api.response(HTTPStatus.OK, 'Permission granted')
     @api.response(HTTPStatus.BAD_REQUEST, 'Missing or invalid params')
     def get(self):
-        manu_id = request.args.get('manu_id')
-        user_email = request.args.get('user_email')
+        manu_id = request.args.get(flds.MANU_ID)
+        user_email = request.args.get(flds.USER_EMAIL)
 
         if not manu_id or not user_email:
             raise wz.NotFound(
@@ -510,7 +513,7 @@ class Person(Resource):
                                       another user""")
         ret = ppl.delete(email)
         if ret > 0:
-            return {'Deleted': ret}
+            return {DELETED: ret}
         else:
             raise wz.NotFound(f'No such person: {email}')
 
@@ -601,7 +604,7 @@ class PeopleByRole(Resource):
         all_people = ppl.read()
         people_with_role = [all_people[email] for email in
                             all_people if role in all_people[email][ppl.ROLES]]
-        return {"people": people_with_role}
+        return {PEOPLE: people_with_role}
 
 
 @api.route(f'{PEOPLE_EP}/affiliation/<affiliation>')
@@ -614,7 +617,7 @@ class PeopleByAffiliation(Resource):
         people_with_affiliation = [all_people[email] for email in all_people
                                    if all_people[email][ppl.AFFILIATION]
                                    == affiliation]
-        return {"people": people_with_affiliation}
+        return {PEOPLE: people_with_affiliation}
 
 
 @api.route(f'{PEOPLE_EP}/masthead')
@@ -714,7 +717,7 @@ class QueryEntry(Resource):
         else:
             if deleted_count == 0:
                 raise wz.NotFound(f'No such manuscript: {id}')
-            return {'Deleted': deleted_count}
+            return {DELETED: deleted_count}
 
 
 @api.route(f'{QUERY_EP}/create')
@@ -863,12 +866,12 @@ class Action(Resource):
 @api.route(f'{QUERY_EP}/valid_actions')
 class ValidActions(Resource):
     @api.doc(params={
-        'user_email': 'The email of the user requesting actions',
-        'manu_id': 'The ID of the manuscript'
+        flds.USER_EMAIL: 'The email of the user requesting actions',
+        flds.MANU_ID: 'The ID of the manuscript'
     })
     def get(self):
-        user_email = request.args.get('user_email')
-        manu_id = request.args.get('manu_id')
+        user_email = request.args.get(flds.USER_EMAIL)
+        manu_id = request.args.get(flds.MANU_ID)
 
         if not user_email or not manu_id:
             raise wz.BadRequest("Missing user_email or manu_id")
@@ -883,12 +886,12 @@ class ValidActions(Resource):
 @api.route(f'{QUERY_EP}/valid_states')
 class ValidStates(Resource):
     @api.doc(params={
-        'user_email': 'The email of the user with move state ability',
-        'manu_id': 'The ID of manuscript'
+        flds.USER_EMAIL: 'The email of the user with move state ability',
+        flds.MANU_ID: 'The ID of manuscript'
     })
     def get(self):
-        user_email = request.args.get('user_email')
-        manu_id = request.args.get('manu_id')
+        user_email = request.args.get(flds.USER_EMAIL)
+        manu_id = request.args.get(flds.MANU_ID)
 
         if not user_email or not manu_id:
             raise wz.BadRequest("Missing user_email or manu_id")
@@ -922,7 +925,7 @@ class FormField(Resource):
         Retrieve a form field.
         """
         fields = form.get_form()
-        field = next((fld for fld in fields if fld[form.FLD_NM]
+        field = next((fld for fld in fields if fld[ff.FLD_NM]
                       == field_name), None)
         if field:
             return field
@@ -933,11 +936,11 @@ class FormField(Resource):
     @api.response(HTTPStatus.NOT_FOUND, 'No such field.')
     def delete(self, field_name):
         fields = form.get_form()
-        field = next((fld for fld in fields if fld[form.FLD_NM]
+        field = next((fld for fld in fields if fld[ff.FLD_NM]
                       == field_name), None)
         if field:
             fields.remove(field)
-            return {'Deleted': field}
+            return {DELETED: field}
         else:
             raise wz.NotFound(f'No such field: {field_name}')
 
@@ -952,9 +955,9 @@ class FormField(Resource):
         try:
             updated_field = form.update_form_field(
                 field_name,
-                question=request.json.get('question'),
-                param_type=request.json.get('param_type'),
-                optional=request.json.get('optional')
+                question=request.json.get(ff.QSTN),
+                param_type=request.json.get(ff.PARAM_TYPE),
+                optional=request.json.get(ff.OPT)
             )
             return {
                 MESSAGE: 'Field updated successfully',
@@ -979,20 +982,20 @@ class FormCreate(Resource):
         Add a form field.
         """
         try:
-            field_name = request.json.get('field_name')
-            question = request.json.get('question')
-            param_type = request.json.get('param_type')
-            optional = request.json.get('optional')
+            field_name = request.json.get(ff.FLD_NM)
+            question = request.json.get(ff.QSTN)
+            param_type = request.json.get(ff.PARAM_TYPE)
+            optional = request.json.get(ff.OPT)
 
             fields = form.get_form()
             if any(fld[form.FLD_NM] == field_name for fld in fields):
                 raise wz.NotAcceptable(f'{field_name} is already used.')
 
             new_field = {
-                form.FLD_NM: field_name,
-                'question': question,
-                'param_type': param_type,
-                'optional': optional
+                ff.FLD_NM: field_name,
+                ff.QSTN: question,
+                ff.PARAM_TYPE: param_type,
+                ff.OPT: optional
             }
             fields.append(new_field)
             return {
@@ -1031,16 +1034,16 @@ class CreateText(Resource):
         Add a new text entry.
         """
         try:
-            key = request.json.get('key')
-            title = request.json.get('title')
-            text = request.json.get('text')
+            key = request.json.get(txt.KEY)
+            title = request.json.get(txt.TITLE)
+            text = request.json.get(txt.TEXT)
 
             if txt.read_one(key):
                 raise wz.NotAcceptable(f"Key '{key}' already exists.")
 
             new_text = txt.create(key, title, text)
 
-            return {'Message': 'Text entry added!', 'Text Entry': new_text}
+            return {MESSAGE: 'Text entry added!', 'Text Entry': new_text}
         except Exception as err:
             raise wz.NotAcceptable(f'Could not add text entry: {str(err)}')
 
@@ -1071,7 +1074,7 @@ class Text(Resource):
             deleted_count = txt.delete(key)
             if deleted_count == 0:
                 raise wz.NotFound(f'No text entry found for key: {key}')
-            return {'Message': f'{deleted_count} text entry deleted.'}
+            return {MESSAGE: f'{deleted_count} text entry deleted.'}
         except Exception as err:
             raise wz.NotFound(f'Could not delete text entry: {str(err)}')
 
@@ -1081,12 +1084,12 @@ class Text(Resource):
         Update a text entry.
         """
         try:
-            title = request.json.get('title')
-            text = request.json.get('text')
+            title = request.json.get(txt.TITLE)
+            text = request.json.get(txt.TEXT)
 
             updated_text = txt.update(key, title=title, text=text)
 
-            return {'Message': 'Text entry updated!',
+            return {MESSAGE: 'Text entry updated!',
                     'Updated Entry': updated_text}
         except Exception as err:
             raise wz.NotAcceptable(f'Could not update text entry: {str(err)}')

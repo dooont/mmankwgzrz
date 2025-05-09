@@ -14,6 +14,7 @@ import pytest
 
 from data.people import NAME
 from data.manuscripts import form
+import data.manuscripts.form_filler as ff
 from data.manuscripts import query 
 from data.manuscripts import fields as flds
 
@@ -405,10 +406,10 @@ def test_get_form():
 def test_get_form_field():
     field_name = 'test_field'
     field_data = {
-        form.FLD_NM: field_name,
-        'question': 'Test Question',
-        'param_type': 'string',
-        'optional': True
+        ff.FLD_NM: field_name,
+        ff.QSTN: 'Test Question',
+        ff.PARAM_TYPE: 'string',
+        ff.OPT: True
     }
 
     with patch('data.manuscripts.form.get_form', return_value=[field_data]) as mock_get_form:
@@ -426,10 +427,10 @@ def test_get_form_field():
 
 def test_create_form_field():
     new_field_data = {
-        'field_name': 'new_field',
-        'question': 'New Question',
-        'param_type': 'string',
-        'optional': True
+        ff.FLD_NM: 'new_field',
+        ff.QSTN: 'New Question',
+        ff.PARAM_TYPE: 'string',
+        ff.OPT: True
     }
 
     with patch('data.manuscripts.form.get_form', return_value=[]) as mock_get_form:
@@ -440,7 +441,7 @@ def test_create_form_field():
         assert ep.RETURN in resp_json
         mock_get_form.assert_called_once()
 
-    with patch('data.manuscripts.form.get_form', return_value=[{form.FLD_NM: 'new_field'}]) as mock_get_form:
+    with patch('data.manuscripts.form.get_form', return_value=[{ff.FLD_NM: 'new_field'}]) as mock_get_form:
         resp = TEST_CLIENT.put(f'{ep.FORM_EP}/create', json=new_field_data)
         assert resp.status_code == NOT_ACCEPTABLE
         mock_get_form.assert_called_once()
@@ -449,10 +450,10 @@ def test_create_form_field():
 def test_delete_form_field():
     field_name = 'test_field'
     field_data = {
-        form.FLD_NM: field_name,
-        'question': 'Test Question',
-        'param_type': 'string',
-        'optional': True
+        ff.FLD_NM: field_name,
+        ff.QSTN: 'Test Question',
+        ff.PARAM_TYPE: 'string',
+        ff.OPT: True
     }
 
     with patch('data.manuscripts.form.get_form', return_value=[field_data]) as mock_get_form:
@@ -470,12 +471,12 @@ def test_delete_form_field():
 def test_update_form_field():
     field_name = 'test_field'
     update_data = {
-        'question': 'Updated Question',
-        'param_type': 'integer',
-        'optional': False
+        ff.QSTN: 'Updated Question',
+        ff.PARAM_TYPE: 'integer',
+        ff.OPT: False
     }
 
-    with patch('data.manuscripts.form.get_form', return_value=[{form.FLD_NM: field_name}]) as mock_get_form:
+    with patch('data.manuscripts.form.get_form', return_value=[{ff.FLD_NM: field_name}]) as mock_get_form:
         resp = TEST_CLIENT.put(f'{ep.FORM_EP}/{field_name}', json=update_data)
         assert resp.status_code == OK
         resp_json = resp.get_json()

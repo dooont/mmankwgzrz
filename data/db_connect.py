@@ -9,6 +9,9 @@ load_dotenv()
 LOCAL = "0"
 CLOUD = "1"
 
+ENV_CLOUD_MONGO = "CLOUD_MONGO"
+ENV_MONGO_URI = "MONGO_URI"
+
 JOURNAL_DB = 'journalDB'
 MONGO_ID = '_id'
 
@@ -26,8 +29,8 @@ def connect_db() -> pm.MongoClient:
     global client
     if client is None:  # not connected yet!
         print("Setting client because it is None.")
-        if os.environ.get("CLOUD_MONGO", LOCAL) == CLOUD:
-            mongo_uri = os.environ.get("MONGO_URI")
+        if os.environ.get(ENV_CLOUD_MONGO, LOCAL) == CLOUD:
+            mongo_uri = os.environ.get(ENV_MONGO_URI)
             if not mongo_uri:
                 raise ValueError('You must set your MONGO_URI '
                                  + 'to use Mongo in the cloud.')

@@ -9,6 +9,8 @@ PASSWORD = 'password'
 ACCOUNT_COLLECT = 'account'
 PEOPLE_COLLECT = 'people'
 
+INVALID_LOGIN_MSG = "Invalid email or password"
+
 client = dbc.connect_db()
 print(f'{client=}')
 
@@ -90,10 +92,8 @@ def login(email: str, password: str) -> bool:
     """
     account = dbc.read_one(ACCOUNT_COLLECT, {EMAIL: email})
 
-    invalid_login_msg = "Invalid email or password"
-
     if not account or not check_password(password, account[PASSWORD]):
-        raise ValueError(invalid_login_msg)
+        raise ValueError(INVALID_LOGIN_MSG)
 
     return True
 

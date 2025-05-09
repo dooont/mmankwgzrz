@@ -18,6 +18,14 @@ HISTORY = 'history'
 EDITOR = 'editor'
 CURR_STATE = 'curr_state'
 
+OLD_PASSWORD = 'oldPassword'
+NEW_PASSWORD = 'newPassword'
+
+ROLES = 'roles'
+
+MANU_ID = 'manu_id'
+USER_EMAIL = 'user_email'
+
 
 FIELDS = {
     ID :{

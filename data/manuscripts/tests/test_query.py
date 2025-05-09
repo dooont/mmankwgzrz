@@ -218,7 +218,7 @@ def test_doesnt_exist():
 
 def test_handle_action_bad_state():
     with pytest.raises(ValueError):
-        mqry.handle_action(gen_random_not_valid_str(), mqry.ACTIONS['ACCEPT'], manu=copy.deepcopy(mqry.SAMPLE_MANU), ref="ref")
+        mqry.handle_action(gen_random_not_valid_str(), mqry.ACTION_ACCEPT, manu=copy.deepcopy(mqry.SAMPLE_MANU), ref="ref")
 
 
 def test_handle_action_bad_action():
@@ -236,15 +236,15 @@ def test_handle_action_valid_return():
 
 def test_handle_action():
     manu = copy.deepcopy(mqry.SAMPLE_MANU)
-    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['ASSIGN_REF'], manu=manu, ref="r") == mqry.REFEREE_REVIEW
-    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTIONS['REJECT'], manu=manu) == mqry.REJECTED
-    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT'], manu=manu) == mqry.COPY_EDIT
-    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTIONS['ACCEPT_WITH_REV'], manu=manu) == mqry.AUTHOR_REVISION
-    assert mqry.handle_action(mqry.AUTHOR_REVISION, mqry.ACTIONS['DONE'], manu=manu) == mqry.EDITOR_REVIEW
-    assert mqry.handle_action(mqry.EDITOR_REVIEW, mqry.ACTIONS['ACCEPT'], manu=manu) == mqry.COPY_EDIT
-    assert mqry.handle_action(mqry.COPY_EDIT, mqry.ACTIONS['DONE'], manu=manu) == mqry.AUTHOR_REVIEW
-    assert mqry.handle_action(mqry.AUTHOR_REVIEW, mqry.ACTIONS['DONE'], manu=manu) == mqry.FORMATTING
-    assert mqry.handle_action(mqry.FORMATTING, mqry.ACTIONS['DONE'], manu=manu) == mqry.PUBLISHED
+    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTION_ASSIGN_REF, manu=manu, ref="r") == mqry.REFEREE_REVIEW
+    assert mqry.handle_action(mqry.SUBMITTED, mqry.ACTION_REJECT, manu=manu) == mqry.REJECTED
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTION_ACCEPT, manu=manu) == mqry.COPY_EDIT
+    assert mqry.handle_action(mqry.REFEREE_REVIEW, mqry.ACTION_ACCEPT_WITH_REV, manu=manu) == mqry.AUTHOR_REVISION
+    assert mqry.handle_action(mqry.AUTHOR_REVISION, mqry.ACTION_DONE, manu=manu) == mqry.EDITOR_REVIEW
+    assert mqry.handle_action(mqry.EDITOR_REVIEW, mqry.ACTION_ACCEPT, manu=manu) == mqry.COPY_EDIT
+    assert mqry.handle_action(mqry.COPY_EDIT, mqry.ACTION_DONE, manu=manu) == mqry.AUTHOR_REVIEW
+    assert mqry.handle_action(mqry.AUTHOR_REVIEW, mqry.ACTION_DONE, manu=manu) == mqry.FORMATTING
+    assert mqry.handle_action(mqry.FORMATTING, mqry.ACTION_DONE, manu=manu) == mqry.PUBLISHED
 
 
 def test_assign_ref(temp_manu):
@@ -341,7 +341,7 @@ def test_valid_actions_author_withdraw(temp_person):
 
     try:
         actions = mqry.get_valid_actions(manu_id, temp_person)
-        assert mqry.ACTIONS['WITHDRAW'] in actions
+        assert mqry.ACTION_WITHDRAW in actions
     finally:
         mqry.delete(manu_id)
 
@@ -385,7 +385,7 @@ def test_valid_actions_referee_submit_review(temp_person, temp_referee):
 
     try:
         actions = mqry.get_valid_actions(manu_id, temp_referee)
-        assert mqry.ACTIONS['SUBMIT_REW'] in actions
+        assert mqry.ACTION_SUBMIT_REVIEW in actions
     finally:
         mqry.delete(manu_id)
 
@@ -409,9 +409,7 @@ def test_valid_actions_editor_assign_ref(temp_person):
 
     try:
         actions = mqry.get_valid_actions(manu_id, temp_person)
-        assert mqry.ACTIONS['ASSIGN_REF'] in actions
+        assert mqry.ACTION_ASSIGN_REF in actions
     finally:
         mqry.delete(manu_id)
         ppl.delete(author_email)
-
-

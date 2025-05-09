@@ -8,7 +8,7 @@ from bson import ObjectId, errors
 
 MANU_COLLECT = 'manuscripts'
 
-# States
+# States Codes
 AUTHOR_REVIEW = 'AU_RVW'
 AUTHOR_REVISION = 'AU_REV'
 COPY_EDIT = 'CED'
@@ -33,6 +33,7 @@ VALID_STATES = {
     WITHDRAWN: 'Withdrawn',
 }
 
+# States of when the role can choose action on manuscript
 EDITOR_CHOOSE_ACTION = [SUBMITTED, REFEREE_REVIEW, EDITOR_REVIEW, COPY_EDIT, FORMATTING]
 
 ROLE_CHOOSE_ACTION = {
@@ -43,32 +44,29 @@ ROLE_CHOOSE_ACTION = {
     rls.RE_CODE: [REFEREE_REVIEW]
 }
 
-TEST_STATE = SUBMITTED
+# Action Codes
+ACTION_ACCEPT = 'ACC'
+ACTION_ACCEPT_WITH_REV = 'AWR'
+ACTION_ASSIGN_REF = 'ARF'
+ACTION_DELETE_REF = 'DRF'
+ACTION_DONE = 'DON'
+ACTION_REJECT = 'REJ'
+ACTION_SUBMIT_REVIEW = 'SBR'
+ACTION_WITHDRAW = 'WDN'
 
 ACTION_NAMES = {
-    'ACC': 'Accept',
-    'AWR': 'Accept with Revisions',
-    'ARF': 'Assign Referee',
-    'DRF': 'Delete Referee',
-    'DON': 'Done',
-    'REJ': 'Reject',
-    'SBR': 'Submit Review',
-    'WDN': 'Withdraw',
+    ACTION_ACCEPT: 'Accept',
+    ACTION_ACCEPT_WITH_REV: 'Accept with Revisions',
+    ACTION_ASSIGN_REF: 'Assign Referee',
+    ACTION_DELETE_REF: 'Delete Referee',
+    ACTION_DONE: 'Done',
+    ACTION_REJECT: 'Reject',
+    ACTION_SUBMIT_REVIEW: 'Submit Review',
+    ACTION_WITHDRAW: 'Withdraw',
 }
 
-# Actions
-ACTIONS = {
-    'ACCEPT': 'ACC',
-    'ACCEPT_WITH_REV': 'AWR',
-    'ASSIGN_REF': 'ARF',
-    'DELETE_REF': 'DRF',
-    'DONE': 'DON',
-    'REJECT': 'REJ',
-    'SUBMIT_REW': 'SBR',
-    'WITHDRAW': 'WDN',
-}
-
-TEST_ACTION = ACTIONS['ACCEPT']
+TEST_STATE = SUBMITTED
+TEST_ACTION = ACTION_ACCEPT
 
 SAMPLE_MANU = {
     flds.TITLE: 'Sample Manuscript',
@@ -266,70 +264,70 @@ def get_active_manuscripts(user_email):
 
 
 COMMON_ACTIONS = {
-    ACTIONS['WITHDRAW']: {
+    ACTION_WITHDRAW: {
         FUNC: lambda **kwargs: WITHDRAWN,
     },
 }
 
 STATE_TABLE = {
     AUTHOR_REVIEW: {
-        ACTIONS['DONE']: {
+        ACTION_DONE: {
             FUNC: lambda **kwargs: FORMATTING,
         },
         **COMMON_ACTIONS,
     },
     AUTHOR_REVISION: {
-        ACTIONS['DONE']: {
+        ACTION_DONE: {
             FUNC: lambda **kwargs: EDITOR_REVIEW,
         },
         **COMMON_ACTIONS,
     },
     COPY_EDIT: {
-        ACTIONS['DONE']: {
+        ACTION_DONE: {
             FUNC: lambda **kwargs: AUTHOR_REVIEW,
         },
         **COMMON_ACTIONS,
     },
     EDITOR_REVIEW: {
-        ACTIONS['ACCEPT']: {
+        ACTION_ACCEPT: {
             FUNC: lambda **kwargs: COPY_EDIT,
         },
         **COMMON_ACTIONS,
     },
     FORMATTING: {
-        ACTIONS['DONE']: {
+        ACTION_DONE: {
             FUNC: lambda **kwargs: PUBLISHED,
         },
         **COMMON_ACTIONS,
     },
     PUBLISHED: {},
     REFEREE_REVIEW: {
-        ACTIONS['ACCEPT']: {
+        ACTION_ACCEPT: {
             FUNC: lambda **kwargs: COPY_EDIT,
         },
-        ACTIONS['REJECT']: {
+        ACTION_REJECT: {
             FUNC: lambda **kwargs: REJECTED,
         },
-        ACTIONS['ACCEPT_WITH_REV']: {
+        ACTION_ACCEPT_WITH_REV: {
             FUNC: lambda **kwargs: AUTHOR_REVISION,
         },
-        ACTIONS['ASSIGN_REF']: {
+        ACTION_ASSIGN_REF: {
             FUNC: assign_ref,
         },
-        ACTIONS['DELETE_REF']: {
+        ACTION_DELETE_REF: {
             FUNC: delete_ref,
         },
-        ACTIONS['SUBMIT_REW']: {
+        ACTION_SUBMIT_REVIEW: {
             FUNC: lambda **kwargs: REFEREE_REVIEW,
         },
         **COMMON_ACTIONS,
     }, 
     REJECTED: {},
     SUBMITTED: {
-        ACTIONS['ASSIGN_REF']: {
+        ACTION_ASSIGN_REF: {
             FUNC: assign_ref,
         },
-        ACTIONS['REJECT']: {
+        ACTION_REJECT: {
             FUNC: lambda **kwargs: REJECTED,
         },
         **COMMON_ACTIONS,
@@ -357,7 +355,7 @@ def can_choose_action(manu_id: str, user_email: str) -> bool:
 
     # Author logic
     if user_email == manu_author:
-        if ACTIONS['WITHDRAW'] in STATE_TABLE.get(manu_state, {}):
+        if ACTION_WITHDRAW in STATE_TABLE.get(manu_state, {}):
             return True
         if manu_state in ROLE_CHOOSE_ACTION.get(rls.AUTHOR_CODE, []):
             return True
@@ -396,27 +394,27 @@ def can_move_action(manu_id, user_email) -> bool:
 
 
 EDITOR_ROLE_ACTIONS = {
-    SUBMITTED: [ACTIONS['ASSIGN_REF'], ACTIONS['REJECT']],
+    SUBMITTED: [ACTION_ASSIGN_REF, ACTION_REJECT],
     REFEREE_REVIEW: [
-        ACTIONS['ASSIGN_REF'],
-        ACTIONS['DELETE_REF'],
-        ACTIONS['ACCEPT'],
-        ACTIONS['ACCEPT_WITH_REV'],
-        ACTIONS['REJECT'],
+        ACTION_ASSIGN_REF,
+        ACTION_DELETE_REF,
+        ACTION_ACCEPT,
+        ACTION_ACCEPT_WITH_REV,
+        ACTION_REJECT,
     ],
-    EDITOR_REVIEW: [ACTIONS['ACCEPT']],
-    COPY_EDIT: [ACTIONS['DONE']],
-    FORMATTING: [ACTIONS['DONE']],
+    EDITOR_REVIEW: [ACTION_ACCEPT],
+    COPY_EDIT: [ACTION_DONE],
+    FORMATTING: [ACTION_DONE],
 
 }
 
 ROLE_STATE_ACTIONS = {
     rls.AUTHOR_CODE: {
-        AUTHOR_REVIEW: [ACTIONS['DONE']],
-        AUTHOR_REVISION: [ACTIONS['DONE']],
+        AUTHOR_REVIEW: [ACTION_DONE],
+        AUTHOR_REVISION: [ACTION_DONE],
     },
     rls.RE_CODE: {
-        REFEREE_REVIEW: [ACTIONS['SUBMIT_REW']],
+        REFEREE_REVIEW: [ACTION_SUBMIT_REVIEW],
     },
     rls.ED_CODE: EDITOR_ROLE_ACTIONS,
     rls.ME_CODE: EDITOR_ROLE_ACTIONS,
@@ -461,8 +459,8 @@ def get_valid_actions(manu_id: str, user_email: str) -> list[str]:
                 result.append(action)
 
     # Author can always withdraw
-    if is_author and ACTIONS['WITHDRAW'] in next_actions and ACTIONS['WITHDRAW'] not in result:
-        result.append(ACTIONS['WITHDRAW'])
+    if is_author and ACTION_WITHDRAW in next_actions and ACTION_WITHDRAW not in result:
+        result.append(ACTION_WITHDRAW)
 
     return result
 
@@ -486,7 +484,7 @@ def get_valid_states(manu_id: str, user_emai: str) ->list[str]:
     
    
 def main():
-    print(handle_action(SUBMITTED, ACTIONS['ASSIGN_REF'], manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))
+    print(handle_action(SUBMITTED, ACTION_ASSIGN_REF, manu=SAMPLE_MANU, ref='kw3000@nyu.edu'))
 
 
 if __name__ == '__main__':
