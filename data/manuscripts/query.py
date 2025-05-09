@@ -479,7 +479,8 @@ def get_valid_states(manu_id: str, user_emai: str) ->list[str]:
     states = []
     for state in VALID_STATES:
         if state != manu_state and state not in states:
-            states.append(state)
+            if state != WITHDRAWN:
+                states.append(state)
 
     return states
     
