@@ -26,7 +26,6 @@ def test_read():
     assert isinstance(texts, dict)
     assert len(texts) >= 0
 
-
 def test_read_one(temp_text):
     entry = txt.read_one(temp_text)
     assert isinstance(entry, dict)

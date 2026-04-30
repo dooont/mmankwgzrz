@@ -1,0 +1,20 @@
+export PYTHONPATH=$PYTHONPATH:/Users/andysstuff/SWE/mmankwgzrz
+echo $PYTHONPATH
+make all_tests
+make prod
+./local.sh (runs the application locally using the cloud mongo DB if CLOUD_MONGO=1)
+scp -r /Users/andysstuff/SWE/mmankwgzrz ngandy0202@ssh.pythonanywhere.com:/home/ngandy0202/
+scp /Users/andysstuff/SWE/mmankwgzrz ngandy0202@ssh.pythonanywhere.com:/home/ngandy0202/ 
+ssh ngandy0202@ssh.pythonanywhere.com
+git clone https://github.com/Ernulphus/demo-frontend.git
+node --version
+npm --version
+
+
+NEED TO CREATE PW ATTRITBUTE FOR People
+
+@patch assigns a return value to the corresponding function that it chooses for testing purposes
+@pytest.fixture(scope="") allows us to create a temporary object or variable to use it for testing purposes within the scope specified
+(could be function, class, or variable) 
+
+    // "start": "react-scripts start",
