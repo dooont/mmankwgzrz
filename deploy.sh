@@ -3,8 +3,8 @@
 
 PROJ_DIR=mmankwgzrz
 VENV=mmankwgzrz
-PA_DOMAIN="gzhao10.pythonanywhere.com"
-PA_USER='gzhao10'
+PA_DOMAIN="ngandy02.pythonanywhere.com"
+PA_USER='ngandy02'
 echo "Project dir = $PROJ_DIR"
 echo "PA domain = $PA_DOMAIN"
 echo "Virtual env = $VENV"
