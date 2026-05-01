@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 import pymongo as pm
+import certifi
 from typing import Union
 
 
@@ -35,7 +36,7 @@ def connect_db() -> pm.MongoClient:
                 raise ValueError('You must set your MONGO_URI '
                                  + 'to use Mongo in the cloud.')
             print("Connecting to Mongo in the cloud.")
-            client = pm.MongoClient(mongo_uri)
+            client = pm.MongoClient(mongo_uri, tlsCAFile=certifi.where())
         else:
             print("Connecting to Mongo locally.")
             client = pm.MongoClient()
